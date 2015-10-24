@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+    android:background="@color/primary">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/text_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Username"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+
+        <EditText
+            android:id="@+id/edit_text_username"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
+            android:layout_below="@+id/text_username"
+            android:text="hitherejoebirch@googlemail.com"
+            android:textColor="@color/white"
+            android:textColorHint="@color/secondary_text"
+            android:inputType="textEmailAddress"/>
+
+        <TextView
+            android:id="@+id/text_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/edit_text_username"
+            android:layout_marginBottom="8dp"
+            android:text="Password"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+
+        <EditText
+            android:id="@+id/edit_text_password"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_password"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
+            android:text="mhjb12274444"
+            android:textColor="@color/white"
+            android:textColorHint="@color/secondary_text"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/button_sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edit_text_password"
+            android:layout_centerHorizontal="true"
+            android:padding="16dp"
+            android:textSize="18sp"
+            android:text="Sign In"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

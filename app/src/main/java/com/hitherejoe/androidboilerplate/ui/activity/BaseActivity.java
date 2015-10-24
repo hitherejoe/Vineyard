@@ -1,13 +1,13 @@
 package com.hitherejoe.androidboilerplate.ui.activity;
 
+import android.app.Activity;
 import android.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.hitherejoe.androidboilerplate.AndroidBoilerplateApplication;
 import com.hitherejoe.androidboilerplate.injection.component.ApplicationComponent;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

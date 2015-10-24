@@ -1,14 +1,19 @@
 package com.hitherejoe.androidboilerplate.data.remote;
 
-import retrofit.http.GET;
-import retrofit.http.Path;
+import com.hitherejoe.androidboilerplate.data.model.Authentication;
+import com.hitherejoe.androidboilerplate.data.model.User;
+
+import retrofit.http.Body;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
+import retrofit.http.POST;
 import rx.Observable;
 
 public interface AndroidBoilerplateService {
 
-    String ENDPOINT = "http://swapi.co/api/";
+    String ENDPOINT = "https://api.vineapp.com/";
 
-    @GET("people/{personId}")
-    Observable<Character> getCharacter(@Path("personId") int id);
-
+    @FormUrlEncoded
+    @POST("users/authenticate")
+    Observable<Authentication> getAccessToken(@Field("username") String username, @Field("password") String password);
 }

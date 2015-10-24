@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.hitherejoe.androidboilerplate.AndroidBoilerplateApplication;
 import com.hitherejoe.androidboilerplate.data.local.PreferencesHelper;
+import com.hitherejoe.androidboilerplate.data.model.Authentication;
+import com.hitherejoe.androidboilerplate.data.model.User;
 import com.hitherejoe.androidboilerplate.data.remote.AndroidBoilerplateService;
 import com.hitherejoe.androidboilerplate.injection.component.DaggerDataManagerComponent;
 import com.hitherejoe.androidboilerplate.injection.module.DataManagerModule;
@@ -11,7 +13,10 @@ import com.squareup.otto.Bus;
 
 import javax.inject.Inject;
 
+import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action0;
+import rx.functions.Func1;
 
 public class DataManager {
 
@@ -54,4 +59,13 @@ public class DataManager {
         return mSubscribeScheduler;
     }
 
+    public Observable<Authentication> getAccessToken(String username, String password) {
+        return mAndroidBoilerplateService.getAccessToken(username, password).map(new Func1<Authentication, Authentication>() {
+            @Override
+            public Authentication call(Authentication authentication) {
+                mPreferencesHelper.putAccessToken(authentication.data.key);
+                return authentication;
+            }
+        });
+    }
 }
