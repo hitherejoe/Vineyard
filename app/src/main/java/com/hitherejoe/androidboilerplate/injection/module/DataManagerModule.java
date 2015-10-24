@@ -2,7 +2,6 @@ package com.hitherejoe.androidboilerplate.injection.module;
 
 import android.content.Context;
 
-import com.hitherejoe.androidboilerplate.data.local.DatabaseHelper;
 import com.hitherejoe.androidboilerplate.data.local.PreferencesHelper;
 import com.hitherejoe.androidboilerplate.data.remote.AndroidBoilerplateService;
 import com.hitherejoe.androidboilerplate.data.remote.RetrofitHelper;
@@ -29,12 +28,6 @@ public class DataManagerModule {
     @PerDataManager
     PreferencesHelper providePreferencesHelper() {
         return new PreferencesHelper(mContext);
-    }
-
-    @Provides
-    @PerDataManager
-    DatabaseHelper provideDatabaseHelper() {
-        return new DatabaseHelper(mContext);
     }
 
     @Provides

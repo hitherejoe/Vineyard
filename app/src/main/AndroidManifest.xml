@@ -4,6 +4,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
+    <uses-feature android:name="android.software.leanback"
+                  android:required="true" />
 
     <application
         android:name=".AndroidBoilerplateApplication"
@@ -22,8 +30,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.hitherejoe.androidboilerplate.data.SyncService"/>
-
         <receiver
             android:name="com.hitherejoe.androidboilerplate.data.SyncService$SyncOnConnectionAvailable"
             android:enabled="false">
@@ -32,14 +38,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".ui.activity.DetailActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".ui.activity.CharacterActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

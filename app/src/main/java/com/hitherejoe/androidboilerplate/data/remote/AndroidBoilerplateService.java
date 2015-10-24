@@ -1,7 +1,5 @@
 package com.hitherejoe.androidboilerplate.data.remote;
 
-import com.hitherejoe.androidboilerplate.data.model.Character;
-
 import retrofit.http.GET;
 import retrofit.http.Path;
 import rx.Observable;

@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.hitherejoe.androidboilerplate"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 1
@@ -44,6 +44,7 @@ dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    compile "com.android.support:leanback-v17:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:cardview-v7:$SUPPORT_LIBRARY_VERSION"

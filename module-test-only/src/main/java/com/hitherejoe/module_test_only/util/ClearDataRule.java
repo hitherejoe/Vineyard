@@ -19,7 +19,7 @@ public class ClearDataRule implements TestRule {
     }
 
     public void clearData() {
-        mTestComponentRule.getDatabaseHelper().clearTables().subscribe();
+        // CLear preferences
     }
 
     @Override

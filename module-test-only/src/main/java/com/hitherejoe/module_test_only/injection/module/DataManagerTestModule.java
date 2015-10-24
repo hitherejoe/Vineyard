@@ -2,7 +2,6 @@ package com.hitherejoe.module_test_only.injection.module;
 
 import android.content.Context;
 
-import com.hitherejoe.androidboilerplate.data.local.DatabaseHelper;
 import com.hitherejoe.androidboilerplate.data.local.PreferencesHelper;
 import com.hitherejoe.androidboilerplate.data.remote.AndroidBoilerplateService;
 import com.hitherejoe.androidboilerplate.injection.scope.PerDataManager;
@@ -31,12 +30,6 @@ public class DataManagerTestModule {
     @PerDataManager
     PreferencesHelper providePreferencesHelper() {
         return new PreferencesHelper(mContext);
-    }
-
-    @Provides
-    @PerDataManager
-    DatabaseHelper provideDatabaseHelper() {
-        return new DatabaseHelper(mContext);
     }
 
     @Provides
