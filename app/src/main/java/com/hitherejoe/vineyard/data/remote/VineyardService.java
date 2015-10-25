@@ -1,12 +1,14 @@
 package com.hitherejoe.vineyard.data.remote;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.User;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -33,6 +35,9 @@ public interface VineyardService {
     @GET("users/profiles/{userid}")
     Observable<User> getUser(@Path("userid") String userId);
 
+    @GET("timelines/popular")
+    Observable<PopularResponse> getPopularPosts();
+
     class Instance {
         public static VineyardService newVineyardService() {
             OkHttpClient client = new OkHttpClient();
@@ -56,6 +61,15 @@ public interface VineyardService {
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
             return retrofit.create(VineyardService.class);
+        }
+    }
+
+    class PopularResponse {
+        public String code;
+        public Data data;
+        public static class Data {
+            public int count;
+            public List<Post> records;
         }
     }
 }

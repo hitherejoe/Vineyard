@@ -4,6 +4,7 @@ package com.hitherejoe.vineyard;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.util.DefaultConfig;
@@ -16,6 +17,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import java.util.List;
 
 import rx.Observable;
 import rx.observers.TestSubscriber;
@@ -93,6 +96,23 @@ public class DataManagerTest {
         mDataManager.getUser(mockUser.data.userId).subscribe(result);
         result.assertNoErrors();
         result.assertValue(mockUser);
+    }
+
+    @Test
+    public void shouldGetPopularPosts() throws Exception {
+        List<Post> mockPostLists = MockModelsUtil.createMockListOfPosts(20);
+        VineyardService.PopularResponse popularResponse = new VineyardService.PopularResponse();
+        popularResponse.code = "200";
+        popularResponse.data = new VineyardService.PopularResponse.Data();
+        popularResponse.data.count = 20;
+        popularResponse.data.records = mockPostLists;
+        when(mMockVineyardService.getPopularPosts())
+                .thenReturn(Observable.just(popularResponse));
+
+        TestSubscriber<List<Post>> result = new TestSubscriber<>();
+        mDataManager.getPopularPosts().subscribe(result);
+        result.assertNoErrors();
+        result.assertValue(mockPostLists);
     }
 
 }

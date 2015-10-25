@@ -1,8 +1,12 @@
 package com.hitherejoe.vineyard.util;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.User;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -58,6 +62,29 @@ public class MockModelsUtil {
         data.email = generateRandomString();
         user.data = data;
         return user;
+    }
+
+    public static Post createMockPost() {
+        Post post = new Post();
+        post.avatarUrl = generateRandomString();
+        post.created = new Date();
+        post.description = generateRandomString();
+        post.liked = true;
+        post.location = generateRandomString();
+        post.postId = new Random().nextInt(20);
+        post.thumbnailUrl = generateRandomString();
+        post.userId = new Random().nextInt(2000);
+        post.username = generateRandomString();
+        post.videoUrl = generateRandomString();
+        return post;
+    }
+
+    public static List<Post> createMockListOfPosts(int count) {
+        List<Post> mockPosts = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            mockPosts.add(createMockPost());
+        }
+        return mockPosts;
     }
 
 }

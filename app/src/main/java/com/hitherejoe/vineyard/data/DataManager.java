@@ -5,11 +5,14 @@ import android.content.Context;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.injection.component.DaggerDataManagerComponent;
 import com.hitherejoe.vineyard.injection.module.DataManagerModule;
 import com.squareup.otto.Bus;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -82,5 +85,15 @@ public class DataManager {
 
     public Observable<User> getUser(String userId) {
         return mVineyardService.getUser(userId);
+    }
+
+    public Observable<List<Post>> getPopularPosts() {
+        return mVineyardService.getPopularPosts()
+                .map(new Func1<VineyardService.PopularResponse, List<Post>>() {
+                    @Override
+                    public List<Post> call(VineyardService.PopularResponse popularResponse) {
+                        return popularResponse.data.records;
+                    }
+                });
     }
 }
