@@ -4,7 +4,17 @@
                 android:layout_height="match_parent"
     android:background="@color/primary">
 
+    <ImageView
+        android:id="@+id/image_vine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layout_form"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/vineyard"/>
+
     <RelativeLayout
+        android:id="@+id/layout_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">
@@ -17,7 +27,8 @@
             android:text="Username"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/edit_text_username"
@@ -26,9 +37,9 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="18dp"
             android:layout_below="@+id/text_username"
-            android:text="hitherejoebirch@googlemail.com"
+            android:hint="@string/text_hint_username"
             android:textColor="@color/white"
-            android:textColorHint="@color/secondary_text"
+            android:textColorHint="@color/white"
             android:inputType="textEmailAddress"/>
 
         <TextView
@@ -40,7 +51,8 @@
             android:text="Password"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/edit_text_password"
@@ -49,20 +61,24 @@
             android:layout_below="@id/text_password"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="18dp"
-            android:text="mhjb12274444"
+            android:hint="@string/text_hint_password"
             android:textColor="@color/white"
-            android:textColorHint="@color/secondary_text"
+            android:textColorHint="@color/white"
             android:inputType="textPassword"/>
 
         <Button
+            style="@style/SignInButtonStyle"
             android:id="@+id/button_sign_in"
-            android:layout_width="wrap_content"
+            android:layout_below="@id/edit_text_password"
+            android:text="Sign In"/>
+
+        <ProgressBar
+            android:id="@+id/progress"
             android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_below="@id/edit_text_password"
             android:layout_centerHorizontal="true"
-            android:padding="16dp"
-            android:textSize="18sp"
-            android:text="Sign In"/>
+            android:visibility="gone" />
 
     </RelativeLayout>
 

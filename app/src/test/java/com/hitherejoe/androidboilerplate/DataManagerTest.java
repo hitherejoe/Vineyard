@@ -1,12 +1,12 @@
-package com.hitherejoe.androidboilerplate;
+package com.hitherejoe.vineyard;
 
 
-import com.hitherejoe.androidboilerplate.data.DataManager;
-import com.hitherejoe.androidboilerplate.data.local.PreferencesHelper;
-import com.hitherejoe.androidboilerplate.data.model.Authentication;
-import com.hitherejoe.androidboilerplate.data.remote.AndroidBoilerplateService;
-import com.hitherejoe.androidboilerplate.util.DefaultConfig;
-import com.hitherejoe.androidboilerplate.util.MockModelsUtil;
+import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.local.PreferencesHelper;
+import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.remote.VineyardService;
+import com.hitherejoe.vineyard.util.DefaultConfig;
+import com.hitherejoe.vineyard.util.MockModelsUtil;
 import com.squareup.otto.Bus;
 
 import org.junit.Before;
@@ -31,13 +31,13 @@ import static org.mockito.Mockito.when;
 public class DataManagerTest {
 
     private DataManager mDataManager;
-    private AndroidBoilerplateService mMockAndroidBoilerplateService;
+    private VineyardService mMockVineyardService;
 
 
     @Before
     public void setUp() {
-        mMockAndroidBoilerplateService = mock(AndroidBoilerplateService.class);
-        mDataManager = new DataManager(mMockAndroidBoilerplateService,
+        mMockVineyardService = mock(VineyardService.class);
+        mDataManager = new DataManager(mMockVineyardService,
                 mock(Bus.class),
                 new PreferencesHelper(RuntimeEnvironment.application),
                 Schedulers.immediate());
@@ -46,7 +46,7 @@ public class DataManagerTest {
     @Test
     public void shouldGetAccessToken() throws Exception {
         Authentication mockAuthentication = MockModelsUtil.createMockSuccessAuthentication();
-        when(mMockAndroidBoilerplateService.getAccessToken(anyString(), anyString()))
+        when(mMockVineyardService.getAccessToken(anyString(), anyString()))
                 .thenReturn(Observable.just(mockAuthentication));
 
         TestSubscriber<Authentication> result = new TestSubscriber<>();
@@ -60,7 +60,7 @@ public class DataManagerTest {
     @Test
     public void shouldFailGetAccessToken() throws Exception {
         Authentication mockAuthentication = MockModelsUtil.createMockErrorAuthentication();
-        when(mMockAndroidBoilerplateService.getAccessToken(anyString(), anyString()))
+        when(mMockVineyardService.getAccessToken(anyString(), anyString()))
                 .thenReturn(Observable.just(mockAuthentication));
 
         TestSubscriber<Authentication> result = new TestSubscriber<>();

@@ -11,7 +11,6 @@
         android:layout_gravity="center"
         android:maxLines="2"
         android:ellipsize="end"
-        android:text="@string/text_no_data"
         android:textColor="@color/black_87pc"
         android:visibility="gone"/>
 

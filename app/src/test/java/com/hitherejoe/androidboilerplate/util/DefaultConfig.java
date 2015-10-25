@@ -1,4 +1,4 @@
-package com.hitherejoe.androidboilerplate.util;
+package com.hitherejoe.vineyard.util;
 
 public class DefaultConfig {
     //The api level that Roboelectric will use to run the unit tests
