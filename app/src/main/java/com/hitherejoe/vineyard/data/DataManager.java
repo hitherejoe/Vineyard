@@ -5,6 +5,7 @@ import android.content.Context;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.injection.component.DaggerDataManagerComponent;
 import com.hitherejoe.vineyard.injection.module.DataManagerModule;
@@ -67,9 +68,19 @@ public class DataManager {
             public Authentication call(Authentication authentication) {
                 if (authentication.success)  {
                     mPreferencesHelper.putAccessToken(authentication.data.key);
+                    mPreferencesHelper.putUsername(authentication.data.username);
+                    mPreferencesHelper.putUserId(authentication.data.userId);
                 }
                 return authentication;
             }
         });
+    }
+
+    public Observable<User> getSignedInUser() {
+        return mVineyardService.getSignedInUser();
+    }
+
+    public Observable<User> getUser(String userId) {
+        return mVineyardService.getUser(userId);
     }
 }

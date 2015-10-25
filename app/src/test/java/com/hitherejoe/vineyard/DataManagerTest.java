@@ -4,13 +4,13 @@ package com.hitherejoe.vineyard;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.util.DefaultConfig;
 import com.hitherejoe.vineyard.util.MockModelsUtil;
 import com.squareup.otto.Bus;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -69,6 +69,30 @@ public class DataManagerTest {
         result.assertValue(mockAuthentication);
 
         assertEquals(mDataManager.getPreferencesHelper().getAccessToken(), null);
+    }
+
+    @Test
+    public void shouldGetSignedInUser() throws Exception {
+        User mockUser = MockModelsUtil.createMockUser();
+        when(mMockVineyardService.getSignedInUser())
+                .thenReturn(Observable.just(mockUser));
+
+        TestSubscriber<User> result = new TestSubscriber<>();
+        mDataManager.getSignedInUser().subscribe(result);
+        result.assertNoErrors();
+        result.assertValue(mockUser);
+    }
+
+    @Test
+    public void shouldGetSignedInUserById() throws Exception {
+        User mockUser = MockModelsUtil.createMockUser();
+        when(mMockVineyardService.getUser(mockUser.data.userId))
+                .thenReturn(Observable.just(mockUser));
+
+        TestSubscriber<User> result = new TestSubscriber<>();
+        mDataManager.getUser(mockUser.data.userId).subscribe(result);
+        result.assertNoErrors();
+        result.assertValue(mockUser);
     }
 
 }

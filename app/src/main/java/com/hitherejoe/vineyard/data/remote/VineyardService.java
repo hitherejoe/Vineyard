@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard.data.remote;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.model.User;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
@@ -12,7 +13,9 @@ import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Path;
 import rx.Observable;
 import timber.log.Timber;
 
@@ -23,6 +26,12 @@ public interface VineyardService {
     @FormUrlEncoded
     @POST("users/authenticate")
     Observable<Authentication> getAccessToken(@Field("username") String username, @Field("password") String password);
+
+    @GET("users/me")
+    Observable<User> getSignedInUser();
+
+    @GET("users/profiles/{userid}")
+    Observable<User> getUser(@Path("userid") String userId);
 
     class Instance {
         public static VineyardService newVineyardService() {
