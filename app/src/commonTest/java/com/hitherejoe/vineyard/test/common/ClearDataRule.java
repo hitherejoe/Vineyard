@@ -17,7 +17,7 @@ public class ClearDataRule implements TestRule {
     }
 
     public void clearData() {
-       // mTestComponentRule.getPreferencesHelper().clear();
+        mTestComponentRule.getPreferencesHelper().clear();
     }
 
     @Override

@@ -18,10 +18,14 @@ import rx.functions.Func1;
 
 public class DataManager {
 
-    @Inject protected VineyardService mVineyardService;
-    @Inject protected PreferencesHelper mPreferencesHelper;
-    @Inject protected Scheduler mSubscribeScheduler;
-    @Inject protected Bus mEventBus;
+    @Inject
+    protected VineyardService mVineyardService;
+    @Inject
+    protected PreferencesHelper mPreferencesHelper;
+    @Inject
+    protected Bus mBus;
+    @Inject
+    protected Scheduler mSubscribeScheduler;
 
     public DataManager(Context context) {
         injectDependencies(context);
@@ -31,12 +35,12 @@ public class DataManager {
      * At the moment this is not possible to do with Dagger because the Gradle APT plugin doesn't
      * work for the unit test variant, plus Dagger 2 doesn't provide a nice way of overriding
      * modules */
-    public DataManager(VineyardService watchTowerService,
-                       Bus eventBus,
+    public DataManager(VineyardService ribotService,
+                       Bus bus,
                        PreferencesHelper preferencesHelper,
                        Scheduler subscribeScheduler) {
-        mVineyardService = watchTowerService;
-        mEventBus = eventBus;
+        mVineyardService = ribotService;
+        mBus = bus;
         mPreferencesHelper = preferencesHelper;
         mSubscribeScheduler = subscribeScheduler;
     }

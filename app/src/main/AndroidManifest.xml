@@ -21,7 +21,7 @@
         android:banner="@drawable/banner"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ui.activity.ConnectActivity"
+            android:name=".ui.activity.LauncherActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.LauncherActivity"
+            android:name=".ui.activity.ConnectActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
 

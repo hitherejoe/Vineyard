@@ -147,7 +147,6 @@ public class ConnectActivityTest {
         onView(withText(R.string.error_message_sign_in))
                 .inRoot(CustomMatchers.isToast())
                 .check(matches(isDisplayed()));
-        //assertThat(component.getPreferencesHelper().getAccessToken(), null);
     }
 
 }
