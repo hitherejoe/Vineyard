@@ -45,7 +45,7 @@ public class DataManagerTest {
 
     @Test
     public void shouldGetAccessToken() throws Exception {
-        Authentication mockAuthentication = MockModelsUtil.createMockAuthentication();
+        Authentication mockAuthentication = MockModelsUtil.createMockSuccessAuthentication();
         when(mMockAndroidBoilerplateService.getAccessToken(anyString(), anyString()))
                 .thenReturn(Observable.just(mockAuthentication));
 
@@ -55,6 +55,20 @@ public class DataManagerTest {
         result.assertValue(mockAuthentication);
 
         assertEquals(mockAuthentication.data.key, mDataManager.getPreferencesHelper().getAccessToken());
+    }
+
+    @Test
+    public void shouldFailGetAccessToken() throws Exception {
+        Authentication mockAuthentication = MockModelsUtil.createMockErrorAuthentication();
+        when(mMockAndroidBoilerplateService.getAccessToken(anyString(), anyString()))
+                .thenReturn(Observable.just(mockAuthentication));
+
+        TestSubscriber<Authentication> result = new TestSubscriber<>();
+        mDataManager.getAccessToken("", "").subscribe(result);
+        result.assertNoErrors();
+        result.assertValue(mockAuthentication);
+
+        assertEquals(mDataManager.getPreferencesHelper().getAccessToken(), null);
     }
 
 }

@@ -63,7 +63,9 @@ public class DataManager {
         return mAndroidBoilerplateService.getAccessToken(username, password).map(new Func1<Authentication, Authentication>() {
             @Override
             public Authentication call(Authentication authentication) {
-                mPreferencesHelper.putAccessToken(authentication.data.key);
+                if (authentication.success)  {
+                    mPreferencesHelper.putAccessToken(authentication.data.key);
+                }
                 return authentication;
             }
         });
