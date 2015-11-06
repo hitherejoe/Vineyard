@@ -11,7 +11,20 @@
         android:layout_above="@+id/layout_form"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="40dp"
-        android:src="@drawable/vineyard"/>
+        android:src="@drawable/vineyard"
+        android:visibility="gone"/>
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layout_form"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
 
     <RelativeLayout
         android:id="@+id/layout_form"

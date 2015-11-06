@@ -67,13 +67,10 @@ public class MockModelsUtil {
     public static Post createMockPost() {
         Post post = new Post();
         post.avatarUrl = generateRandomString();
-        post.created = new Date();
+        post.created = new Date().toString();
         post.description = generateRandomString();
-        post.liked = true;
-        post.location = generateRandomString();
-        post.postId = new Random().nextInt(20);
+        post.postId = generateRandomString();
         post.thumbnailUrl = generateRandomString();
-        post.userId = new Random().nextInt(2000);
         post.username = generateRandomString();
         post.videoUrl = generateRandomString();
         return post;

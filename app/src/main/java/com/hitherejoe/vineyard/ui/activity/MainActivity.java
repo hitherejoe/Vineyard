@@ -14,7 +14,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onSearchRequested() {
-        // Start search activity
         return true;
     }
 

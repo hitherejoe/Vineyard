@@ -18,8 +18,8 @@ import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
+import retrofit.http.Query;
 import rx.Observable;
-import timber.log.Timber;
 
 public interface VineyardService {
 
@@ -36,7 +36,10 @@ public interface VineyardService {
     Observable<User> getUser(@Path("userid") String userId);
 
     @GET("timelines/popular")
-    Observable<PopularResponse> getPopularPosts();
+    Observable<PostResponse> getPopularPosts(@Query("page") int page, @Query("anchorStr") String anchor);
+
+    @GET("timelines/tags/{tag}")
+    Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
 
     class Instance {
         public static VineyardService newVineyardService() {
@@ -45,11 +48,7 @@ public interface VineyardService {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
                     Response response = chain.proceed(chain.request());
-
-                    // Do anything with response here
-
-                    Timber.e("FUCK " + response.toString());
-
+                    // Catch unauthorised error
                     return response;
                 }
             });
@@ -64,11 +63,11 @@ public interface VineyardService {
         }
     }
 
-    class PopularResponse {
+    class PostResponse {
         public String code;
         public Data data;
         public static class Data {
-            public int count;
+            public String anchorStr;
             public List<Post> records;
         }
     }

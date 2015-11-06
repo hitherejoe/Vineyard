@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">AndroidBoilerPlate</string>
+    <string name="app_name">Vineyard</string>
 
     <!-- Activity labels -->
-    <string name="label_main">Boilerplate</string>
+    <string name="label_main">Vineyard</string>
+    <string name="related_posts">Related posts</string>
 
     <!-- Connect Activity -->
     <string name="text_hint_username">Username</string>
@@ -23,5 +24,39 @@
     <string name="error_message_sign_in_blank">Oops, username and password can\'t be empty!</string>
     <string name="error_message_sign_in_blank_username">Oops, username can\'t be empty!</string>
     <string name="error_message_sign_in_blank_password">Oops, password can\'t be empty!</string>
+
+    <string-array name="categories">
+        <item>Scary</item>
+        <item>Comedy</item>
+        <item>Animals</item>
+        <item>Music</item>
+        <item>Art</item>
+        <item>Dance</item>
+        <item>Sports</item>
+        <item>OMG</item>
+        <item>Style</item>
+        <item>Family</item>
+        <item>Food</item>
+        <item>DIY</item>
+        <item>Places</item>
+        <item>News</item>
+    </string-array>
+
+    <string-array name="icons">
+        <item>@drawable/ic_football</item>
+        <item>@drawable/ic_tongue</item>
+        <item>@drawable/ic_cat</item>
+        <item>@drawable/ic_music</item>
+        <item>@drawable/ic_palette</item>
+        <item>@drawable/ic_walk</item>
+        <item>@drawable/ic_football</item>
+        <item>@drawable/ic_neutral</item>
+        <item>@drawable/ic_shirt</item>
+        <item>@drawable/ic_family</item>
+        <item>@drawable/ic_pizza</item>
+        <item>@drawable/ic_wrench</item>
+        <item>@drawable/ic_marker</item>
+        <item>@drawable/ic_news</item>
+    </string-array>
 
 </resources>

@@ -5,14 +5,11 @@ import android.content.Context;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
-import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.injection.component.DaggerDataManagerComponent;
 import com.hitherejoe.vineyard.injection.module.DataManagerModule;
 import com.squareup.otto.Bus;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -69,7 +66,7 @@ public class DataManager {
         return mVineyardService.getAccessToken(username, password).map(new Func1<Authentication, Authentication>() {
             @Override
             public Authentication call(Authentication authentication) {
-                if (authentication.success)  {
+                if (authentication.success) {
                     mPreferencesHelper.putAccessToken(authentication.data.key);
                     mPreferencesHelper.putUsername(authentication.data.username);
                     mPreferencesHelper.putUserId(authentication.data.userId);
@@ -87,13 +84,11 @@ public class DataManager {
         return mVineyardService.getUser(userId);
     }
 
-    public Observable<List<Post>> getPopularPosts() {
-        return mVineyardService.getPopularPosts()
-                .map(new Func1<VineyardService.PopularResponse, List<Post>>() {
-                    @Override
-                    public List<Post> call(VineyardService.PopularResponse popularResponse) {
-                        return popularResponse.data.records;
-                    }
-                });
+    public Observable<VineyardService.PostResponse> getPopularPosts(int page, String anchor) {
+        return mVineyardService.getPopularPosts(page, anchor);
+    }
+
+    public Observable<VineyardService.PostResponse> getPostsByTag(String tag, int page, String anchor) {
+        return mVineyardService.getPostsByTag(tag, page, anchor);
     }
 }

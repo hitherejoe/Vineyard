@@ -15,7 +15,6 @@ import rx.subscriptions.CompositeSubscription;
 @Component(modules = ApplicationModule.class)
 public interface ApplicationComponent {
 
-
     Application application();
     DataManager dataManager();
     Bus eventBus();

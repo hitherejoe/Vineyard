@@ -42,6 +42,11 @@
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity
+            android:name=".ui.activity.PlaybackActivity"
+            android:label="@string/label_main"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>

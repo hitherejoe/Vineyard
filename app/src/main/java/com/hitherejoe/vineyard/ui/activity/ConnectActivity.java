@@ -8,11 +8,19 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.util.NetworkUtil;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -36,16 +44,30 @@ public class ConnectActivity extends BaseActivity {
     @Bind(R.id.progress)
     ProgressBar mSignInProgress;
 
+    @Bind(R.id.login_button)
+    LoginButton loginButton;
+
     private Subscription mSubscription;
-    private DataManager mDataManager;
+
+    @Inject
+    DataManager mDataManager;
+
+    private CallbackManager callbackManager;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activityComponent().inject(this);
+
         setContentView(R.layout.activity_connect);
         ButterKnife.bind(this);
-        mDataManager = VineyardApplication.get(this).getComponent().dataManager();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
