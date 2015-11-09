@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -21,7 +22,7 @@
         android:banner="@drawable/banner"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ui.activity.LauncherActivity"
+            android:name=".ui.activity.MainActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -38,12 +39,17 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.activity.LauncherActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name=".ui.activity.PlaybackActivity"
+            android:label="@string/label_main"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name=".ui.activity.SearchActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
 

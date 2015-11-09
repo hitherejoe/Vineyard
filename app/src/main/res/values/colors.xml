@@ -3,7 +3,7 @@
     <color name="primary">#009688</color>
     <color name="primary_dark">#00796B</color>
     <color name="primary_light">#B2DFDB</color>
-    <color name="accent">#4CAF50</color>
+    <color name="accent">#CCDC39</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
@@ -16,4 +16,6 @@
     <color name="bg_light_grey">#E9E9E9</color>
     <color name="black_87pc">#DD000000</color>
     <color name="black">#000000</color>
+
+    <color name="search_opaque">#ffaa3f</color>
 </resources>

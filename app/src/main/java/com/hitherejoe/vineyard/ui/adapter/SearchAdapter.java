@@ -6,35 +6,33 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
-import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.ui.CardPresenter;
+import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.ui.LoadingCardView;
 import com.hitherejoe.vineyard.ui.LoadingPresenter;
+import com.hitherejoe.vineyard.ui.TagPresenter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-public class PaginationAdapter extends ArrayObjectAdapter {
+public class SearchAdapter extends ArrayObjectAdapter {
 
-    private CardPresenter mCardPresenter;
+    private TagPresenter mCardPresenter;
     private LoadingPresenter mLoadingPresenter;
     private int mLoadingIndicatorPosition;
-    private int mCurrentPage;
     private String mRowTag;
-    private List<Post> mRowPosts;
+    private List<Object> mRowPosts;
     private Context mContext;
-    private String mAnchor;
     private boolean mPaginationEnabled;
+    private int mCurrentPage;
 
-    public PaginationAdapter(Context context, String tag) {
+    public SearchAdapter(Context context) {
         mContext = context;
-        mCardPresenter = new CardPresenter();
+        mCardPresenter = new TagPresenter();
         mLoadingPresenter = new LoadingPresenter();
         mPaginationEnabled = true;
         mCurrentPage = -1;
-        mRowTag = tag;
         mRowPosts = new ArrayList<>();
         setPresenterSelector();
     }
@@ -43,9 +41,6 @@ public class PaginationAdapter extends ArrayObjectAdapter {
         mRowTag = tag;
     }
 
-    public void setFirstPage(int page) {
-        mCurrentPage = page;
-    }
 
     public void setPresenterSelector() {
         setPresenterSelector(new PresenterSelector() {
@@ -63,10 +58,6 @@ public class PaginationAdapter extends ArrayObjectAdapter {
         return this.mPaginationEnabled;
     }
 
-    public String getAnchor() {
-        return this.mAnchor;
-    }
-
     public int getNextPage() {
         mCurrentPage++;
         return this.mCurrentPage;
@@ -76,13 +67,13 @@ public class PaginationAdapter extends ArrayObjectAdapter {
         return this.mRowTag;
     }
 
-    public List<Post> getPosts() {
+    public List<Object> getPosts() {
         return mRowPosts;
     }
 
-    public void addPosts(List<Post> posts) {
+    public void addPosts(ArrayList<Object> posts) {
         if (posts.size() > 0) {
-            Collections.sort(posts);
+           // Collections.sort(posts);
             mRowPosts.addAll(posts);
             addAll(size(), posts);
             mPaginationEnabled = true;
@@ -111,10 +102,6 @@ public class PaginationAdapter extends ArrayObjectAdapter {
     public void removeLoadingIndicator() {
         removeItems(mLoadingIndicatorPosition, 1);
         notifyItemRangeRemoved(mLoadingIndicatorPosition, 1);
-    }
-
-    public void setAnchor(String anchor) {
-        mAnchor = anchor;
     }
 
 }

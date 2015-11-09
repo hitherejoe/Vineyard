@@ -9,6 +9,10 @@
     <string name="text_hint_username">Username</string>
     <string name="text_hint_password">Password</string>
 
+    <!-- Search -->
+    <string name="text_search_results">Search results</string>
+    <string name="text_post_results_title">Posts for %s</string>
+
     <!-- Dialogs -->
 
     <string name="dialog_action_ok">OK</string>

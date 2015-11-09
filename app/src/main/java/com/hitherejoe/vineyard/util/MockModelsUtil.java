@@ -40,27 +40,23 @@ public class MockModelsUtil {
 
     public static User createMockUser() {
         User user = new User();
-        user.code = "code";
-        user.success = true;
         user.error = "";
-        User.Data data = new User.Data();
-        data.username = "hitherejoe";
-        data.following = new Random().nextInt(2000);
-        data.followerCount = new Random().nextInt(2000);
-        data.verified = 0;
-        data.description = generateRandomString();
-        data.avatarUrl = generateRandomString();
-        data.twitterId = new Random().nextInt(2000);
-        data.userId = generateRandomString();
-        data.twitterConnected = 0;
-        data.likeCount = new Random().nextInt(2000);
-        data.facebookConnected = 0;
-        data.postCount = new Random().nextInt(2000);
-        data.phoneNumber = generateRandomString();
-        data.location = generateRandomString();
-        data.followingCount = new Random().nextInt(2000);
-        data.email = generateRandomString();
-        user.data = data;
+        user.username = "hitherejoe";
+        user.following = new Random().nextInt(2000);
+        user.followerCount = new Random().nextInt(2000);
+        user.verified = 0;
+        user.description = generateRandomString();
+        user.avatarUrl = generateRandomString();
+        user.twitterId = new Random().nextInt(2000);
+        user.userId = generateRandomString();
+        user.twitterConnected = 0;
+        user.likeCount = new Random().nextInt(2000);
+        user.facebookConnected = 0;
+        user.postCount = new Random().nextInt(2000);
+        user.phoneNumber = generateRandomString();
+        user.location = generateRandomString();
+        user.followingCount = new Random().nextInt(2000);
+        user.email = generateRandomString();
         return user;
     }
 

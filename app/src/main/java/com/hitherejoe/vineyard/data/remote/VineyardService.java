@@ -2,6 +2,7 @@ package com.hitherejoe.vineyard.data.remote;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -35,11 +36,21 @@ public interface VineyardService {
     @GET("users/profiles/{userid}")
     Observable<User> getUser(@Path("userid") String userId);
 
+    @GET("timelines/users/{userid}")
+    Observable<VineyardService.PostResponse> getUserTimeline(@Path("userid") String userId, @Query("page") int page, @Query("anchorStr") String anchor);
+
     @GET("timelines/popular")
     Observable<PostResponse> getPopularPosts(@Query("page") int page, @Query("anchorStr") String anchor);
 
     @GET("timelines/tags/{tag}")
     Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+
+    @GET("search/tags/{tag}")
+    Observable<TagResponse> searchByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+
+    @GET("search/users/{query}")
+    Observable<UserResponse> searchByUser(@Path("query") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+
 
     class Instance {
         public static VineyardService newVineyardService() {
@@ -71,4 +82,23 @@ public interface VineyardService {
             public List<Post> records;
         }
     }
+
+    class TagResponse {
+        public String code;
+        public Data data;
+        public static class Data {
+            public String anchorStr;
+            public List<Tag> records;
+        }
+    }
+
+    class UserResponse {
+        public String code;
+        public Data data;
+        public static class Data {
+            public String anchorStr;
+            public List<User> records;
+        }
+    }
+
 }
