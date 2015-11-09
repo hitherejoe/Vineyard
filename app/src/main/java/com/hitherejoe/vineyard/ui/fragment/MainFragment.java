@@ -47,9 +47,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-public class MainFragment extends BrowseFragment  {
+public class MainFragment extends BrowseFragment {
 
     public static final String TAG_POPULAR = "Popular";
+    public static final String TAG_TRENDING = "Editors Picks";
     private static final int BACKGROUND_UPDATE_DELAY = 300;
 
     @Inject
@@ -105,23 +106,15 @@ public class MainFragment extends BrowseFragment  {
     }
 
     private void loadVideos() {
-        loadPopularVideos();
+        loadVideosFromFeed(TAG_TRENDING, 0);
+        loadVideosFromFeed(TAG_POPULAR, 1);
         String[] categories = getResources().getStringArray(R.array.categories);
-        for (int i = 1; i < categories.length; i++) addTaggedVideos(categories[i], i);
+        for (int i = 2; i < categories.length; i++) loadVideosFromFeed(categories[i], i);
     }
 
-    private void loadPopularVideos() {
-        PaginationAdapter listRowAdapter = new PaginationAdapter(getActivity(), TAG_POPULAR);
-        addPageLoadSubscription(listRowAdapter);
-        int headerPosition = 0;
-        HeaderItem header = new HeaderItem(headerPosition, TAG_POPULAR);
-        mRowsAdapter.add(new ListRow(header, listRowAdapter));
-    }
-
-    private void addTaggedVideos(String tag, int position) {
+    private void loadVideosFromFeed(String tag, int headerPosition) {
         PaginationAdapter listRowAdapter = new PaginationAdapter(getActivity(), tag);
         addPageLoadSubscription(listRowAdapter);
-        int headerPosition = position + 1;
         HeaderItem header = new HeaderItem(headerPosition, tag);
         mRowsAdapter.add(new ListRow(header, listRowAdapter));
     }
@@ -186,10 +179,19 @@ public class MainFragment extends BrowseFragment  {
         String anchor = arrayObjectAdapter.getAnchor();
         int nextPage = arrayObjectAdapter.getNextPage();
 
-        Observable<VineyardService.PostResponse> observable =
-        tag.equals(TAG_POPULAR)
-                ? mDataManager.getPopularPosts(nextPage, anchor)
-                : mDataManager.getPostsByTag(tag, nextPage, anchor);
+        Observable<VineyardService.PostResponse> observable;
+
+        switch (tag) {
+            case TAG_POPULAR:
+                observable = mDataManager.getPopularPosts(nextPage, anchor);
+                break;
+            case TAG_TRENDING:
+                observable = mDataManager.getEditorsPicksPosts(nextPage, anchor);
+                break;
+            default:
+                observable = mDataManager.getPostsByTag(tag, nextPage, anchor);
+                break;
+        }
 
         mCompositeSubscription.add(observable
                 .observeOn(AndroidSchedulers.mainThread())
@@ -222,7 +224,7 @@ public class MainFragment extends BrowseFragment  {
                 Post post = (Post) item;
                 int index = mRowsAdapter.indexOf(row);
                 PaginationAdapter arrayObjectAdapter =
-                        ((PaginationAdapter)((ListRow) mRowsAdapter.get(index)).getAdapter());
+                        ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                 ArrayList<Post> postList = new ArrayList<>(arrayObjectAdapter.getPosts());
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             }
@@ -238,7 +240,7 @@ public class MainFragment extends BrowseFragment  {
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
                 int index = mRowsAdapter.indexOf(row);
                 PaginationAdapter arrayObjectAdapter =
-                        ((PaginationAdapter)((ListRow) mRowsAdapter.get(index)).getAdapter());
+                        ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                 List<Post> posts = arrayObjectAdapter.getPosts();
                 if (item.equals(posts.get(posts.size() - 1))) {
                     if (!(arrayObjectAdapter.isShowingRowLoadingIndicator())

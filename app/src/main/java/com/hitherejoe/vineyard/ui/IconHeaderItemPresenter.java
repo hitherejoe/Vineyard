@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.ui.fragment.MainFragment;
 
 
 public class IconHeaderItemPresenter extends RowHeaderPresenter {
@@ -44,11 +45,17 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
     public void setIconDrawable(String name, View rootView) {
         String[] categories = rootView.getResources().getStringArray(R.array.categories);
         TypedArray resources = rootView.getResources().obtainTypedArray(R.array.icons);
-        int drawableResource = R.drawable.ic_fire;
+        int drawableResource = 0;
 
-        for (int i = 0; i < categories.length; i++) {
-            if (categories[i].equals(name)) {
-                drawableResource = resources.getResourceId(i, 0);
+        if (name.equals(MainFragment.TAG_POPULAR)) {
+            drawableResource = R.drawable.ic_fire;
+        } else if (name.equals(MainFragment.TAG_TRENDING)) {
+            drawableResource = R.drawable.ic_border_color_white_24dp;
+        }else {
+            for (int i = 0; i < categories.length; i++) {
+                if (categories[i].equals(name)) {
+                    drawableResource = resources.getResourceId(i, 0);
+                }
             }
         }
         resources.recycle();

@@ -42,6 +42,9 @@ public interface VineyardService {
     @GET("timelines/popular")
     Observable<PostResponse> getPopularPosts(@Query("page") int page, @Query("anchorStr") String anchor);
 
+    @GET("timelines/promoted")
+    Observable<PostResponse> getEditorsPicksPosts(@Query("page") int page, @Query("anchorStr") String anchor);
+
     @GET("timelines/tags/{tag}")
     Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
 

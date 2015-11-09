@@ -97,6 +97,10 @@ public class DataManager {
         return mVineyardService.getPopularPosts(page, anchor);
     }
 
+    public Observable<VineyardService.PostResponse> getEditorsPicksPosts(int page, String anchor) {
+        return mVineyardService.getEditorsPicksPosts(page, anchor);
+    }
+
     public Observable<VineyardService.PostResponse> getPostsByTag(String tag, int page, String anchor) {
         return mVineyardService.getPostsByTag(tag, page, anchor);
     }
