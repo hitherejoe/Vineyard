@@ -1,6 +1,5 @@
 package com.hitherejoe.vineyard.ui.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +9,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.widget.VideoView;
 
@@ -17,10 +17,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.ui.fragment.PlaybackOverlayFragment;
 import com.hitherejoe.vineyard.util.DataUtils;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -29,11 +33,16 @@ import butterknife.ButterKnife;
  * PlaybackActivity for video playback that loads PlaybackOverlayFragment and handles
  * the MediaSession object used to maintain the state of the media playback.
  */
-public class PlaybackActivity extends Activity {
+public class PlaybackActivity extends BaseActivity {
 
     public static final String AUTO_PLAY = "auto_play";
     public static final String POST = "post";
     public static final String POST_LIST = "postList";
+    public static final String EXTRA_IS_LOOP_ENABLED = "EXTRA_IS_LOOP_ENABLED";
+    private boolean mWasSkipPressed;
+
+    @Inject
+    DataManager mDataManager;
 
     @Bind(R.id.videoView)
     VideoView mVideoView;
@@ -44,6 +53,7 @@ public class PlaybackActivity extends Activity {
 
     private ArrayList<Post> mPostsList;
     private LeanbackPlaybackState mPlaybackState;
+    private MediaPlayer mMediaPlayer;
     private MediaSession mSession;
     private Post mCurrentPost;
 
@@ -65,10 +75,12 @@ public class PlaybackActivity extends Activity {
         mPlaybackState = LeanbackPlaybackState.IDLE;
         mPosition = 0;
         mDuration = -1;
+        mWasSkipPressed = false;
 
         createMediaSession();
         setContentView(R.layout.playback_controls);
         ButterKnife.bind(this);
+        activityComponent().inject(this);
 
         mCurrentPost = getIntent().getParcelableExtra(PlaybackActivity.POST);
         if (mCurrentPost == null) {
@@ -116,16 +128,11 @@ public class PlaybackActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
+            mWasSkipPressed = true;
             getMediaController().getTransportControls().skipToNext();
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L1) {
             getMediaController().getTransportControls().skipToPrevious();
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
-            getMediaController().getTransportControls().fastForward();
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L2) {
-            getMediaController().getTransportControls().rewind();
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -258,6 +265,8 @@ public class PlaybackActivity extends Activity {
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                mMediaPlayer = mp;
+                mMediaPlayer.setLooping(mDataManager.getPreferencesHelper().getShouldAutoLoop());
                 if (mPlaybackState == LeanbackPlaybackState.PLAYING) {
                     mVideoView.start();
                 }
@@ -267,7 +276,15 @@ public class PlaybackActivity extends Activity {
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mPlaybackState = LeanbackPlaybackState.IDLE;
+                // first
+                if (!mMediaPlayer.isLooping()) {
+                    mPlaybackState = LeanbackPlaybackState.IDLE;
+                } else {
+                    PlaybackState.Builder stateBuilder =
+                            new PlaybackState.Builder().setActions(getAvailableActions());
+                    stateBuilder.setState(PlaybackState.STATE_PLAYING, 0, 1.0f);
+                    mSession.setPlaybackState(stateBuilder.build());
+                }
             }
         });
     }
@@ -290,29 +307,37 @@ public class PlaybackActivity extends Activity {
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            for (Post post : mPostsList) {
-                if (post.postId.equals(mediaId)) {
-                    setVideoPath(post.videoUrl);
-                    mPlaybackState = LeanbackPlaybackState.PAUSED;
-                    updateMetadata(post);
-                    playPause(extras.getBoolean(AUTO_PLAY));
+            if (!mMediaPlayer.isLooping()) {
+                for (Post post : mPostsList) {
+                    if (post.postId.equals(mediaId)) {
+                        setVideoPath(post.videoUrl);
+                        mPlaybackState = LeanbackPlaybackState.PAUSED;
+                        updateMetadata(post);
+                        playPause(extras.getBoolean(AUTO_PLAY));
+                    }
                 }
             }
         }
 
         @Override
         public void onSkipToNext() {
-            PlaybackState.Builder stateBuilder =
-                    new PlaybackState.Builder().setActions(getAvailableActions());
-            stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_NEXT, 0, 1.0f);
-            mSession.setPlaybackState(stateBuilder.build());
+            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
+                PlaybackState.Builder stateBuilder =
+                        new PlaybackState.Builder().setActions(getAvailableActions());
+                stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_NEXT, 0, 1.0f);
+                mSession.setPlaybackState(stateBuilder.build());
+                if (mCurrentItem++ >= mPostsList.size()) {
+                    mCurrentItem = 0;
+                }
+                Bundle bundle = new Bundle(1);
+                bundle.putBoolean(PlaybackActivity.AUTO_PLAY, true);
 
-            if (mCurrentItem++ >= mPostsList.size()) mCurrentItem = 0;
-            Bundle bundle = new Bundle(1);
-            bundle.putBoolean(PlaybackActivity.AUTO_PLAY, true);
+                String nextId = mPostsList.get(mCurrentItem).postId;
+                getMediaController().getTransportControls().playFromMediaId(nextId, bundle);
+            }
 
-            String nextId = mPostsList.get(mCurrentItem).postId;
-            getMediaController().getTransportControls().playFromMediaId(nextId, bundle);
+            mWasSkipPressed = false;
+
         }
 
         @Override
@@ -354,6 +379,15 @@ public class PlaybackActivity extends Activity {
             mVideoView.seekTo(mPosition);
             updatePlaybackState();
         }
+
+        @Override
+        public void onCustomAction(@NonNull String action, Bundle extras) {
+            if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_LOOP)) {
+                mMediaPlayer.setLooping(extras.getBoolean(EXTRA_IS_LOOP_ENABLED));
+            }
+            super.onCustomAction(action, extras);
+        }
+
     }
 
     private void setVideoPath(String videoUrl) {

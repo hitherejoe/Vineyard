@@ -53,6 +53,9 @@
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".ui.activity.GuidedStepActivity"
+                  android:theme="@style/Theme.Example.Leanback.GuidedStep" />
+
     </application>
 
 </manifest>

@@ -2,7 +2,7 @@ package com.hitherejoe.vineyard.ui.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.PlaybackState;
@@ -14,45 +14,39 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
-import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRow.ClosedCaptioningAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.FastForwardAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.HighQualityAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.MoreActions;
 import android.support.v17.leanback.widget.PlaybackControlsRow.PlayPauseAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.RewindAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.SkipNextAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.SkipPreviousAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsDownAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsUpAction;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.util.Log;
+import android.support.v4.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.CardPresenter;
+import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.inject.Inject;
 
 import timber.log.Timber;
 
@@ -64,6 +58,9 @@ import timber.log.Timber;
  */
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
 
+    @Inject
+    DataManager mDataManager;
+
     private static final boolean SHOW_DETAIL = true;
     private static final boolean HIDE_MORE_ACTIONS = false;
     private static final int BACKGROUND_TYPE = PlaybackOverlayFragment.BG_LIGHT;
@@ -74,6 +71,8 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private static final int SIMULATED_BUFFERED_TIME = 10000;
     private static final int CLICK_TRACKING_DELAY = 1000;
     private static final int INITIAL_SPEED = 10000;
+
+    public static final String CUSTOM_ACTION_LOOP = "custom_action_loop";
 
     private Handler mClickTrackingHandler;
     private ArrayObjectAdapter mRowsAdapter;
@@ -98,9 +97,14 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private MediaController.Callback mMediaControllerCallback = new MediaControllerCallback();
     private int mCurrentPlaybackState;
 
+    private boolean mIsAutoLoopEnabled;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ((BaseActivity) getActivity()).activityComponent().inject(this);
+        mIsAutoLoopEnabled = mDataManager.getPreferencesHelper().getShouldAutoLoop();
 
         mClickTrackingHandler = new Handler();
         mItems = new ArrayList<>();
@@ -181,6 +185,8 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                     fastForward();
                 } else if (action.getId() == mRewindAction.getId()) {
                     fastRewind();
+                } else if (action.getId() == mRepeatAction.getId()) {
+                    loopVideos();
                 }
                 if (action instanceof PlaybackControlsRow.MultiAction) {
                     notifyChanged(action);
@@ -231,6 +237,8 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mFastForwardAction = new FastForwardAction(activity);
         mRewindAction = new RewindAction(activity);
 
+        mRepeatAction.setIcon(getRepeatDrawable());
+
         // Add main controls to primary adapter.
         mPrimaryActionsAdapter.add(mSkipPreviousAction);
         mPrimaryActionsAdapter.add(mRewindAction);
@@ -240,6 +248,11 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
         // Add rest of controls to secondary adapter.
         mSecondaryActionsAdapter.add(mRepeatAction);
+    }
+
+    private Drawable getRepeatDrawable() {
+        int resourceId = mIsAutoLoopEnabled ? R.drawable.ic_repeat_green : R.drawable.ic_repeat_white;
+        return ContextCompat.getDrawable(getActivity(), resourceId);
     }
 
     private void notifyChanged(Action action) {
@@ -313,6 +326,15 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
     private void next() {
         mMediaController.getTransportControls().skipToNext();
+    }
+
+    private void loopVideos() {
+        mIsAutoLoopEnabled = !mIsAutoLoopEnabled;
+        mDataManager.getPreferencesHelper().putAutoLoop(mIsAutoLoopEnabled);
+        mRepeatAction.setIcon(getRepeatDrawable());
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(PlaybackActivity.EXTRA_IS_LOOP_ENABLED, mIsAutoLoopEnabled);
+        mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_LOOP, bundle);
     }
 
     private void prev() {
@@ -398,7 +420,10 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             // The playback state has changed, so update your UI accordingly.
             // This should not update any media player / state!
 
-            if (state.getState() == PlaybackState.STATE_PLAYING && mCurrentPlaybackState != PlaybackState.STATE_PLAYING) {
+            if (state.getState() == PlaybackState.STATE_PLAYING && mCurrentPlaybackState == PlaybackState.STATE_PLAYING) {
+                startProgressAutomation();
+                setFadingEnabled(true);
+            } else if (state.getState() == PlaybackState.STATE_PLAYING) {
                 mCurrentPlaybackState = PlaybackState.STATE_PLAYING;
                 startProgressAutomation();
                 setFadingEnabled(true);

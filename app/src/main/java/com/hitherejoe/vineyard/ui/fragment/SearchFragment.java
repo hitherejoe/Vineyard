@@ -288,6 +288,8 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 ArrayList<Post> postList = new ArrayList<>(arrayObjectAdapter.getPosts());
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             }
+            //TODO: User click go to profile
+            // or either clicked maybe open a grid of videos?
         }
     };
 

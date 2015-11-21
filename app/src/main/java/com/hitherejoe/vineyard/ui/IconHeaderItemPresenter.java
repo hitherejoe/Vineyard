@@ -51,7 +51,9 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
             drawableResource = R.drawable.ic_fire;
         } else if (name.equals(MainFragment.TAG_TRENDING)) {
             drawableResource = R.drawable.ic_border_color_white_24dp;
-        }else {
+        } else if (name.equals(MainFragment.TAG_OPTIONS)) {
+            drawableResource = R.drawable.ic_settings_white_24dp;
+        } else {
             for (int i = 0; i < categories.length; i++) {
                 if (categories[i].equals(name)) {
                     drawableResource = resources.getResourceId(i, 0);
@@ -60,9 +62,11 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
         }
         resources.recycle();
 
-        ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
-        Drawable icon = rootView.getResources().getDrawable(drawableResource, null);
-        iconView.setImageDrawable(icon);
+        if (drawableResource != 0) {
+            ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
+            Drawable icon = rootView.getResources().getDrawable(drawableResource, null);
+            iconView.setImageDrawable(icon);
+        }
     }
 
     @Override

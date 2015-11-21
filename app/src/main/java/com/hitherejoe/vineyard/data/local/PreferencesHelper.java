@@ -12,6 +12,7 @@ public class PreferencesHelper {
     private static final String PREF_KEY_ACCESS_TOKEN = "PREF_KEY_ACCESS_TOKEN";
     private static final String PREF_KEY_USER_NAME = "PREF_KEY_USER_NAME";
     private static final String PREF_KEY_USER_ID = "PREF_KEY_USER_ID";
+    private static final String PREF_KEY_AUTO_LOOP_VIDEOS = "PREF_KEY_AUTO_LOOP_VIDEOS";
 
 
     public PreferencesHelper(Context context) {
@@ -34,6 +35,10 @@ public class PreferencesHelper {
         mPref.edit().putString(PREF_KEY_USER_ID, userId).apply();
     }
 
+    public void putAutoLoop(boolean shouldAutoplay) {
+        mPref.edit().putBoolean(PREF_KEY_AUTO_LOOP_VIDEOS, shouldAutoplay).apply();
+    }
+
     @Nullable
     public String getAccessToken() {
         return mPref.getString(PREF_KEY_ACCESS_TOKEN, null);
@@ -49,4 +54,7 @@ public class PreferencesHelper {
         return mPref.getString(PREF_KEY_USER_ID, null);
     }
 
+    public boolean getShouldAutoLoop() {
+        return mPref.getBoolean(PREF_KEY_AUTO_LOOP_VIDEOS, false);
+    }
 }

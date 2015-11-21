@@ -27,12 +27,16 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
+import com.hitherejoe.vineyard.ui.OptionItemPresenter;
 import com.hitherejoe.vineyard.ui.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
+import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
+import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 
 import java.net.URI;
@@ -51,7 +55,11 @@ public class MainFragment extends BrowseFragment {
 
     public static final String TAG_POPULAR = "Popular";
     public static final String TAG_TRENDING = "Editors Picks";
+    public static final String TAG_OPTIONS = "Options";
     private static final int BACKGROUND_UPDATE_DELAY = 300;
+    public static final int REQUEST_CODE_AUTO_LOOP = 1352;
+    public static final String RESULT_OPTION = "RESULT_OPTION";
+    private Option mOption;
 
     @Inject
     CompositeSubscription mCompositeSubscription;
@@ -59,6 +67,7 @@ public class MainFragment extends BrowseFragment {
     DataManager mDataManager;
 
     private ArrayObjectAdapter mRowsAdapter;
+    private OptionsAdapter mOptionsAdapter;
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
@@ -86,6 +95,21 @@ public class MainFragment extends BrowseFragment {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_AUTO_LOOP) {
+            if (data != null) {
+                boolean isEnabled = data.getBooleanExtra(RESULT_OPTION, false);
+                mOption.value = isEnabled
+                        ? getString(R.string.text_auto_loop_enabled)
+                        : getString(R.string.text_auto_loop_disabled);
+                mOptionsAdapter.updateOption(mOption);
+            }
+        }
+        Timber.e(requestCode + "");
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -140,6 +164,20 @@ public class MainFragment extends BrowseFragment {
                 return new IconHeaderItemPresenter();
             }
         });
+
+
+        mOption = new Option(getString(R.string.text_auto_loop_title));
+        mOption.iconResource = R.drawable.lopp;
+        boolean shouldAutoloop = mDataManager.getPreferencesHelper().getShouldAutoLoop();
+        mOption.value = shouldAutoloop
+                ? getString(R.string.text_auto_loop_enabled)
+                : getString(R.string.text_auto_loop_disabled);
+
+        HeaderItem gridHeader = new HeaderItem(mRowsAdapter.size(), TAG_OPTIONS);
+
+        mOptionsAdapter = new OptionsAdapter(getActivity());
+        mOptionsAdapter.addOption(mOption);
+        mRowsAdapter.add(new ListRow(gridHeader, mOptionsAdapter));
     }
 
     protected void updateBackground(String uri) {
@@ -227,6 +265,8 @@ public class MainFragment extends BrowseFragment {
                         ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                 ArrayList<Post> postList = new ArrayList<>(arrayObjectAdapter.getPosts());
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+            } else if (item instanceof Option) {
+                startActivityForResult(new Intent(getActivity(), GuidedStepActivity.class), REQUEST_CODE_AUTO_LOOP);
             }
         }
     };

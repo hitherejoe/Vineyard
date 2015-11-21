@@ -98,4 +98,24 @@
         <item name="colorButtonNormal">@android:color/transparent</item>
     </style>
 
+    <style name="Widget.Example.Leanback.GuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:paddingTop">75dp</item>
+    </style>
+
+    <style name="Widget.Example.Leanback.FirstStepGuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:paddingTop">75dp</item>
+    </style>
+
+    <style name="Widget.Example.Leanback.FirstStepGuidanceBreadcrumbStyle" parent="Widget.Leanback.GuidanceBreadcrumbStyle">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Theme.Example.Leanback.GuidedStep" parent="Theme.Leanback.GuidedStep">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.GuidanceIconStyle</item>
+    </style>
+    <style name="Theme.Example.Leanback.GuidedStep.First">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.FirstStepGuidanceIconStyle</item>
+        <item name="guidanceBreadcrumbStyle">@style/Widget.Example.Leanback.FirstStepGuidanceBreadcrumbStyle</item>
+    </style>
+
 </resources>

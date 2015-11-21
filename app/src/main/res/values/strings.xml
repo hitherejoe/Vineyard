@@ -5,6 +5,9 @@
     <string name="label_main">Vineyard</string>
     <string name="related_posts">Related posts</string>
 
+    <!-- Headers -->
+    <string name="header_text_settings">Settings</string>
+
     <!-- Connect Activity -->
     <string name="text_hint_username">Username</string>
     <string name="text_hint_password">Password</string>
@@ -12,6 +15,21 @@
     <!-- Search -->
     <string name="text_search_results">Search results</string>
     <string name="text_post_results_title">Posts for %s</string>
+
+    <!-- Guided Step -->
+    <string name="guided_step_auto_loop_title">Auto-Loop</string>
+    <string name="guided_step_auto_loop_breadcrumb">Videos will automatically loop</string>
+    <string name="guided_step_auto_loop_description">Enabling this option will make videos automatically loop once they start playing. Would you like this to be enabled?</string>
+
+    <string name="guided_step_auto_loop_enabled">Enabled</string>
+    <string name="guided_step_auto_loop_enabled_description">Automatically loop videos</string>
+    <string name="guided_step_auto_loop_disabled">Disabled</string>
+    <string name="guided_step_auto_loop_disabled_description">Play videos simultaneously</string>
+
+    <!-- Settings -->
+    <string name="text_auto_loop_title">Auto-loop</string>
+    <string name="text_auto_loop_enabled">Enabled</string>
+    <string name="text_auto_loop_disabled">Disabled</string>
 
     <!-- Dialogs -->
 
