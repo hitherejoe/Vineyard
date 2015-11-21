@@ -19,6 +19,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
@@ -203,15 +204,18 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 });
     }
 
-    private void addPageLoadSubscriptionByTag(final PaginationAdapter arrayObjectAdapter) {
+    private void addPageLoadSubscriptionByTag(final PaginationAdapter adapter) {
         unsubscribeSearchObservables();
-        if (!arrayObjectAdapter.isShowingRowLoadingIndicator()) {
-            arrayObjectAdapter.showRowLoadingIndicator();
+
+        Log.e("IS SHOWING", adapter.isShowingRowLoadingIndicator() + "");
+        if (!adapter.isShowingRowLoadingIndicator()) {
+            Log.d("PRGGG", "Show it!!!!");
+            adapter.showRowLoadingIndicator();
         }
 
-        String tag = arrayObjectAdapter.getRowTag();
-        String anchor = arrayObjectAdapter.getAnchor();
-        int nextPage = arrayObjectAdapter.getNextPage();
+        String tag = adapter.getRowTag();
+        String anchor = adapter.getAnchor();
+        int nextPage = adapter.getNextPage();
 
         mTagSubscription = mDataManager.getPostsByTag(tag, nextPage, anchor)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -220,19 +224,19 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Timber.e(e, "There was an error loading the videos");
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
-                        arrayObjectAdapter.setAnchor(postResponse.data.anchorStr);
-                        arrayObjectAdapter.addPosts(postResponse.data.records);
+                        adapter.setAnchor(postResponse.data.anchorStr);
+                        adapter.addPosts(postResponse.data.records);
                     }
                 });
     }
@@ -297,11 +301,11 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-            boolean isValid = true;
-            if (mCurrentFilter != null && mCurrentFilter.equals(item)) isValid = false;
-            mCurrentFilter = item;
-            if (isValid) {
-                if (item instanceof Tag || item instanceof User) {
+            if (item instanceof Tag || item instanceof User) {
+                boolean isValid = true;
+                if (mCurrentFilter != null && mCurrentFilter.equals(item)) isValid = false;
+                mCurrentFilter = item;
+                if (isValid) {
                     int index = mRowsAdapter.indexOf(row);
                     SearchAdapter arrayObjectAdapter =
                             ((SearchAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
@@ -341,7 +345,11 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");
         mPostResultsAdapter.setFirstPage(0);
-        mPostResultsAdapter.clear();
+        if (mPostResultsAdapter.isShowingRowLoadingIndicator()) {
+            mPostResultsAdapter.removeItems(1, mPostResultsAdapter.size() - 2);
+        } else {
+            mPostResultsAdapter.clear();
+        }
     }
 
     public static class CombinedSearchResponse {

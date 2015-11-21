@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.util.Log;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.CardPresenter;
@@ -92,8 +93,9 @@ public class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public boolean isShowingRowLoadingIndicator() {
-        if (size() == 0) return false;
-        return get(size() - 1) instanceof LoadingCardView;
+        Log.d("PRGGG", "CHECK it!!!! : " + mLoadingIndicatorPosition);
+        //return size() != 0 && get(size() - 1) instanceof LoadingCardView;
+        return mLoadingIndicatorPosition != -1;
     }
 
     public void showRowLoadingIndicator() {
@@ -109,8 +111,10 @@ public class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public void removeLoadingIndicator() {
+        Log.d("PRGGG", "REMOVE it!!!!");
         removeItems(mLoadingIndicatorPosition, 1);
         notifyItemRangeRemoved(mLoadingIndicatorPosition, 1);
+        mLoadingIndicatorPosition = -1;
     }
 
     public void setAnchor(String anchor) {

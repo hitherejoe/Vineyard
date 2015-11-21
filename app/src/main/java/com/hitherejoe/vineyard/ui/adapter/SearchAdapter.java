@@ -83,8 +83,7 @@ public class SearchAdapter extends ArrayObjectAdapter {
     }
 
     public boolean isShowingRowLoadingIndicator() {
-        if (size() == 0) return false;
-        return get(size() - 1) instanceof LoadingCardView;
+        return size() != 0 && get(size() - 1) instanceof LoadingCardView;
     }
 
     public void showRowLoadingIndicator() {
