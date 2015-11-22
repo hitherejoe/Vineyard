@@ -1,7 +1,5 @@
 package com.hitherejoe.vineyard.ui.activity;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.SearchFragment;
 
@@ -28,11 +26,11 @@ public class SearchActivity extends BaseActivity {
 
     @Override
     public boolean onSearchRequested() {
-      //  if (mFragment.hasResults()) {
+        //  if (mFragment.hasResults()) {
         //    startActivity(new Intent(this, SearchActivity.class));
-     //   } else {
-       //     mFragment.startRecognition();
-      //  }
+        //   } else {
+        //     mFragment.startRecognition();
+        //  }
         return true;
     }
 }

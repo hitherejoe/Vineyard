@@ -9,6 +9,7 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.fragment.AutoLoopStepFragment;
 import com.hitherejoe.vineyard.ui.fragment.MainFragment;
 import com.hitherejoe.vineyard.ui.fragment.PlaybackOverlayFragment;
+import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 
 import dagger.Component;
@@ -26,4 +27,5 @@ public interface ActivityComponent {
     void inject(SearchFragment searchFragment);
     void inject(AutoLoopStepFragment autoLoopStepFragment);
     void inject(PlaybackOverlayFragment playbackOverlayFragment);
+    void inject(PostGridFragment postGridFragment);
 }

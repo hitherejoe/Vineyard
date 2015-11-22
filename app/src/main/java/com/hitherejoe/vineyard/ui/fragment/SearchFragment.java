@@ -29,6 +29,7 @@ import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
+import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.SearchAdapter;
 
@@ -291,9 +292,13 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                 ArrayList<Post> postList = new ArrayList<>(arrayObjectAdapter.getPosts());
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+            } else if (item instanceof Tag){
+                Tag tag = (Tag) item;
+                startActivity(PostGridActivity.newStartIntent(getActivity(), tag));
+            } else if (item instanceof User){
+                User user = (User) item;
+                startActivity(PostGridActivity.newStartIntent(getActivity(), user));
             }
-            //TODO: User click go to profile
-            // or either clicked maybe open a grid of videos?
         }
     };
 

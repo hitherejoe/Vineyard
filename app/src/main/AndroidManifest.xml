@@ -49,6 +49,11 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
+            android:name=".ui.activity.PostGridActivity"
+            android:label="@string/label_main"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
             android:name=".ui.activity.SearchActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar"/>
