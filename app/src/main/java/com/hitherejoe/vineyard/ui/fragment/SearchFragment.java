@@ -361,6 +361,29 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         public String tagSearchAnchor;
         public String userSearchAnchor;
         public ArrayList<Object> list;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CombinedSearchResponse that = (CombinedSearchResponse) o;
+
+            if (tagSearchAnchor != null ? !tagSearchAnchor.equals(that.tagSearchAnchor) : that.tagSearchAnchor != null)
+                return false;
+            if (userSearchAnchor != null ? !userSearchAnchor.equals(that.userSearchAnchor) : that.userSearchAnchor != null)
+                return false;
+            return !(list != null ? !list.equals(that.list) : that.list != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = tagSearchAnchor != null ? tagSearchAnchor.hashCode() : 0;
+            result = 31 * result + (userSearchAnchor != null ? userSearchAnchor.hashCode() : 0);
+            result = 31 * result + (list != null ? list.hashCode() : 0);
+            return result;
+        }
     }
 
 }

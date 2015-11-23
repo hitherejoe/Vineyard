@@ -2,6 +2,7 @@ package com.hitherejoe.vineyard.test.common;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 
 import java.util.ArrayList;
@@ -40,28 +41,32 @@ public class MockModelFabric {
 
     public static User createMockUser() {
         User user = new User();
-        user.code = "code";
-        user.success = true;
         user.error = "";
-        User.Data data = new User.Data();
-        data.username = "hitherejoe";
-        data.following = new Random().nextInt(2000);
-        data.followerCount = new Random().nextInt(2000);
-        data.verified = 0;
-        data.description = generateRandomString();
-        data.avatarUrl = generateRandomString();
-        data.twitterId = new Random().nextInt(2000);
-        data.userId = generateRandomString();
-        data.twitterConnected = 0;
-        data.likeCount = new Random().nextInt(2000);
-        data.facebookConnected = 0;
-        data.postCount = new Random().nextInt(2000);
-        data.phoneNumber = generateRandomString();
-        data.location = generateRandomString();
-        data.followingCount = new Random().nextInt(2000);
-        data.email = generateRandomString();
-        user.data = data;
+        user.username = generateRandomString();
+        user.following = new Random().nextInt(2000);
+        user.followerCount = new Random().nextInt(2000);
+        user.verified = 0;
+        user.description = generateRandomString();
+        user.avatarUrl = generateRandomString();
+        user.twitterId = new Random().nextInt(2000);
+        user.userId = generateRandomString();
+        user.twitterConnected = 0;
+        user.likeCount = new Random().nextInt(2000);
+        user.facebookConnected = 0;
+        user.postCount = new Random().nextInt(2000);
+        user.phoneNumber = generateRandomString();
+        user.location = generateRandomString();
+        user.followingCount = new Random().nextInt(2000);
+        user.email = generateRandomString();
         return user;
+    }
+
+    public static Tag createMockTag(String tag) {
+        Tag mockTag = new Tag();
+        mockTag.tag = tag;
+        mockTag.tagId = new Random().nextInt(2000);
+        mockTag.postCount = new Random().nextInt(2000);
+        return mockTag;
     }
 
     public static Post createMockPost() {
@@ -84,4 +89,19 @@ public class MockModelFabric {
         return mockPosts;
     }
 
+    public static List<Tag> createMockListOfTags(int count, String tag) {
+        List<Tag> mockPosts = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            mockPosts.add(createMockTag(tag));
+        }
+        return mockPosts;
+    }
+
+    public static List<User> createMockListOfUsers(int count) {
+        List<User> mockPosts = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            mockPosts.add(createMockUser());
+        }
+        return mockPosts;
+    }
 }

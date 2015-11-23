@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
@@ -129,6 +130,7 @@ public class DataManager {
                         ArrayList<Object> results = new ArrayList<>();
                         results.addAll(tags);
                         results.addAll(users);
+
                         Collections.sort(results, new Comparator<Object>() {
                             @Override
                             public int compare(Object lhs, Object rhs) {

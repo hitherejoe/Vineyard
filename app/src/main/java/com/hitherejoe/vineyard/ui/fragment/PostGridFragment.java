@@ -67,12 +67,8 @@ public class PostGridFragment extends VerticalGridFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((BaseActivity) getActivity()).activityComponent().inject(this);
-        //setTitle(getString(R.string.vertical_grid_title));
-
         setupFragment();
-        setBadgeDrawable(null);
         prepareBackgroundManager();
-
     }
 
     @Override
@@ -109,6 +105,7 @@ public class PostGridFragment extends VerticalGridFragment {
             mSelectedType = TYPE_TAG;
             tag = ((Tag) selectedItem).tag;
         }
+        setTitle(tag);
         mRowsAdapter = new GridPaginationAdapter(getActivity(), tag);
 
         setAdapter(mRowsAdapter);

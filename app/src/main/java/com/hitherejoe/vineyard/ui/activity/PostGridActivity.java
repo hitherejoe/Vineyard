@@ -11,16 +11,10 @@ import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 
 import butterknife.ButterKnife;
 
-/*
- * VerticalGridActivity that loads VerticalGridFragment
- */
 public class PostGridActivity extends BaseActivity {
 
     public static final String SELECTED_ITEM = "selected_item";
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +30,6 @@ public class PostGridActivity extends BaseActivity {
                 && !(selectedItem instanceof User)) {
             throw new IllegalArgumentException();
         }
-                //getWindow().setBackgroundDrawableResource(R.drawable.grid_bg);
         PostGridFragment mFragment = (PostGridFragment) getFragmentManager().findFragmentById(R.id.fragment_post_grid);
         mFragment.setTag(selectedItem);
     }
