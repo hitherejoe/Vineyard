@@ -33,7 +33,7 @@ public class TestDataManager extends DataManager {
                 .inject(this);
     }
 
-    public VineyardService getRibotService() {
+    public VineyardService getVineyardService() {
         return mVineyardService;
     }
 

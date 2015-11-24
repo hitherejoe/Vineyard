@@ -1,10 +1,11 @@
-package com.hitherejoe.vineyard.test.common;
+package com.hitherejoe.vineyard.test.common.rules;
 
 import android.content.Context;
 
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
+import com.hitherejoe.vineyard.test.common.TestDataManager;
 import com.hitherejoe.vineyard.test.common.injection.component.DaggerTestComponent;
 import com.hitherejoe.vineyard.test.common.injection.component.TestComponent;
 import com.hitherejoe.vineyard.test.common.injection.module.ApplicationTestModule;
@@ -23,40 +24,43 @@ import org.junit.runners.model.Statement;
 public class TestComponentRule implements TestRule {
 
     private TestComponent mTestComponent;
-    private VineyardApplication mVineyardApplication;
+    private Context mContext;
     private boolean mMockableDataManager;
 
-    public TestComponentRule(VineyardApplication vineyardApplication) {
-        mVineyardApplication = vineyardApplication;
-        mMockableDataManager = false;
-    }
-
     /**
-     * If mockableDataManager is true, it will crate a data manager using Mockity.spy()
+     * If mockableDataManager is true, it will crate a data manager using Mockito.spy()
      * Spy objects call real methods unless they are stubbed. So the DataManager will work as
      * usual unless an specific method is mocked.
      * A full mock DataManager is not an option because there are several methods that still
      * need to return the real value, i.e dataManager.getSubscribeScheduler()
      */
-    public TestComponentRule(VineyardApplication vineyardApplication, boolean mockableDataManager) {
-        mVineyardApplication = vineyardApplication;
-        mMockableDataManager = mockableDataManager;
+    public TestComponentRule(Context context, boolean mockableDataManager) {
+        init(context, mockableDataManager);
     }
 
-    public Context getApplication() {
-        return mVineyardApplication;
+    public TestComponentRule(Context context) {
+        init(context, false);
+    }
+
+    private void init(Context context, boolean mockableDataManager) {
+        mContext = context;
+        mMockableDataManager = mockableDataManager;
     }
 
     public TestComponent getTestComponent() {
         return mTestComponent;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     public TestDataManager getDataManager() {
         return (TestDataManager) mTestComponent.dataManager();
     }
 
-    public VineyardService getMockRibotService() {
-        return getDataManager().getRibotService();
+    public VineyardService getMockVineyardService() {
+        return getDataManager().getVineyardService();
     }
 
     public PreferencesHelper getPreferencesHelper() {
@@ -64,15 +68,13 @@ public class TestComponentRule implements TestRule {
     }
 
     private void setupDaggerTestComponentInApplication() {
-        if (mVineyardApplication.getComponent() instanceof TestComponent) {
-            mTestComponent = (TestComponent) mVineyardApplication.getComponent();
-        } else {
-            mTestComponent = DaggerTestComponent.builder()
-                    .applicationTestModule(
-                            new ApplicationTestModule(mVineyardApplication, mMockableDataManager))
-                    .build();
-            mVineyardApplication.setComponent(mTestComponent);
-        }
+        VineyardApplication application = VineyardApplication.get(mContext);
+        ApplicationTestModule module = new ApplicationTestModule(application,
+                mMockableDataManager);
+        mTestComponent = DaggerTestComponent.builder()
+                .applicationTestModule(module)
+                .build();
+        application.setComponent(mTestComponent);
     }
 
     @Override

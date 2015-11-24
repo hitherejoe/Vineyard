@@ -6,8 +6,8 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
-import com.hitherejoe.vineyard.test.common.ClearDataRule;
-import com.hitherejoe.vineyard.test.common.TestComponentRule;
+import com.hitherejoe.vineyard.test.common.rules.ClearDataRule;
+import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
 import com.hitherejoe.vineyard.ui.activity.ConnectActivity;
 import com.hitherejoe.vineyard.ui.activity.LauncherActivity;
 import com.hitherejoe.vineyard.util.CustomMatchers;
@@ -39,14 +39,11 @@ import static org.mockito.Mockito.doReturn;
 @RunWith(AndroidJUnit4.class)
 public class LauncherActivityTest {
 
-    public final TestComponentRule component = new TestComponentRule(
-            VineyardApplication.get(InstrumentationRegistry.getTargetContext()),
-            false);
+    public final TestComponentRule component =
+            new TestComponentRule(InstrumentationRegistry.getTargetContext(), true);
 
-    @Rule
     public final ClearDataRule clearDataRule = new ClearDataRule(component);
 
-    @Rule
     public final ActivityTestRule<LauncherActivity> main =
             new ActivityTestRule<>(LauncherActivity.class, false, false);
 

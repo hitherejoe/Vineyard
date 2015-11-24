@@ -8,8 +8,6 @@ import com.hitherejoe.vineyard.injection.scope.PerDataManager;
 
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 import static org.mockito.Mockito.mock;
 
@@ -34,14 +32,7 @@ public class DataManagerTestModule {
 
     @Provides
     @PerDataManager
-    VineyardService provideRibotService() {
+    VineyardService provideVineyardService() {
         return mock(VineyardService.class);
     }
-
-    @Provides
-    @PerDataManager
-    Scheduler provideSubscribeScheduler() {
-        return Schedulers.immediate();
-    }
-
 }

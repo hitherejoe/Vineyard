@@ -1,6 +1,5 @@
 package com.hitherejoe.vineyard.injection.module;
 
-import android.accounts.AccountManager;
 import android.app.Application;
 
 import com.hitherejoe.vineyard.data.DataManager;
@@ -37,14 +36,14 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
-    Bus provideEventBus() {
-        return new Bus();
+    CompositeSubscription provideCompositeSubscription() {
+        return new CompositeSubscription();
     }
 
     @Provides
-    CompositeSubscription provideCompositeSubscription() {
-        return new CompositeSubscription();
+    @Singleton
+    Bus provideEventBus() {
+        return new Bus();
     }
 
 }

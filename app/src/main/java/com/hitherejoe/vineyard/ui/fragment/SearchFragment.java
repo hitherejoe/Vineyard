@@ -32,6 +32,7 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.SearchAdapter;
+import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -181,9 +182,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         tag, nextPageFirst, mTagSearchAnchor, nextPageSecond, mUserSearchAnchor);
 
         mSubscription = observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .unsubscribeOn(Schedulers.io())
-                .subscribeOn(mDataManager.getSubscribeScheduler())
+                .compose(SchedulerAppliers.<CombinedSearchResponse>defaultSchedulers(getActivity()))
                 .subscribe(new Subscriber<CombinedSearchResponse>() {
                     @Override
                     public void onCompleted() {
@@ -219,9 +218,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         int nextPage = adapter.getNextPage();
 
         mTagSubscription = mDataManager.getPostsByTag(tag, nextPage, anchor)
-                .observeOn(AndroidSchedulers.mainThread())
-                .unsubscribeOn(Schedulers.io())
-                .subscribeOn(mDataManager.getSubscribeScheduler())
+                .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
@@ -253,9 +250,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         int nextPage = arrayObjectAdapter.getNextPage();
 
         mUserSubscription = mDataManager.getPostsByUser(tag, nextPage, anchor)
-                .observeOn(AndroidSchedulers.mainThread())
-                .unsubscribeOn(Schedulers.io())
-                .subscribeOn(mDataManager.getSubscribeScheduler())
+                .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {

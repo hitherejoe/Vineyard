@@ -8,8 +8,6 @@ import com.hitherejoe.vineyard.injection.scope.PerDataManager;
 
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 /**
  * Provide dependencies to the DataManager, mainly Helper classes and Retrofit services.
@@ -32,13 +30,6 @@ public class DataManagerModule {
     @Provides
     @PerDataManager
     VineyardService provideVineyardService() {
-        return VineyardService.Instance.newVineyardService();
+        return VineyardService.Factory.makeVineyardService();
     }
-
-    @Provides
-    @PerDataManager
-    Scheduler provideSubscribeScheduler() {
-        return Schedulers.io();
-    }
-
 }

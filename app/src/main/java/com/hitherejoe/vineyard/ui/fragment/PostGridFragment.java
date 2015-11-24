@@ -29,6 +29,7 @@ import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.GridPaginationAdapter;
+import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -177,8 +178,7 @@ public class PostGridFragment extends VerticalGridFragment {
         }
         if (observable != null) {
             mCompositeSubscription.add(observable
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(mDataManager.getSubscribeScheduler())
+                    .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
                     .subscribe(new Subscriber<VineyardService.PostResponse>() {
                         @Override
                         public void onCompleted() {

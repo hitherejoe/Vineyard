@@ -1,5 +1,6 @@
 package com.hitherejoe.vineyard.injection.component;
 
+
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.injection.module.DataManagerModule;
 import com.hitherejoe.vineyard.injection.scope.PerDataManager;

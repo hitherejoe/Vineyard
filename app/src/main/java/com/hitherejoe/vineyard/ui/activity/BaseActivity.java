@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.injection.component.ActivityComponent;
-import com.hitherejoe.vineyard.injection.component.ApplicationComponent;
 import com.hitherejoe.vineyard.injection.component.DaggerActivityComponent;
 
 public class BaseActivity extends Activity {
@@ -24,10 +23,6 @@ public class BaseActivity extends Activity {
                     .build();
         }
         return mActivityComponent;
-    }
-
-    protected ApplicationComponent applicationComponent() {
-        return VineyardApplication.get(this).getComponent();
     }
 
 }

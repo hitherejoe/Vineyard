@@ -38,6 +38,7 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
+import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -61,10 +62,8 @@ public class MainFragment extends BrowseFragment {
     public static final String RESULT_OPTION = "RESULT_OPTION";
     private Option mOption;
 
-    @Inject
-    CompositeSubscription mCompositeSubscription;
-    @Inject
-    DataManager mDataManager;
+    @Inject protected CompositeSubscription mCompositeSubscription;
+    @Inject protected DataManager mDataManager;
 
     private ArrayObjectAdapter mRowsAdapter;
     private OptionsAdapter mOptionsAdapter;
@@ -232,8 +231,7 @@ public class MainFragment extends BrowseFragment {
         }
 
         mCompositeSubscription.add(observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(mDataManager.getSubscribeScheduler())
+                .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {

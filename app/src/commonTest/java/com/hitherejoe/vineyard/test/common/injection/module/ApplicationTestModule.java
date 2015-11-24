@@ -42,13 +42,13 @@ public class ApplicationTestModule {
     }
 
     @Provides
-    @Singleton
-    Bus provideEventBus() {
-        return new Bus();
+    CompositeSubscription provideCompositeSubscription() {
+        return new CompositeSubscription();
     }
 
     @Provides
-    CompositeSubscription provideCompositeSubscription() {
-        return new CompositeSubscription();
+    @Singleton
+    Bus provideEventBus() {
+        return new Bus();
     }
 }

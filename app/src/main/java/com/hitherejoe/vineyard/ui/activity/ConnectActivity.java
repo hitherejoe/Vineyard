@@ -8,17 +8,12 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Authentication;
+import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.util.NetworkUtil;
+import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
 import javax.inject.Inject;
 
@@ -44,16 +39,10 @@ public class ConnectActivity extends BaseActivity {
     @Bind(R.id.progress)
     ProgressBar mSignInProgress;
 
-    @Bind(R.id.login_button)
-    LoginButton loginButton;
-
     private Subscription mSubscription;
 
     @Inject
     DataManager mDataManager;
-
-    private CallbackManager callbackManager;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,12 +51,6 @@ public class ConnectActivity extends BaseActivity {
 
         setContentView(R.layout.activity_connect);
         ButterKnife.bind(this);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -118,7 +101,7 @@ public class ConnectActivity extends BaseActivity {
     private void login(String username, String password) {
         mSubscription = mDataManager.getAccessToken(username, password)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(mDataManager.getSubscribeScheduler())
+                .compose(SchedulerAppliers.<Authentication>defaultSchedulers(this))
                 .subscribe(new Subscriber<Authentication>() {
                     @Override
                     public void onCompleted() { }

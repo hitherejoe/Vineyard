@@ -1,5 +1,7 @@
 package com.hitherejoe.vineyard.data.remote;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.Tag;
@@ -54,9 +56,9 @@ public interface VineyardService {
     @GET("search/users/{query}")
     Observable<UserResponse> searchByUser(@Path("query") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
 
-
-    class Instance {
-        public static VineyardService newVineyardService() {
+    /******** Helper class that sets up a new services *******/
+    class Factory {
+        public static VineyardService makeVineyardService() {
             OkHttpClient client = new OkHttpClient();
             client.interceptors().add(new Interceptor() {
                 @Override

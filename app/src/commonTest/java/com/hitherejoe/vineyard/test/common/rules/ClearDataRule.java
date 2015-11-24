@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.test.common;
+package com.hitherejoe.vineyard.test.common.rules;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;

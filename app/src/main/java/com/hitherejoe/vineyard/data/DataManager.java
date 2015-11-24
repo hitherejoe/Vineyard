@@ -18,42 +18,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 public class DataManager {
 
-    @Inject
-    protected VineyardService mVineyardService;
-    @Inject
-    protected PreferencesHelper mPreferencesHelper;
-    @Inject
-    protected Bus mBus;
-    @Inject
-    protected Scheduler mSubscribeScheduler;
+    @Inject protected VineyardService mVineyardService;
+    @Inject protected PreferencesHelper mPreferencesHelper;
+    @Inject protected Bus mBus;
 
     public DataManager(Context context) {
         injectDependencies(context);
-    }
-
-    /* This constructor is provided so we can set up a DataManager with mocks from unit test.
-     * At the moment this is not possible to do with Dagger because the Gradle APT plugin doesn't
-     * work for the unit test variant, plus Dagger 2 doesn't provide a nice way of overriding
-     * modules */
-    public DataManager(VineyardService ribotService,
-                       Bus bus,
-                       PreferencesHelper preferencesHelper,
-                       Scheduler subscribeScheduler) {
-        mVineyardService = ribotService;
-        mBus = bus;
-        mPreferencesHelper = preferencesHelper;
-        mSubscribeScheduler = subscribeScheduler;
     }
 
     protected void injectDependencies(Context context) {
@@ -66,10 +45,6 @@ public class DataManager {
 
     public PreferencesHelper getPreferencesHelper() {
         return mPreferencesHelper;
-    }
-
-    public Scheduler getSubscribeScheduler() {
-        return mSubscribeScheduler;
     }
 
     public Observable<Authentication> getAccessToken(String username, String password) {
