@@ -21,13 +21,21 @@ import dagger.Component;
 public interface ActivityComponent {
 
     void inject(MainActivity mainActivity);
+
     void inject(MainFragment mainFragment);
+
     void inject(SearchFragment searchFragment);
+
     void inject(PostGridFragment postGridFragment);
+
     void inject(ConnectActivity connectActivity);
+
     void inject(GuidedStepActivity guidedStepActivity);
+
     void inject(PlaybackActivity playbackActivity);
+
     void inject(AutoLoopStepFragment autoLoopStepFragment);
+
     void inject(PlaybackOverlayFragment playbackOverlayFragment);
 
 }

@@ -35,8 +35,8 @@ public class PreferencesHelper {
         mPref.edit().putString(PREF_KEY_USER_ID, userId).apply();
     }
 
-    public void putAutoLoop(boolean shouldAutoplay) {
-        mPref.edit().putBoolean(PREF_KEY_AUTO_LOOP_VIDEOS, shouldAutoplay).apply();
+    public void putAutoLoop(boolean shouldAutoLoop) {
+        mPref.edit().putBoolean(PREF_KEY_AUTO_LOOP_VIDEOS, shouldAutoLoop).apply();
     }
 
     @Nullable
@@ -47,11 +47,6 @@ public class PreferencesHelper {
     @Nullable
     public String getUsername() {
         return mPref.getString(PREF_KEY_USER_NAME, null);
-    }
-
-    @Nullable
-    public String getUserId() {
-        return mPref.getString(PREF_KEY_USER_ID, null);
     }
 
     public boolean getShouldAutoLoop() {

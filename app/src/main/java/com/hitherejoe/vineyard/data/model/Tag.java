@@ -2,6 +2,7 @@ package com.hitherejoe.vineyard.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 public class Tag implements Comparable<Tag>, Parcelable {
     public long tagId;
@@ -9,7 +10,7 @@ public class Tag implements Comparable<Tag>, Parcelable {
     public long postCount;
 
     @Override
-    public int compareTo(Tag another) {
+    public int compareTo(@NonNull Tag another) {
         return (int) (postCount - another.postCount);
     }
 
@@ -25,7 +26,8 @@ public class Tag implements Comparable<Tag>, Parcelable {
         dest.writeLong(this.postCount);
     }
 
-    public Tag() { }
+    public Tag() {
+    }
 
     protected Tag(Parcel in) {
         this.tagId = in.readLong();

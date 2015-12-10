@@ -14,9 +14,7 @@ public class GuidedStepActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
-        if (null == savedInstanceState) {
-            GuidedStepFragment.add(getFragmentManager(), new AutoLoopStepFragment());
-        }
+        GuidedStepFragment.add(getFragmentManager(), new AutoLoopStepFragment());
     }
 
 }

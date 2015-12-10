@@ -132,7 +132,7 @@ public class MainFragment extends BrowseFragment {
         loadVideosFromFeed(TAG_TRENDING, 0);
         loadVideosFromFeed(TAG_POPULAR, 1);
         String[] categories = getResources().getStringArray(R.array.categories);
-        for (int i = 2; i < categories.length; i++) loadVideosFromFeed(categories[i], i);
+        for (int i = 0; i < categories.length; i++) loadVideosFromFeed(categories[i], i + 2);
     }
 
     private void loadVideosFromFeed(String tag, int headerPosition) {

@@ -20,7 +20,10 @@ public interface ApplicationComponent {
     void inject(SchedulerApplier.DefaultSchedulers defaultSchedulers);
 
     Application application();
+
     DataManager dataManager();
+
     Bus eventBus();
+
     CompositeSubscription compositeSubscription();
 }

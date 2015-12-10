@@ -41,7 +41,6 @@ public class SearchAdapter extends ArrayObjectAdapter {
         mRowTag = tag;
     }
 
-
     public void setPresenterSelector() {
         setPresenterSelector(new PresenterSelector() {
             @Override

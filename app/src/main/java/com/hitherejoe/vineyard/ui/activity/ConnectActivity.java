@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Authentication;
-import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
@@ -54,7 +53,7 @@ public class ConnectActivity extends BaseActivity {
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         if (mSubscription != null) mSubscription.unsubscribe();
     }
@@ -104,7 +103,8 @@ public class ConnectActivity extends BaseActivity {
                 .compose(SchedulerAppliers.<Authentication>defaultSchedulers(this))
                 .subscribe(new Subscriber<Authentication>() {
                     @Override
-                    public void onCompleted() { }
+                    public void onCompleted() {
+                    }
 
                     @Override
                     public void onError(Throwable e) {

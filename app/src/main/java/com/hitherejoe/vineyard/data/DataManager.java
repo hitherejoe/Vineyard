@@ -1,7 +1,6 @@
 package com.hitherejoe.vineyard.data;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
@@ -27,9 +26,12 @@ import rx.functions.Func2;
 
 public class DataManager {
 
-    @Inject protected VineyardService mVineyardService;
-    @Inject protected PreferencesHelper mPreferencesHelper;
-    @Inject protected Bus mBus;
+    @Inject
+    protected VineyardService mVineyardService;
+    @Inject
+    protected PreferencesHelper mPreferencesHelper;
+    @Inject
+    protected Bus mBus;
 
     public DataManager(Context context) {
         injectDependencies(context);
