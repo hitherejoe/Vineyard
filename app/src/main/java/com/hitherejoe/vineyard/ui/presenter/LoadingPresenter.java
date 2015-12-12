@@ -1,7 +1,9 @@
-package com.hitherejoe.vineyard.ui;
+package com.hitherejoe.vineyard.ui.presenter;
 
 import android.support.v17.leanback.widget.Presenter;
 import android.view.ViewGroup;
+
+import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.

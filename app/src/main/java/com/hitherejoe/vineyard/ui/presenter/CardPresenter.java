@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.ui;
+package com.hitherejoe.vineyard.ui.presenter;
 
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;

@@ -35,6 +35,7 @@ import com.hitherejoe.vineyard.ui.adapter.TagAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -53,15 +54,15 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     @Inject DataManager mDataManager;
 
-    private ArrayObjectAdapter mRowsAdapter;
-    private Subscription mUserSubscription;
-    private Subscription mSubscription;
-    private Subscription mTagSubscription;
-    private String mSearchQuery;
-    private Object mCurrentFilter;
-    private TagAdapter mSearchResultsAdapter;
+    private ArrayObjectAdapter mResultsAdapter;
+    private Object mSelectedTag;
     private PostAdapter mPostResultsAdapter;
+    private Subscription mSearchResultsSubscription;
+    private Subscription mTagSubscription;
+    private Subscription mUserSubscription;
+    private TagAdapter mSearchResultsAdapter;
 
+    private String mSearchQuery;
     private String mTagSearchAnchor;
     private String mUserSearchAnchor;
 
@@ -69,33 +70,15 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
-        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        setSearchResultProvider(this);
-        setOnItemViewClickedListener(mOnItemViewClickedListener);
-        setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+        mResultsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mSearchResultsAdapter = new TagAdapter(getActivity(), "");
-        if (!hasPermission(Manifest.permission.RECORD_AUDIO)) {
-            setSpeechRecognitionCallback(new SpeechRecognitionCallback() {
-                @Override
-                public void recognizeSpeech() {
-                    try {
-                        startActivityForResult(getRecognizerIntent(), REQUEST_SPEECH);
-                    } catch (ActivityNotFoundException e) {
-                        Timber.e("Cannot find activity for speech recognizer", e);
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+        setSearchResultProvider(this);
+        setListeners();
     }
 
     @Override
     public void onDestroy() {
-        if (mSubscription != null) mSubscription.unsubscribe();
+        if (mSearchResultsSubscription != null) mSearchResultsSubscription.unsubscribe();
         if (mTagSubscription != null) mTagSubscription.unsubscribe();
         if (mUserSubscription != null) mUserSubscription.unsubscribe();
         super.onDestroy();
@@ -111,9 +94,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         break;
                     case Activity.RESULT_CANCELED:
                         if (FINISH_ON_RECOGNIZER_CANCELED) {
-                            if (!hasResults()) {
-                                getActivity().onBackPressed();
-                            }
+                            if (!hasResults()) getActivity().onBackPressed();
                         }
                         break;
                 }
@@ -123,7 +104,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     @Override
     public ObjectAdapter getResultsAdapter() {
-        return mRowsAdapter;
+        return mResultsAdapter;
     }
 
     @Override
@@ -139,7 +120,24 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     }
 
     public boolean hasResults() {
-        return mRowsAdapter.size() > 0;
+        return mResultsAdapter.size() > 0;
+    }
+
+    private void setListeners() {
+        setOnItemViewClickedListener(mOnItemViewClickedListener);
+        setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+        if (!hasPermission(Manifest.permission.RECORD_AUDIO)) {
+            setSpeechRecognitionCallback(new SpeechRecognitionCallback() {
+                @Override
+                public void recognizeSpeech() {
+                    try {
+                        startActivityForResult(getRecognizerIntent(), REQUEST_SPEECH);
+                    } catch (ActivityNotFoundException e) {
+                        Timber.e("Cannot find activity for speech recognizer", e);
+                    }
+                }
+            });
+        }
     }
 
     private boolean hasPermission(final String permission) {
@@ -158,45 +156,48 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void searchTaggedVideos(String tag) {
         mSearchResultsAdapter.setTag(tag);
-        if (mRowsAdapter.size() == 0) {
+        if (mResultsAdapter.size() == 0) {
             HeaderItem header = new HeaderItem(0, getString(R.string.text_search_results));
-            mRowsAdapter.add(new ListRow(header, mSearchResultsAdapter));
+            mResultsAdapter.add(new ListRow(header, mSearchResultsAdapter));
         }
-        loadSearchResults(mSearchResultsAdapter);
+        performSearch(mSearchResultsAdapter);
     }
 
-    private void loadSearchResults(final PaginationAdapter arrayObjectAdapter) {
-        if (mSubscription != null) mSubscription.unsubscribe();
-        if (!arrayObjectAdapter.isShowingRowLoadingIndicator()) {
-            arrayObjectAdapter.showRowLoadingIndicator();
+    private void performSearch(final PaginationAdapter adapter) {
+        if (adapter.shouldShowLoadingIndicator()) adapter.showLoadingIndicator();
+        if (mSearchResultsSubscription != null && !mSearchResultsSubscription.isUnsubscribed()) {
+            mSearchResultsSubscription.unsubscribe();
         }
 
-        String tag = arrayObjectAdapter.getRowTag();
-        int nextPageFirst = arrayObjectAdapter.getNextPage();
-        int nextPageSecond = arrayObjectAdapter.getNextPage();
+        Map<String, String> options = adapter.getAdapterOptions();
+        String tag = options.get(PaginationAdapter.KEY_TAG);
+        String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         Observable<CombinedSearchResponse> observable =
                 mDataManager.search(
-                        tag, nextPageFirst, mTagSearchAnchor, nextPageSecond, mUserSearchAnchor);
+                        tag, nextPage, mTagSearchAnchor, nextPage, mUserSearchAnchor);
 
-        mSubscription = observable
+        mSearchResultsSubscription = observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<CombinedSearchResponse>() {
                     @Override
                     public void onCompleted() {
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Timber.e(e, "There was an error loading the videos");
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        //TODO: Handle error
+                        adapter.removeLoadingIndicator();
+                        Timber.e("There was an error loading the videos", e);
                     }
 
                     @Override
                     public void onNext(CombinedSearchResponse dualResponse) {
-                        arrayObjectAdapter.addAllItems(dualResponse.list);
+                        //TODO: Set pages...
+                        adapter.addAllItems(dualResponse.list);
                         mTagSearchAnchor = dualResponse.tagSearchAnchor;
                         mUserSearchAnchor = dualResponse.userSearchAnchor;
                     }
@@ -205,18 +206,17 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void addPageLoadSubscriptionByTag(final PaginationAdapter adapter) {
         unSubscribeSearchObservables();
+        if (adapter.shouldShowLoadingIndicator()) adapter.showLoadingIndicator();
 
-        if (!adapter.isShowingRowLoadingIndicator()) {
-            adapter.showRowLoadingIndicator();
-        }
-
-        String tag = adapter.getRowTag();
-        String anchor = adapter.getAnchor();
-        int nextPage = adapter.getNextPage();
+        Map<String, String> options = adapter.getAdapterOptions();
+        String tag = options.get(PaginationAdapter.KEY_TAG);
+        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         mTagSubscription = mDataManager.getPostsByTag(tag, nextPage, anchor)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
@@ -225,13 +225,15 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
                     @Override
                     public void onError(Throwable e) {
-                        Timber.e(e, "There was an error loading the videos");
+                        //TODO: Handle error
                         adapter.removeLoadingIndicator();
+                        Timber.e("There was an error loading the videos", e);
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
                         adapter.setAnchor(postResponse.data.anchorStr);
+                        adapter.setNextPage(postResponse.data.nextPage);
                         adapter.addAllItems(postResponse.data.records);
                     }
                 });
@@ -239,17 +241,17 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void addPageLoadSubscriptionByUser(final PaginationAdapter adapter) {
         unSubscribeSearchObservables();
-        if (!adapter.isShowingRowLoadingIndicator()) {
-            adapter.showRowLoadingIndicator();
-        }
+        if (adapter.shouldShowLoadingIndicator()) adapter.showLoadingIndicator();
 
-        String tag = adapter.getRowTag();
-        String anchor = adapter.getAnchor();
-        int nextPage = adapter.getNextPage();
+        Map<String, String> options = adapter.getAdapterOptions();
+        String tag = options.get(PaginationAdapter.KEY_TAG);
+        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         mUserSubscription = mDataManager.getPostsByUser(tag, nextPage, anchor)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
@@ -258,6 +260,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
                     @Override
                     public void onError(Throwable e) {
+                        //TODO: Handle error
                         adapter.removeLoadingIndicator();
                         Timber.e(e, "There was an error loading the videos");
                     }
@@ -272,8 +275,12 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     }
 
     private void unSubscribeSearchObservables() {
-        if (mUserSubscription != null) mUserSubscription.unsubscribe();
-        if (mTagSubscription != null) mTagSubscription.unsubscribe();
+        if (mUserSubscription != null && !mUserSubscription.isUnsubscribed()) {
+            mUserSubscription.unsubscribe();
+        }
+        if (mTagSubscription != null && !mTagSubscription.isUnsubscribed()) {
+            mTagSubscription.unsubscribe();
+        }
     }
 
     private OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
@@ -282,9 +289,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
                 Post post = (Post) item;
-                int index = mRowsAdapter.indexOf(row);
+                int index = mResultsAdapter.indexOf(row);
                 PostAdapter arrayObjectAdapter =
-                        ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
+                        ((PostAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
                 ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Tag) {
@@ -303,29 +310,27 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Tag || item instanceof User) {
                 boolean isValid = true;
-                if (mCurrentFilter != null && mCurrentFilter.equals(item)) isValid = false;
-                mCurrentFilter = item;
+                if (mSelectedTag != null && mSelectedTag.equals(item)) isValid = false;
+                mSelectedTag = item;
                 if (isValid) {
-                    int index = mRowsAdapter.indexOf(row);
-                    PaginationAdapter arrayObjectAdapter =
-                            ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                    List<Object> posts = arrayObjectAdapter.getItems();
-                    if (item.equals(posts.get(posts.size() - 1))) {
-                        if (arrayObjectAdapter.shouldLoadNextPage()) {
-                            loadSearchResults(arrayObjectAdapter);
-                        }
+                    int index = mResultsAdapter.indexOf(row);
+                    PaginationAdapter adapter =
+                            ((PaginationAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
+                    if (index == (adapter.size() - 1) && adapter.shouldLoadNextPage()) {
+                        performSearch(adapter);
                     }
+
                     if (item instanceof Tag) {
                         Tag tagOne = (Tag) item;
                         String tag = tagOne.tag;
-                        arrayObjectAdapter.setTag(tag);
+                        adapter.setTag(tag);
 
                         setListAdapterData(tag);
                         addPageLoadSubscriptionByTag(mPostResultsAdapter);
                     } else {
                         User user = (User) item;
                         String tag = user.userId;
-                        arrayObjectAdapter.setTag(tag);
+                        adapter.setTag(tag);
 
                         setListAdapterData(tag);
                         addPageLoadSubscriptionByUser(mPostResultsAdapter);
@@ -339,11 +344,11 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if (mPostResultsAdapter == null) {
             mPostResultsAdapter = new PostAdapter(getActivity(), tag);
             HeaderItem header = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
-            mRowsAdapter.add(new ListRow(header, mPostResultsAdapter));
+            mResultsAdapter.add(new ListRow(header, mPostResultsAdapter));
         }
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");
-        if (mPostResultsAdapter.isShowingRowLoadingIndicator()) {
+        if (!mPostResultsAdapter.shouldShowLoadingIndicator()) {
             mPostResultsAdapter.removeItems(1, mPostResultsAdapter.size() - 2);
         } else {
             mPostResultsAdapter.clear();

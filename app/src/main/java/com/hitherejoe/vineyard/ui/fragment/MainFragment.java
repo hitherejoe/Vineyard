@@ -27,26 +27,28 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
-import com.hitherejoe.vineyard.ui.IconHeaderItemPresenter;
+import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
+import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -59,18 +61,17 @@ public class MainFragment extends BrowseFragment {
     public static final int REQUEST_CODE_AUTO_LOOP = 1352;
     public static final String RESULT_OPTION = "RESULT_OPTION";
 
-    @Inject
-    CompositeSubscription mCompositeSubscription;
-    @Inject
-    DataManager mDataManager;
+    @Inject CompositeSubscription mCompositeSubscription;
+    @Inject DataManager mDataManager;
+    @Inject PreferencesHelper mPreferencesHelper;
 
     private ArrayObjectAdapter mRowsAdapter;
-    private OptionsAdapter mOptionsAdapter;
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
     private Handler mHandler;
     private Option mOption;
+    private OptionsAdapter mOptionsAdapter;
     private Runnable mBackgroundRunnable;
 
     private String mPopularText;
@@ -84,6 +85,7 @@ public class MainFragment extends BrowseFragment {
         mHandler = new Handler();
         mPopularText = getString(R.string.header_text_popular);
         mEditorsPicksText = getString(R.string.header_text_editors_picks);
+
         loadVideos();
         setAdapter(mRowsAdapter);
         prepareBackgroundManager();
@@ -102,7 +104,6 @@ public class MainFragment extends BrowseFragment {
                 mOptionsAdapter.updateOption(mOption);
             }
         }
-        Timber.e(requestCode + "");
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -140,8 +141,8 @@ public class MainFragment extends BrowseFragment {
 
         mOption = new Option(getString(R.string.text_auto_loop_title));
         mOption.iconResource = R.drawable.lopp;
-        boolean shouldAutoloop = mDataManager.getPreferencesHelper().getShouldAutoLoop();
-        mOption.value = shouldAutoloop
+        boolean shouldAutoLoop = mPreferencesHelper.getShouldAutoLoop();
+        mOption.value = shouldAutoLoop
                 ? getString(R.string.text_auto_loop_enabled)
                 : getString(R.string.text_auto_loop_disabled);
 
@@ -219,12 +220,13 @@ public class MainFragment extends BrowseFragment {
         mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
     }
 
-    private void addPageLoadSubscription(final PostAdapter arrayObjectAdapter) {
-        arrayObjectAdapter.showRowLoadingIndicator();
+    private void addPageLoadSubscription(final PostAdapter adapter) {
+        if (adapter.shouldShowLoadingIndicator()) adapter.shouldShowLoadingIndicator();
 
-        String tag = arrayObjectAdapter.getRowTag();
-        String anchor = arrayObjectAdapter.getAnchor();
-        int nextPage = arrayObjectAdapter.getNextPage();
+        Map<String, String> options = adapter.getAdapterOptions();
+        String tag = options.get(PaginationAdapter.KEY_TAG);
+        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         Observable<VineyardService.PostResponse> observable;
 
@@ -236,30 +238,29 @@ public class MainFragment extends BrowseFragment {
             observable = mDataManager.getPostsByTag(tag, nextPage, anchor);
         }
 
-        Timber.e("NEXT PAGE = " + nextPage);
-
         mCompositeSubscription.add(observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        arrayObjectAdapter.removeLoadingIndicator();
+                        //TODO: Handle error...
+                        adapter.removeLoadingIndicator();
                         Timber.e("There was an error loading the videos", e);
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
-                        arrayObjectAdapter.setAnchor(postResponse.data.anchorStr);
-                        arrayObjectAdapter.setNextPage(postResponse.data.nextPage);
+                        adapter.setAnchor(postResponse.data.anchorStr);
+                        adapter.setNextPage(postResponse.data.nextPage);
                         List<Post> posts = postResponse.data.records;
                         Collections.sort(posts);
-                        arrayObjectAdapter.addAllItems(posts);
+                        adapter.addAllItems(posts);
                     }
                 }));
     }
@@ -276,6 +277,7 @@ public class MainFragment extends BrowseFragment {
                 ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Option) {
+                //TODO: Handle more than this one option
                 startActivityForResult(
                         GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
             }
@@ -290,13 +292,10 @@ public class MainFragment extends BrowseFragment {
                 String backgroundUrl = ((Post) item).thumbnailUrl;
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
                 int index = mRowsAdapter.indexOf(row);
-                PostAdapter arrayObjectAdapter =
+                PostAdapter adapter =
                         ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                List<Post> posts = arrayObjectAdapter.getAllItems();
-                if (item.equals(posts.get(posts.size() - 1))) {
-                    if (arrayObjectAdapter.shouldLoadNextPage()) {
-                        addPageLoadSubscription(arrayObjectAdapter);
-                    }
+                if (index == (adapter.size() - 1) && adapter.shouldLoadNextPage()) {
+                    addPageLoadSubscription(adapter);
                 }
             }
         }

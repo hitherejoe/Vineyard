@@ -3,7 +3,7 @@ package com.hitherejoe.vineyard.ui.adapter;
 import android.content.Context;
 
 import com.hitherejoe.vineyard.data.model.Tag;
-import com.hitherejoe.vineyard.ui.TagPresenter;
+import com.hitherejoe.vineyard.ui.presenter.TagPresenter;
 
 import java.util.ArrayList;
 import java.util.List;

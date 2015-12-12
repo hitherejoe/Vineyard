@@ -58,32 +58,32 @@ public class DataManager {
         return mVineyardService.getUser(userId);
     }
 
-    public Observable<VineyardService.PostResponse> getPopularPosts(int page, String anchor) {
+    public Observable<VineyardService.PostResponse> getPopularPosts(String page, String anchor) {
         return mVineyardService.getPopularPosts(page, anchor);
     }
 
-    public Observable<VineyardService.PostResponse> getEditorsPicksPosts(int page, String anchor) {
+    public Observable<VineyardService.PostResponse> getEditorsPicksPosts(String page, String anchor) {
         return mVineyardService.getEditorsPicksPosts(page, anchor);
     }
 
-    public Observable<VineyardService.PostResponse> getPostsByTag(String tag, int page, String anchor) {
+    public Observable<VineyardService.PostResponse> getPostsByTag(String tag, String page, String anchor) {
         return mVineyardService.getPostsByTag(tag, page, anchor);
     }
 
-    public Observable<VineyardService.PostResponse> getPostsByUser(String userId, int page, String anchor) {
+    public Observable<VineyardService.PostResponse> getPostsByUser(String userId, String page, String anchor) {
         return mVineyardService.getUserTimeline(userId, page, anchor);
     }
 
-    public Observable<VineyardService.TagResponse> searchByTag(String tag, int page, String anchor) {
+    public Observable<VineyardService.TagResponse> searchByTag(String tag, String page, String anchor) {
         return mVineyardService.searchByTag(tag, page, anchor);
     }
 
-    public Observable<VineyardService.UserResponse> searchByUser(String query, int page, String anchor) {
+    public Observable<VineyardService.UserResponse> searchByUser(String query, String page, String anchor) {
         return mVineyardService.searchByUser(query, page, anchor);
     }
 
     public Observable<SearchFragment.CombinedSearchResponse> search(
-            String tag, int pageOne, String anchorOne, int pageTwo, String anchorTwo) {
+            String tag, String pageOne, String anchorOne, String pageTwo, String anchorTwo) {
         return Observable.zip(searchByTag(tag, pageOne, anchorOne), searchByUser(tag, pageTwo, anchorTwo),
                 new Func2<VineyardService.TagResponse, VineyardService.UserResponse, SearchFragment.CombinedSearchResponse>() {
                     @Override

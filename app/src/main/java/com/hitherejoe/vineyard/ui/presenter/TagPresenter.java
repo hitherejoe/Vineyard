@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.ui;
+package com.hitherejoe.vineyard.ui.presenter;
 
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v4.content.ContextCompat;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
+import com.hitherejoe.vineyard.ui.widget.TagCardView;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.

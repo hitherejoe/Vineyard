@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.R;
-import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
@@ -22,10 +21,7 @@ import javax.inject.Inject;
 
 public class AutoLoopStepFragment extends GuidedStepFragment {
 
-    @Inject
-    DataManager mDatamanager;
-    @Inject
-    PreferencesHelper mPreferencesHelper;
+    @Inject PreferencesHelper mPreferencesHelper;
 
     private static final int ENABLED = 0;
     private static final int DISABLED = 1;
@@ -35,39 +31,13 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
-        mPreferencesHelper = mDatamanager.getPreferencesHelper();
-        boolean isAutoLoopEnabled = mPreferencesHelper.getShouldAutoLoop();
-        updateActions(isAutoLoopEnabled);
+        updateActions();
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public int onProvideTheme() {
         return R.style.Theme_Example_Leanback_GuidedStep_First;
-    }
-
-    private static void addCheckedAction(List<GuidedAction> actions, long id,
-                                         String title, String desc, boolean checked) {
-        GuidedAction guidedAction = new GuidedAction.Builder()
-                .id(id)
-                .title(title)
-                .description(desc)
-                .checkSetId(OPTION_CHECK_SET_ID)
-                .build();
-        guidedAction.setChecked(checked);
-        actions.add(guidedAction);
-    }
-
-    private void updateActions(boolean shouldAutoLoop) {
-        List<GuidedAction> actions = getActions();
-        for (int i = 0; i < actions.size(); i++) {
-            GuidedAction action = actions.get(i);
-            if (action.getId() == ENABLED) {
-                action.setChecked(shouldAutoLoop);
-            } else if (action.getId() == DISABLED) {
-                action.setChecked(!shouldAutoLoop);
-            }
-        }
     }
 
     @Override
@@ -103,6 +73,27 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
         } else {
             getFragmentManager().popBackStack();
         }
+    }
+
+    private void updateActions() {
+        boolean shouldAutoLoop = mPreferencesHelper.getShouldAutoLoop();
+        List<GuidedAction> actions = getActions();
+        for (int i = 0; i < actions.size(); i++) {
+            GuidedAction action = actions.get(i);
+            action.setChecked(action.getId() == ENABLED ? shouldAutoLoop : !shouldAutoLoop);
+        }
+    }
+
+    private static void addCheckedAction(List<GuidedAction> actions, long id,
+                                         String title, String desc, boolean checked) {
+        GuidedAction guidedAction = new GuidedAction.Builder()
+                .id(id)
+                .title(title)
+                .description(desc)
+                .checkSetId(OPTION_CHECK_SET_ID)
+                .build();
+        guidedAction.setChecked(checked);
+        actions.add(guidedAction);
     }
 
 }

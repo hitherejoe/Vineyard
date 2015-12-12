@@ -3,13 +3,11 @@ package com.hitherejoe.vineyard.ui.adapter;
 import android.content.Context;
 
 import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.ui.CardPresenter;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import timber.log.Timber;
 
 public class PostAdapter extends PaginationAdapter {
 
@@ -25,7 +23,6 @@ public class PostAdapter extends PaginationAdapter {
             if (object instanceof Post) posts.add((Post) object);
         }
         Collections.sort(posts);
-        Timber.e(items.size() + "");
         addPosts(posts);
     }
 

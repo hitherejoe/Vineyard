@@ -37,22 +37,22 @@ public interface VineyardService {
     Observable<User> getUser(@Path("userid") String userId);
 
     @GET("timelines/users/{userid}")
-    Observable<VineyardService.PostResponse> getUserTimeline(@Path("userid") String userId, @Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<VineyardService.PostResponse> getUserTimeline(@Path("userid") String userId, @Query("page") String page, @Query("anchorStr") String anchor);
 
     @GET("timelines/popular")
-    Observable<PostResponse> getPopularPosts(@Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<PostResponse> getPopularPosts(@Query("page") String page, @Query("anchorStr") String anchor);
 
     @GET("timelines/promoted")
-    Observable<PostResponse> getEditorsPicksPosts(@Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<PostResponse> getEditorsPicksPosts(@Query("page") String page, @Query("anchorStr") String anchor);
 
     @GET("timelines/tags/{tag}")
-    Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") String page, @Query("anchorStr") String anchor);
 
     @GET("search/tags/{tag}")
-    Observable<TagResponse> searchByTag(@Path("tag") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<TagResponse> searchByTag(@Path("tag") String tag, @Query("page") String page, @Query("anchorStr") String anchor);
 
     @GET("search/users/{query}")
-    Observable<UserResponse> searchByUser(@Path("query") String tag, @Query("page") int page, @Query("anchorStr") String anchor);
+    Observable<UserResponse> searchByUser(@Path("query") String tag, @Query("page") String page, @Query("anchorStr") String anchor);
 
     /********
      * Helper class that sets up a new services

@@ -14,12 +14,14 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
+import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.Tag;
@@ -28,10 +30,13 @@ import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
+import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -47,19 +52,17 @@ public class PostGridFragment extends VerticalGridFragment {
     public static final String TYPE_USER = "tag";
     public static final String TYPE_TAG = "user";
 
-    @Inject
-    CompositeSubscription mCompositeSubscription;
-    @Inject
-    DataManager mDataManager;
+    @Inject CompositeSubscription mCompositeSubscription;
+    @Inject DataManager mDataManager;
 
     private static final int NUM_COLUMNS = 5;
     private static final int BACKGROUND_UPDATE_DELAY = 300;
 
-    private PostAdapter mRowsAdapter;
-    private Handler mHandler;
+    private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
-    private BackgroundManager mBackgroundManager;
+    private Handler mHandler;
+    private PostAdapter mPostAdapter;
     private Runnable mBackgroundRunnable;
     private String mSelectedType;
 
@@ -91,7 +94,8 @@ public class PostGridFragment extends VerticalGridFragment {
     private void prepareBackgroundManager() {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
         mBackgroundManager.attach(getActivity().getWindow());
-        mDefaultBackground = new ColorDrawable(0xffff6666);
+        mDefaultBackground =
+                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.bg_light_grey));
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
@@ -106,9 +110,9 @@ public class PostGridFragment extends VerticalGridFragment {
             tag = ((Tag) selectedItem).tag;
         }
         setTitle(tag);
-        mRowsAdapter = new PostAdapter(getActivity(), tag);
+        mPostAdapter = new PostAdapter(getActivity(), tag);
 
-        setAdapter(mRowsAdapter);
+        setAdapter(mPostAdapter);
         addPageLoadSubscription();
     }
 
@@ -122,8 +126,7 @@ public class PostGridFragment extends VerticalGridFragment {
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                startActivity(intent);
+                startActivity(SearchActivity.getStartIntent(getActivity()));
             }
         });
 
@@ -162,11 +165,12 @@ public class PostGridFragment extends VerticalGridFragment {
     }
 
     private void addPageLoadSubscription() {
-        mRowsAdapter.showRowLoadingIndicator();
+        if (mPostAdapter.shouldShowLoadingIndicator()) mPostAdapter.showLoadingIndicator();
 
-        String tag = mRowsAdapter.getRowTag();
-        String anchor = mRowsAdapter.getAnchor();
-        int nextPage = mRowsAdapter.getNextPage();
+        Map<String, String> options = mPostAdapter.getAdapterOptions();
+        String tag = options.get(PaginationAdapter.KEY_TAG);
+        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         Observable<VineyardService.PostResponse> observable = null;
 
@@ -179,24 +183,29 @@ public class PostGridFragment extends VerticalGridFragment {
             mCompositeSubscription.add(observable
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
+                    .unsubscribeOn(Schedulers.io())
                     .subscribe(new Subscriber<VineyardService.PostResponse>() {
                         @Override
                         public void onCompleted() {
-                            mRowsAdapter.removeLoadingIndicator();
+                            mPostAdapter.removeLoadingIndicator();
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mRowsAdapter.removeLoadingIndicator();
-                            Timber.e(e, "There was an error loading the videos");
+                            //TODO: Handle no search results or error loading results
+                            mPostAdapter.removeLoadingIndicator();
+                            Timber.e("There was an error loading the videos", e);
                         }
 
                         @Override
                         public void onNext(VineyardService.PostResponse postResponse) {
-                            mRowsAdapter.setAnchor(postResponse.data.anchorStr);
-                            mRowsAdapter.addAllItems(postResponse.data.records);
+                            mPostAdapter.setAnchor(postResponse.data.anchorStr);
+                            mPostAdapter.setNextPage(postResponse.data.nextPage);
+                            mPostAdapter.addAllItems(postResponse.data.records);
                         }
                     }));
+        } else {
+            //TODO: Handle error
         }
     }
 
@@ -206,7 +215,7 @@ public class PostGridFragment extends VerticalGridFragment {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
                 Post post = (Post) item;
-                ArrayList<Post> postList = (ArrayList<Post>) mRowsAdapter.getAllItems();
+                ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             }
         }
@@ -219,14 +228,12 @@ public class PostGridFragment extends VerticalGridFragment {
             if (item instanceof Post) {
                 String backgroundUrl = ((Post) item).thumbnailUrl;
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
-                ArrayList<Post> posts = (ArrayList<Post>) mRowsAdapter.getAllItems();
+                ArrayList<Post> posts = (ArrayList<Post>) mPostAdapter.getAllItems();
 
-                int itemIndex = mRowsAdapter.indexOf(item);
+                int itemIndex = mPostAdapter.indexOf(item);
                 int minimumIndex = posts.size() - NUM_COLUMNS;
-                if (itemIndex >= minimumIndex) {
-                    if (mRowsAdapter.shouldLoadNextPage()) {
-                        addPageLoadSubscription();
-                    }
+                if (itemIndex >= minimumIndex && mPostAdapter.shouldLoadNextPage()) {
+                    addPageLoadSubscription();
                 }
             }
         }

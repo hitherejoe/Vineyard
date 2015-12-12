@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.ui;
+package com.hitherejoe.vineyard.ui.presenter;
 
 import android.content.Context;
 import android.support.v17.leanback.widget.Presenter;
@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.data.model.Option;
+import com.hitherejoe.vineyard.ui.widget.OptionCardView;
 
 
 public class OptionItemPresenter extends Presenter {

@@ -6,21 +6,29 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
-import com.hitherejoe.vineyard.ui.LoadingCardView;
-import com.hitherejoe.vineyard.ui.LoadingPresenter;
+import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
+import com.hitherejoe.vineyard.ui.presenter.LoadingPresenter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public abstract class PaginationAdapter extends ArrayObjectAdapter {
 
-    private Presenter mPresenter;
-    private LoadingPresenter mLoadingPresenter;
-    private int mLoadingIndicatorPosition;
-    private Integer mNextPage;
-    private String mRowTag;
+    public static final String KEY_TAG = "tag";
+    public static final String KEY_ANCHOR = "anchor";
+    public static final String KEY_NEXT_PAGE = "next_page";
+
     private Context mContext;
+    private Integer mNextPage;
+    private LoadingPresenter mLoadingPresenter;
+    private Presenter mPresenter;
+
+    private String mRowTag;
     private String mAnchor;
+    private int mLoadingIndicatorPosition;
+
 
     public PaginationAdapter(Context context, Presenter presenter, String tag) {
         mContext = context;
@@ -51,27 +59,15 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
         });
     }
 
-    public String getAnchor() {
-        return this.mAnchor;
-    }
-
-    public Integer getNextPage() {
-        return this.mNextPage;
-    }
-
-    public String getRowTag() {
-        return this.mRowTag;
-    }
-
     public List<Object> getItems() {
         return unmodifiableList();
     }
 
-    public boolean isShowingRowLoadingIndicator() {
-        return mLoadingIndicatorPosition != -1;
+    public boolean shouldShowLoadingIndicator() {
+        return mLoadingIndicatorPosition == -1;
     }
 
-    public void showRowLoadingIndicator() {
+    public void showLoadingIndicator() {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -97,12 +93,20 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
         if (posts.size() > 0) {
             addAll(size(), posts);
         } else {
-            mNextPage = null;
+            mNextPage = 0;
         }
     }
 
     public boolean shouldLoadNextPage() {
-        return !isShowingRowLoadingIndicator() && getNextPage() != 0;
+        return shouldShowLoadingIndicator() && mNextPage != 0;
+    }
+
+    public Map<String, String> getAdapterOptions() {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(KEY_TAG, mRowTag);
+        map.put(KEY_ANCHOR, mAnchor);
+        map.put(KEY_NEXT_PAGE, String.valueOf(mNextPage.toString()));
+        return map;
     }
 
     public abstract void addAllItems(List<?> items);

@@ -6,7 +6,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.OptionItemPresenter;
+import com.hitherejoe.vineyard.ui.presenter.OptionItemPresenter;
 
 public class OptionsAdapter extends ArrayObjectAdapter {
 

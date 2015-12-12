@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.ui;
+package com.hitherejoe.vineyard.ui.presenter;
 
 import android.content.Context;
 import android.content.res.TypedArray;
