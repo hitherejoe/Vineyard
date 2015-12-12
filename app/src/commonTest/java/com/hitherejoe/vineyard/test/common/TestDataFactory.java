@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class MockModelFabric {
+public class TestDataFactory {
 
     public static String generateRandomString() {
         return UUID.randomUUID().toString();
