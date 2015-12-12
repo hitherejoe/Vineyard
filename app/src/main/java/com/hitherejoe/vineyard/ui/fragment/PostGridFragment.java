@@ -1,6 +1,5 @@
 package com.hitherejoe.vineyard.ui.fragment;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -24,8 +23,6 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.data.model.Tag;
-import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
@@ -35,7 +32,6 @@ import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -49,6 +45,8 @@ import timber.log.Timber;
 
 public class PostGridFragment extends VerticalGridFragment {
 
+    public static final String ARG_ITEM_TYPE = "arg_item_type";
+    public static final String ARG_ITEM_ID = "arg_item_id";
     public static final String TYPE_USER = "tag";
     public static final String TYPE_TAG = "user";
 
@@ -66,12 +64,23 @@ public class PostGridFragment extends VerticalGridFragment {
     private Runnable mBackgroundRunnable;
     private String mSelectedType;
 
+    public static PostGridFragment newInstance(String itemType, String itemId) {
+        PostGridFragment postGridFragment = new PostGridFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_ITEM_TYPE, itemType);
+        args.putString(ARG_ITEM_ID, itemId);
+        postGridFragment.setArguments(args);
+        return postGridFragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
         setupFragment();
         prepareBackgroundManager();
+        Bundle args = getArguments();
+        setTag(args.getString(ARG_ITEM_TYPE), args.getString(ARG_ITEM_ID));
     }
 
     @Override
@@ -100,17 +109,14 @@ public class PostGridFragment extends VerticalGridFragment {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
 
-    public void setTag(Object selectedItem) {
-        String tag = null;
-        if (selectedItem instanceof User) {
+    public void setTag(String itemType, String itemId) {
+        if (itemType.equals(TYPE_USER)) {
             mSelectedType = TYPE_USER;
-            tag = ((User) selectedItem).userId;
-        } else if (selectedItem instanceof Tag) {
+        } if (itemType.equals(TYPE_TAG)) {
             mSelectedType = TYPE_TAG;
-            tag = ((Tag) selectedItem).tag;
         }
-        setTitle(tag);
-        mPostAdapter = new PostAdapter(getActivity(), tag);
+        setTitle(itemId);
+        mPostAdapter = new PostAdapter(getActivity(), itemId);
 
         setAdapter(mPostAdapter);
         addPageLoadSubscription();

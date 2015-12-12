@@ -6,7 +6,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.hitherejoe.vineyard.data.model.Authentication;
-import com.hitherejoe.vineyard.test.common.rules.ClearDataRule;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
 import com.hitherejoe.vineyard.ui.activity.ConnectActivity;
 import com.hitherejoe.vineyard.ui.activity.LauncherActivity;
@@ -38,6 +37,7 @@ import static org.mockito.Mockito.doReturn;
 
 @RunWith(AndroidJUnit4.class)
 public class ConnectActivityTest {
+    /*
 
     public final TestComponentRule component =
             new TestComponentRule(InstrumentationRegistry.getTargetContext(), true);
@@ -144,5 +144,5 @@ public class ConnectActivityTest {
                 .inRoot(CustomMatchers.isToast())
                 .check(matches(isDisplayed()));
     }
-
+*/
 }

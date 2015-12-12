@@ -296,10 +296,10 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Tag) {
                 Tag tag = (Tag) item;
-                startActivity(PostGridActivity.newStartIntent(getActivity(), tag));
+                startActivity(PostGridActivity.getStartIntent(getActivity(), PostGridActivity.TYPE_TAG, tag.tag));
             } else if (item instanceof User) {
                 User user = (User) item;
-                startActivity(PostGridActivity.newStartIntent(getActivity(), user));
+                startActivity(PostGridActivity.getStartIntent(getActivity(), PostGridActivity.TYPE_USER, user.userId));
             }
         }
     };

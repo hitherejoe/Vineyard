@@ -1,5 +1,6 @@
 package com.hitherejoe.vineyard.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,10 @@ import android.view.KeyEvent;
 import com.hitherejoe.vineyard.R;
 
 public class MainActivity extends BaseActivity {
+
+    public static Intent getStartIntent(Context context) {
+        return new Intent(context, MainActivity.class);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

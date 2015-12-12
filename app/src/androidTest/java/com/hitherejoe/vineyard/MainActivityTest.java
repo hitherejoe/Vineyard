@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard;
 
 
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -8,8 +9,7 @@ import android.support.v17.leanback.widget.HeaderItem;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
-import com.hitherejoe.vineyard.test.common.MockModelFabric;
-import com.hitherejoe.vineyard.test.common.rules.ClearDataRule;
+import com.hitherejoe.vineyard.test.common.TestDataFactory;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
 import com.hitherejoe.vineyard.ui.activity.MainActivity;
 
@@ -35,7 +35,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.EspressoTestMatchers.withDrawable;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -43,16 +42,23 @@ import static org.mockito.Mockito.when;
 public class MainActivityTest {
 
     public final TestComponentRule component =
-            new TestComponentRule(InstrumentationRegistry.getTargetContext(), true);
-
-    public final ClearDataRule clearDataRule = new ClearDataRule(component);
-
+            new TestComponentRule(InstrumentationRegistry.getTargetContext());
     public final ActivityTestRule<MainActivity> main =
-            new ActivityTestRule<>(MainActivity.class, false, false);
+            new ActivityTestRule<MainActivity>(MainActivity.class, false, false) {
+                @Override
+                protected Intent getActivityIntent() {
+                    // Override the default intent so we pass a false flag for syncing so it doesn't
+                    // start a sync service in the background that would affect  the behaviour of
+                    // this test.
+                    return MainActivity.getStartIntent(
+                            InstrumentationRegistry.getTargetContext());
+                }
+            };
 
+    // TestComponentRule needs to go first to make sure the Dagger ApplicationTestComponent is set
+    // in the Application before any Activity is launched.
     @Rule
-    public TestRule chain = RuleChain.outerRule(component).around(clearDataRule).around(main);
-
+    public final TestRule chain = RuleChain.outerRule(component).around(main);
     @Test
     public void testAllCategoriesShown() {
         stubVideoFeedData();
@@ -202,31 +208,31 @@ public class MainActivityTest {
     }
 
     private void stubVideoFeedData() {
-        List<Post> mockPosts = MockModelFabric.createMockListOfPosts(17);
+        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(17);
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
         data.records = mockPosts;
         postResponse.data = data;
 
-        when(component.getMockVineyardService().getPopularPosts(anyInt(), anyString()))
+        when(component.getMockDataManager().getPopularPosts(anyString(), anyString()))
                 .thenReturn(Observable.just(postResponse));
 
-        List<Post> mockTagPosts = MockModelFabric.createMockListOfPosts(17);
+        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
         tagData.records = mockTagPosts;
         postTagResponse.data = tagData;
 
-        when(component.getMockVineyardService().getPostsByTag(anyString(), anyInt(), anyString()))
+        when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
                 .thenReturn(Observable.just(postTagResponse));
 
-        List<Post> mockEditorsPosts = MockModelFabric.createMockListOfPosts(17);
+        List<Post> mockEditorsPosts = TestDataFactory.createMockListOfPosts(17);
         VineyardService.PostResponse postEditosResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data editorsData = new VineyardService.PostResponse.Data();
         editorsData.records = mockEditorsPosts;
         postEditosResponse.data = editorsData;
 
-        when(component.getMockVineyardService().getEditorsPicksPosts(anyInt(), anyString()))
+        when(component.getMockDataManager().getEditorsPicksPosts(anyString(), anyString()))
                 .thenReturn(Observable.just(postEditosResponse));
     }
 

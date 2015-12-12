@@ -29,6 +29,11 @@
     <string name="guided_step_auto_loop_disabled">Disabled</string>
     <string name="guided_step_auto_loop_disabled_description">Play videos simultaneously</string>
 
+    <!-- Error Fragments -->
+    <string name="text_error_oops_title">Oops</string>
+    <string name="text_error_oops_message">It looks like an error occurred, please try again!</string>
+    <string name="text_error_dismiss">Dismiss</string>
+
     <!-- Settings -->
     <string name="text_auto_loop_title">Auto-loop</string>
     <string name="text_auto_loop_enabled">Enabled</string>
