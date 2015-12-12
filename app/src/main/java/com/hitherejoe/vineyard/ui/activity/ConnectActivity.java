@@ -12,7 +12,6 @@ import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.util.NetworkUtil;
-import com.hitherejoe.vineyard.util.SchedulerAppliers;
 
 import javax.inject.Inject;
 
@@ -22,6 +21,7 @@ import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class ConnectActivity extends BaseActivity {
@@ -46,7 +46,7 @@ public class ConnectActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityComponent().inject(this);
+        getActivityComponent().inject(this);
 
         setContentView(R.layout.activity_connect);
         ButterKnife.bind(this);
@@ -100,7 +100,8 @@ public class ConnectActivity extends BaseActivity {
     private void login(String username, String password) {
         mSubscription = mDataManager.getAccessToken(username, password)
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(SchedulerAppliers.<Authentication>defaultSchedulers(this))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<Authentication>() {
                     @Override
                     public void onCompleted() {

@@ -7,6 +7,9 @@
 
     <!-- Headers -->
     <string name="header_text_settings">Settings</string>
+    <string name="header_text_popular">Popular</string>
+    <string name="header_text_editors_picks">Editors Picks</string>
+    <string name="header_text_options">Options</string>
 
     <!-- Connect Activity -->
     <string name="text_hint_username">Username</string>

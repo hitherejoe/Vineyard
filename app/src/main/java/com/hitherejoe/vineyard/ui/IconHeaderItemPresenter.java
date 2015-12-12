@@ -47,11 +47,11 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
         TypedArray resources = rootView.getResources().obtainTypedArray(R.array.icons);
         int drawableResource = 0;
 
-        if (name.equals(MainFragment.TAG_POPULAR)) {
+        if (name.equals(rootView.getResources().getString(R.string.header_text_popular))) {
             drawableResource = R.drawable.ic_fire;
-        } else if (name.equals(MainFragment.TAG_TRENDING)) {
+        } else if (name.equals(rootView.getResources().getString(R.string.header_text_editors_picks))) {
             drawableResource = R.drawable.ic_border_color_white_24dp;
-        } else if (name.equals(MainFragment.TAG_OPTIONS)) {
+        } else if (name.equals(rootView.getResources().getString(R.string.header_text_options))) {
             drawableResource = R.drawable.ic_settings_white_24dp;
         } else {
             for (int i = 0; i < categories.length; i++) {

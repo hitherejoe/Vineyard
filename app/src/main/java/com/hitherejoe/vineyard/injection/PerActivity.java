@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.injection.scope;
+package com.hitherejoe.vineyard.injection;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

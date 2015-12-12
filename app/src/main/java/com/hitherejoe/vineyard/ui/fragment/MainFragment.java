@@ -30,40 +30,39 @@ import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
-import com.hitherejoe.vineyard.ui.OptionItemPresenter;
 import com.hitherejoe.vineyard.ui.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
-import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
-import com.hitherejoe.vineyard.util.SchedulerAppliers;
+import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 public class MainFragment extends BrowseFragment {
 
-    public static final String TAG_POPULAR = "Popular";
-    public static final String TAG_TRENDING = "Editors Picks";
-    public static final String TAG_OPTIONS = "Options";
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     public static final int REQUEST_CODE_AUTO_LOOP = 1352;
     public static final String RESULT_OPTION = "RESULT_OPTION";
-    private Option mOption;
 
-    @Inject protected CompositeSubscription mCompositeSubscription;
-    @Inject protected DataManager mDataManager;
+    @Inject
+    CompositeSubscription mCompositeSubscription;
+    @Inject
+    DataManager mDataManager;
 
     private ArrayObjectAdapter mRowsAdapter;
     private OptionsAdapter mOptionsAdapter;
@@ -71,34 +70,30 @@ public class MainFragment extends BrowseFragment {
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
     private Handler mHandler;
+    private Option mOption;
     private Runnable mBackgroundRunnable;
+
+    private String mPopularText;
+    private String mEditorsPicksText;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
+        ((BaseActivity) getActivity()).getActivityComponent().inject(this);
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mHandler = new Handler();
+        mPopularText = getString(R.string.header_text_popular);
+        mEditorsPicksText = getString(R.string.header_text_editors_picks);
         loadVideos();
         setAdapter(mRowsAdapter);
         prepareBackgroundManager();
         setupUIElements();
-        setOnItemViewClickedListener(mOnItemViewClickedListener);
-        setOnItemViewSelectedListener(mOnItemViewSelectedListener);
-
-        setOnSearchClickedListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                startActivity(intent);
-            }
-        });
+        setupListeners();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQUEST_CODE_AUTO_LOOP) {
+        if (requestCode == REQUEST_CODE_AUTO_LOOP) {
             if (data != null) {
                 boolean isEnabled = data.getBooleanExtra(RESULT_OPTION, false);
                 mOption.value = isEnabled
@@ -128,28 +123,6 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager.release();
     }
 
-    private void loadVideos() {
-        loadVideosFromFeed(TAG_TRENDING, 0);
-        loadVideosFromFeed(TAG_POPULAR, 1);
-        String[] categories = getResources().getStringArray(R.array.categories);
-        for (int i = 0; i < categories.length; i++) loadVideosFromFeed(categories[i], i + 2);
-    }
-
-    private void loadVideosFromFeed(String tag, int headerPosition) {
-        PaginationAdapter listRowAdapter = new PaginationAdapter(getActivity(), tag);
-        addPageLoadSubscription(listRowAdapter);
-        HeaderItem header = new HeaderItem(headerPosition, tag);
-        mRowsAdapter.add(new ListRow(header, listRowAdapter));
-    }
-
-    private void prepareBackgroundManager() {
-        mBackgroundManager = BackgroundManager.getInstance(getActivity());
-        mBackgroundManager.attach(getActivity().getWindow());
-        mDefaultBackground = new ColorDrawable(0xffff6666);
-        mMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
-    }
-
     private void setupUIElements() {
         setBadgeDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.banner));
         setHeadersState(HEADERS_ENABLED);
@@ -172,11 +145,48 @@ public class MainFragment extends BrowseFragment {
                 ? getString(R.string.text_auto_loop_enabled)
                 : getString(R.string.text_auto_loop_disabled);
 
-        HeaderItem gridHeader = new HeaderItem(mRowsAdapter.size(), TAG_OPTIONS);
-
+        HeaderItem gridHeader =
+                new HeaderItem(mRowsAdapter.size(), getString(R.string.header_text_options));
         mOptionsAdapter = new OptionsAdapter(getActivity());
         mOptionsAdapter.addOption(mOption);
         mRowsAdapter.add(new ListRow(gridHeader, mOptionsAdapter));
+    }
+
+    private void setupListeners() {
+        setOnItemViewClickedListener(mOnItemViewClickedListener);
+        setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+
+        setOnSearchClickedListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void loadVideos() {
+        loadVideosFromFeed(mPopularText, 0);
+        loadVideosFromFeed(mEditorsPicksText, 1);
+        String[] categories = getResources().getStringArray(R.array.categories);
+        for (int i = 0; i < categories.length; i++) loadVideosFromFeed(categories[i], i + 2);
+    }
+
+    private void loadVideosFromFeed(String tag, int headerPosition) {
+        PostAdapter listRowAdapter = new PostAdapter(getActivity(), tag);
+        addPageLoadSubscription(listRowAdapter);
+        HeaderItem header = new HeaderItem(headerPosition, tag);
+        mRowsAdapter.add(new ListRow(header, listRowAdapter));
+    }
+
+    private void prepareBackgroundManager() {
+        mBackgroundManager = BackgroundManager.getInstance(getActivity());
+        mBackgroundManager.attach(getActivity().getWindow());
+        mDefaultBackground =
+                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.primary_light));
+        mMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
 
     protected void updateBackground(String uri) {
@@ -209,7 +219,7 @@ public class MainFragment extends BrowseFragment {
         mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
     }
 
-    private void addPageLoadSubscription(final PaginationAdapter arrayObjectAdapter) {
+    private void addPageLoadSubscription(final PostAdapter arrayObjectAdapter) {
         arrayObjectAdapter.showRowLoadingIndicator();
 
         String tag = arrayObjectAdapter.getRowTag();
@@ -218,20 +228,19 @@ public class MainFragment extends BrowseFragment {
 
         Observable<VineyardService.PostResponse> observable;
 
-        switch (tag) {
-            case TAG_POPULAR:
-                observable = mDataManager.getPopularPosts(nextPage, anchor);
-                break;
-            case TAG_TRENDING:
-                observable = mDataManager.getEditorsPicksPosts(nextPage, anchor);
-                break;
-            default:
-                observable = mDataManager.getPostsByTag(tag, nextPage, anchor);
-                break;
+        if (tag.equals(mPopularText)) {
+            observable = mDataManager.getPopularPosts(nextPage, anchor);
+        } else if (tag.equals(mEditorsPicksText)) {
+            observable = mDataManager.getEditorsPicksPosts(nextPage, anchor);
+        } else {
+            observable = mDataManager.getPostsByTag(tag, nextPage, anchor);
         }
 
+        Timber.e("NEXT PAGE = " + nextPage);
+
         mCompositeSubscription.add(observable
-                .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
@@ -241,13 +250,16 @@ public class MainFragment extends BrowseFragment {
                     @Override
                     public void onError(Throwable e) {
                         arrayObjectAdapter.removeLoadingIndicator();
-                        Timber.e(e, "There was an error loading the videos");
+                        Timber.e("There was an error loading the videos", e);
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
                         arrayObjectAdapter.setAnchor(postResponse.data.anchorStr);
-                        arrayObjectAdapter.addPosts(postResponse.data.records);
+                        arrayObjectAdapter.setNextPage(postResponse.data.nextPage);
+                        List<Post> posts = postResponse.data.records;
+                        Collections.sort(posts);
+                        arrayObjectAdapter.addAllItems(posts);
                     }
                 }));
     }
@@ -259,12 +271,13 @@ public class MainFragment extends BrowseFragment {
             if (item instanceof Post) {
                 Post post = (Post) item;
                 int index = mRowsAdapter.indexOf(row);
-                PaginationAdapter arrayObjectAdapter =
-                        ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                ArrayList<Post> postList = new ArrayList<>(arrayObjectAdapter.getPosts());
+                PostAdapter arrayObjectAdapter =
+                        ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
+                ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Option) {
-                startActivityForResult(new Intent(getActivity(), GuidedStepActivity.class), REQUEST_CODE_AUTO_LOOP);
+                startActivityForResult(
+                        GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
             }
         }
     };
@@ -277,12 +290,11 @@ public class MainFragment extends BrowseFragment {
                 String backgroundUrl = ((Post) item).thumbnailUrl;
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
                 int index = mRowsAdapter.indexOf(row);
-                PaginationAdapter arrayObjectAdapter =
-                        ((PaginationAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                List<Post> posts = arrayObjectAdapter.getPosts();
+                PostAdapter arrayObjectAdapter =
+                        ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
+                List<Post> posts = arrayObjectAdapter.getAllItems();
                 if (item.equals(posts.get(posts.size() - 1))) {
-                    if (!(arrayObjectAdapter.isShowingRowLoadingIndicator())
-                            && arrayObjectAdapter.isPaginationEnabled()) {
+                    if (arrayObjectAdapter.shouldLoadNextPage()) {
                         addPageLoadSubscription(arrayObjectAdapter);
                     }
                 }

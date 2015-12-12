@@ -27,12 +27,18 @@ public class VineyardApplication extends Application {
         return (VineyardApplication) context.getApplicationContext();
     }
 
-    public ApplicationComponent getComponent() {
-        return mApplicationComponent;
-    }
-
     // Needed to replace the component with a test specific one
     public void setComponent(ApplicationComponent applicationComponent) {
         mApplicationComponent = applicationComponent;
     }
+
+    public ApplicationComponent getComponent() {
+        if (mApplicationComponent == null) {
+            mApplicationComponent = DaggerApplicationComponent.builder()
+                    .applicationModule(new ApplicationModule(this))
+                    .build();
+        }
+        return mApplicationComponent;
+    }
+
 }

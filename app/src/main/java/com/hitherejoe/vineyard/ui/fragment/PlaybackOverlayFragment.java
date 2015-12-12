@@ -37,6 +37,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.CardPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
@@ -80,6 +81,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private ArrayObjectAdapter mSecondaryActionsAdapter;
     private FastForwardAction mFastForwardAction;
     private PlayPauseAction mPlayPauseAction;
+    private PreferencesHelper mPreferencesHelper;
     private RepeatAction mRepeatAction;
     private RewindAction mRewindAction;
     private SkipNextAction mSkipNextAction;
@@ -103,8 +105,9 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
-        mIsAutoLoopEnabled = mDataManager.getPreferencesHelper().getShouldAutoLoop();
+        ((BaseActivity) getActivity()).getActivityComponent().inject(this);
+        mPreferencesHelper = mDataManager.getPreferencesHelper();
+        mIsAutoLoopEnabled = mPreferencesHelper.getShouldAutoLoop();
 
         mClickTrackingHandler = new Handler();
         mItems = new ArrayList<>();
@@ -330,7 +333,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
     private void loopVideos() {
         mIsAutoLoopEnabled = !mIsAutoLoopEnabled;
-        mDataManager.getPreferencesHelper().putAutoLoop(mIsAutoLoopEnabled);
+        mPreferencesHelper.putAutoLoop(mIsAutoLoopEnabled);
         mRepeatAction.setIcon(getRepeatDrawable());
         Bundle bundle = new Bundle();
         bundle.putBoolean(PlaybackActivity.EXTRA_IS_LOOP_ENABLED, mIsAutoLoopEnabled);

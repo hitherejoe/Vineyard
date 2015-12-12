@@ -6,20 +6,14 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.LoadingCardView;
 import com.hitherejoe.vineyard.ui.OptionItemPresenter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class OptionsAdapter extends ArrayObjectAdapter {
 
     private OptionItemPresenter mCardPresenter;
-    private Context mContext;
 
     public OptionsAdapter(Context context) {
-        mContext = context;
-        mCardPresenter = new OptionItemPresenter(mContext);
+        mCardPresenter = new OptionItemPresenter(context);
         setPresenterSelector(new PresenterSelector() {
             @Override
             public Presenter getPresenter(Object item) {

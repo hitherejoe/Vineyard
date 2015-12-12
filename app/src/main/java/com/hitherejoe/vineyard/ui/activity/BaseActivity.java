@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.injection.component.ActivityComponent;
 import com.hitherejoe.vineyard.injection.component.DaggerActivityComponent;
+import com.hitherejoe.vineyard.injection.module.ActivityModule;
 
 public class BaseActivity extends Activity {
 
@@ -16,9 +17,10 @@ public class BaseActivity extends Activity {
         super.onCreate(savedInstanceState);
     }
 
-    public ActivityComponent activityComponent() {
+    public ActivityComponent getActivityComponent() {
         if (mActivityComponent == null) {
             mActivityComponent = DaggerActivityComponent.builder()
+                    .activityModule(new ActivityModule(this))
                     .applicationComponent(VineyardApplication.get(this).getComponent())
                     .build();
         }

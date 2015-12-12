@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard.injection.component;
 
-import com.hitherejoe.vineyard.injection.scope.PerActivity;
+import com.hitherejoe.vineyard.injection.PerActivity;
+import com.hitherejoe.vineyard.injection.module.ActivityModule;
 import com.hitherejoe.vineyard.ui.activity.ConnectActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 import com.hitherejoe.vineyard.ui.activity.MainActivity;
@@ -17,7 +18,7 @@ import dagger.Component;
  * This component inject dependencies to all Activities across the application
  */
 @PerActivity
-@Component(dependencies = ApplicationComponent.class)
+@Component(dependencies = ApplicationComponent.class, modules = ActivityModule.class)
 public interface ActivityComponent {
 
     void inject(MainActivity mainActivity);

@@ -1,11 +1,9 @@
 package com.hitherejoe.vineyard.ui.fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.view.LayoutInflater;
@@ -14,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 
@@ -21,12 +20,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import timber.log.Timber;
-
 public class AutoLoopStepFragment extends GuidedStepFragment {
 
     @Inject
     DataManager mDatamanager;
+    @Inject
+    PreferencesHelper mPreferencesHelper;
 
     private static final int ENABLED = 0;
     private static final int DISABLED = 1;
@@ -35,8 +34,9 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
-        boolean isAutoLoopEnabled = mDatamanager.getPreferencesHelper().getShouldAutoLoop();
+        ((BaseActivity) getActivity()).getActivityComponent().inject(this);
+        mPreferencesHelper = mDatamanager.getPreferencesHelper();
+        boolean isAutoLoopEnabled = mPreferencesHelper.getShouldAutoLoop();
         updateActions(isAutoLoopEnabled);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -72,7 +72,6 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
 
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
-        Timber.e(mDatamanager.getPreferencesHelper().getShouldAutoLoop() + "");
         String title = getString(R.string.guided_step_auto_loop_title);
         String description = getString(R.string.guided_step_auto_loop_description);
         Drawable icon = getActivity().getDrawable(R.drawable.lopp);
@@ -96,9 +95,7 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         if (action != null) {
-            Timber.e(action.getTitle().toString() + " " + action.getId() + "");
-            mDatamanager.getPreferencesHelper().putAutoLoop(action.getId() == ENABLED);
-            Timber.e(mDatamanager.getPreferencesHelper().getShouldAutoLoop() + "");
+            mPreferencesHelper.putAutoLoop(action.getId() == ENABLED);
             Intent output = new Intent();
             output.putExtra(MainFragment.RESULT_OPTION, action.getId() == ENABLED);
             getActivity().setResult(MainFragment.REQUEST_CODE_AUTO_LOOP, output);

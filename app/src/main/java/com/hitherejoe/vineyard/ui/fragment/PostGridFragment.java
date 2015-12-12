@@ -28,18 +28,17 @@ import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
-import com.hitherejoe.vineyard.ui.adapter.GridPaginationAdapter;
-import com.hitherejoe.vineyard.util.SchedulerAppliers;
+import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -56,7 +55,7 @@ public class PostGridFragment extends VerticalGridFragment {
     private static final int NUM_COLUMNS = 5;
     private static final int BACKGROUND_UPDATE_DELAY = 300;
 
-    private GridPaginationAdapter mRowsAdapter;
+    private PostAdapter mRowsAdapter;
     private Handler mHandler;
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
@@ -67,7 +66,7 @@ public class PostGridFragment extends VerticalGridFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
+        ((BaseActivity) getActivity()).getActivityComponent().inject(this);
         setupFragment();
         prepareBackgroundManager();
     }
@@ -107,7 +106,7 @@ public class PostGridFragment extends VerticalGridFragment {
             tag = ((Tag) selectedItem).tag;
         }
         setTitle(tag);
-        mRowsAdapter = new GridPaginationAdapter(getActivity(), tag);
+        mRowsAdapter = new PostAdapter(getActivity(), tag);
 
         setAdapter(mRowsAdapter);
         addPageLoadSubscription();
@@ -178,7 +177,8 @@ public class PostGridFragment extends VerticalGridFragment {
         }
         if (observable != null) {
             mCompositeSubscription.add(observable
-                    .compose(SchedulerAppliers.<VineyardService.PostResponse>defaultSchedulers(getActivity()))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
                     .subscribe(new Subscriber<VineyardService.PostResponse>() {
                         @Override
                         public void onCompleted() {
@@ -194,7 +194,7 @@ public class PostGridFragment extends VerticalGridFragment {
                         @Override
                         public void onNext(VineyardService.PostResponse postResponse) {
                             mRowsAdapter.setAnchor(postResponse.data.anchorStr);
-                            mRowsAdapter.addPosts(postResponse.data.records);
+                            mRowsAdapter.addAllItems(postResponse.data.records);
                         }
                     }));
         }
@@ -206,7 +206,7 @@ public class PostGridFragment extends VerticalGridFragment {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
                 Post post = (Post) item;
-                ArrayList<Post> postList = new ArrayList<>(mRowsAdapter.getPosts());
+                ArrayList<Post> postList = (ArrayList<Post>) mRowsAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             }
         }
@@ -219,12 +219,12 @@ public class PostGridFragment extends VerticalGridFragment {
             if (item instanceof Post) {
                 String backgroundUrl = ((Post) item).thumbnailUrl;
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
-                List<Post> posts = mRowsAdapter.getPosts();
+                ArrayList<Post> posts = (ArrayList<Post>) mRowsAdapter.getAllItems();
+
                 int itemIndex = mRowsAdapter.indexOf(item);
                 int minimumIndex = posts.size() - NUM_COLUMNS;
                 if (itemIndex >= minimumIndex) {
-                    if (!(mRowsAdapter.isShowingRowLoadingIndicator())
-                            && mRowsAdapter.isPaginationEnabled()) {
+                    if (mRowsAdapter.shouldLoadNextPage()) {
                         addPageLoadSubscription();
                     }
                 }

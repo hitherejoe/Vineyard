@@ -1,15 +1,10 @@
 package com.hitherejoe.vineyard.data;
 
-import android.content.Context;
-
-import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
-import com.hitherejoe.vineyard.injection.component.DaggerDataManagerComponent;
-import com.hitherejoe.vineyard.injection.module.DataManagerModule;
 import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 import com.squareup.otto.Bus;
 
@@ -19,30 +14,22 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
+@Singleton
 public class DataManager {
 
-    @Inject
-    protected VineyardService mVineyardService;
-    @Inject
-    protected PreferencesHelper mPreferencesHelper;
-    @Inject
-    protected Bus mBus;
+    private final VineyardService mVineyardService;
+    private final PreferencesHelper mPreferencesHelper;
 
-    public DataManager(Context context) {
-        injectDependencies(context);
-    }
-
-    protected void injectDependencies(Context context) {
-        DaggerDataManagerComponent.builder()
-                .applicationComponent(VineyardApplication.get(context).getComponent())
-                .dataManagerModule(new DataManagerModule(context))
-                .build()
-                .inject(this);
+    @Inject
+    public DataManager(PreferencesHelper preferencesHelper, VineyardService vineyardService) {
+        mPreferencesHelper = preferencesHelper;
+        mVineyardService = vineyardService;
     }
 
     public PreferencesHelper getPreferencesHelper() {

@@ -57,8 +57,8 @@ public interface VineyardService {
     /********
      * Helper class that sets up a new services
      *******/
-    class Factory {
-        public static VineyardService makeVineyardService() {
+    class Creator {
+        public static VineyardService newVineyardService() {
             OkHttpClient client = new OkHttpClient();
             client.interceptors().add(new Interceptor() {
                 @Override
@@ -85,6 +85,7 @@ public interface VineyardService {
 
         public static class Data {
             public String anchorStr;
+            public int nextPage;
             public List<Post> records;
         }
     }

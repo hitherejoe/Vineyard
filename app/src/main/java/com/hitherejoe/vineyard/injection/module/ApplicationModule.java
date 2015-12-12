@@ -1,8 +1,11 @@
 package com.hitherejoe.vineyard.injection.module;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.remote.VineyardService;
+import com.hitherejoe.vineyard.injection.ApplicationContext;
 import com.squareup.otto.Bus;
 
 import javax.inject.Singleton;
@@ -24,15 +27,15 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
-    Application provideApplication() {
+    @ApplicationContext
+    Context provideContext() {
         return mApplication;
     }
 
     @Provides
     @Singleton
-    DataManager provideDataManager() {
-        return new DataManager(mApplication);
+    Application provideApplication() {
+        return mApplication;
     }
 
     @Provides
@@ -46,4 +49,9 @@ public class ApplicationModule {
         return new Bus();
     }
 
+    @Provides
+    @Singleton
+    VineyardService provideVineyardService() {
+        return VineyardService.Creator.newVineyardService();
+    }
 }

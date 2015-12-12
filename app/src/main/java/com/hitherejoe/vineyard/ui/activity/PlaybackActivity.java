@@ -80,7 +80,7 @@ public class PlaybackActivity extends BaseActivity {
         createMediaSession();
         setContentView(R.layout.playback_controls);
         ButterKnife.bind(this);
-        activityComponent().inject(this);
+        getActivityComponent().inject(this);
 
         mCurrentPost = getIntent().getParcelableExtra(PlaybackActivity.POST);
         if (mCurrentPost == null) {

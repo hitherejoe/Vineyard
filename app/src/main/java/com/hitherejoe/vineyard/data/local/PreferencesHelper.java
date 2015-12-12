@@ -4,6 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import com.hitherejoe.vineyard.injection.ApplicationContext;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class PreferencesHelper {
 
     private static SharedPreferences mPref;
@@ -14,8 +20,8 @@ public class PreferencesHelper {
     private static final String PREF_KEY_USER_ID = "PREF_KEY_USER_ID";
     private static final String PREF_KEY_AUTO_LOOP_VIDEOS = "PREF_KEY_AUTO_LOOP_VIDEOS";
 
-
-    public PreferencesHelper(Context context) {
+    @Inject
+    public PreferencesHelper(@ApplicationContext Context context) {
         mPref = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
     }
 

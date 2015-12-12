@@ -1,7 +1,5 @@
 package com.hitherejoe.vineyard.test.common.injection.module;
 
-import com.hitherejoe.vineyard.injection.module.DefaultSchedulersModule;
-
 import javax.inject.Named;
 
 import dagger.Module;

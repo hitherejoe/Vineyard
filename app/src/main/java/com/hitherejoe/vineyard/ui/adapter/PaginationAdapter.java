@@ -5,38 +5,29 @@ import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
-import android.util.Log;
 
-import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.ui.CardPresenter;
 import com.hitherejoe.vineyard.ui.LoadingCardView;
 import com.hitherejoe.vineyard.ui.LoadingPresenter;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
-public class PaginationAdapter extends ArrayObjectAdapter {
+public abstract class PaginationAdapter extends ArrayObjectAdapter {
 
-    private CardPresenter mCardPresenter;
+    private Presenter mPresenter;
     private LoadingPresenter mLoadingPresenter;
     private int mLoadingIndicatorPosition;
-    private int mCurrentPage;
+    private Integer mNextPage;
     private String mRowTag;
-    private List<Post> mRowPosts;
     private Context mContext;
     private String mAnchor;
-    private boolean mPaginationEnabled;
 
-    public PaginationAdapter(Context context, String tag) {
+    public PaginationAdapter(Context context, Presenter presenter, String tag) {
         mContext = context;
-        mCardPresenter = new CardPresenter();
+        mPresenter = presenter;
         mLoadingPresenter = new LoadingPresenter();
-        mPaginationEnabled = true;
-        mCurrentPage = -1;
+        mNextPage = 1;
         mRowTag = tag;
-        mRowPosts = new ArrayList<>();
         setPresenterSelector();
     }
 
@@ -44,8 +35,8 @@ public class PaginationAdapter extends ArrayObjectAdapter {
         mRowTag = tag;
     }
 
-    public void setFirstPage(int page) {
-        mCurrentPage = page;
+    public void setNextPage(int page) {
+        mNextPage = page;
     }
 
     public void setPresenterSelector() {
@@ -55,46 +46,28 @@ public class PaginationAdapter extends ArrayObjectAdapter {
                 if (item instanceof LoadingCardView) {
                     return mLoadingPresenter;
                 }
-                return mCardPresenter;
+                return mPresenter;
             }
         });
-    }
-
-    public boolean isPaginationEnabled() {
-        return this.mPaginationEnabled;
     }
 
     public String getAnchor() {
         return this.mAnchor;
     }
 
-    public int getNextPage() {
-        mCurrentPage++;
-        return this.mCurrentPage;
+    public Integer getNextPage() {
+        return this.mNextPage;
     }
 
     public String getRowTag() {
         return this.mRowTag;
     }
 
-    public List<Post> getPosts() {
-        return mRowPosts;
-    }
-
-    public void addPosts(List<Post> posts) {
-        if (posts.size() > 0) {
-            Collections.sort(posts);
-            mRowPosts.addAll(posts);
-            addAll(size(), posts);
-            mPaginationEnabled = true;
-        } else {
-            mPaginationEnabled = false;
-        }
+    public List<Object> getItems() {
+        return unmodifiableList();
     }
 
     public boolean isShowingRowLoadingIndicator() {
-        Log.d("PRGGG", "CHECK it!!!! : " + mLoadingIndicatorPosition);
-        //return size() != 0 && get(size() - 1) instanceof LoadingCardView;
         return mLoadingIndicatorPosition != -1;
     }
 
@@ -111,7 +84,6 @@ public class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public void removeLoadingIndicator() {
-        Log.d("PRGGG", "REMOVE it!!!!");
         removeItems(mLoadingIndicatorPosition, 1);
         notifyItemRangeRemoved(mLoadingIndicatorPosition, 1);
         mLoadingIndicatorPosition = -1;
@@ -120,5 +92,22 @@ public class PaginationAdapter extends ArrayObjectAdapter {
     public void setAnchor(String anchor) {
         mAnchor = anchor;
     }
+
+    public void addPosts(List<?> posts) {
+        if (posts.size() > 0) {
+            addAll(size(), posts);
+        } else {
+            mNextPage = null;
+        }
+    }
+
+    public boolean shouldLoadNextPage() {
+        return !isShowingRowLoadingIndicator() && getNextPage() != 0;
+    }
+
+    public abstract void addAllItems(List<?> items);
+
+    public abstract List<?> getAllItems();
+
 
 }
