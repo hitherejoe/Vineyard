@@ -43,6 +43,30 @@ public class PostGridActivityTest {
     public final TestRule chain = RuleChain.outerRule(component).around(main);
 
     @Test
+    public void listOfUserPostsShowsAndIsScrollable() {
+        stubPostGridData();
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_USER, "123");
+        main.launchActivity(intent);
+
+        onView(withText("123"))
+                .check(matches(isDisplayed()));
+        //TODO: Find a proper way to scroll through and check content
+    }
+
+    @Test
+    public void listOfTagPostsShowsAndIsScrollable() {
+        stubPostGridData();
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("123"))
+                .check(matches(isDisplayed()));
+        //TODO: Find a proper way to scroll through and check content
+    }
+
+    @Test
     public void errorFragmentNotDisplayed() {
         stubPostGridData();
         Context context = InstrumentationRegistry.getTargetContext();
