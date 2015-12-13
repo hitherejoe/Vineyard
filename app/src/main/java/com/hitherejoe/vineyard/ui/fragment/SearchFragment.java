@@ -57,7 +57,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private ArrayObjectAdapter mResultsAdapter;
     private HeaderItem mResultsHeader;
-    private HeaderItem mPostResultsHeader;
     private Object mSelectedTag;
     private PostAdapter mPostResultsAdapter;
     private Subscription mSearchResultsSubscription;
@@ -160,11 +159,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void searchTaggedPosts(String tag) {
         mSearchResultsAdapter.setTag(tag);
-        //if (mResultsAdapter.size() == 0) {
-            mResultsAdapter.clear();
-            mResultsHeader = new HeaderItem(0, getString(R.string.text_search_results));
-            mResultsAdapter.add(new ListRow(mResultsHeader, mSearchResultsAdapter));
-        //}
+        mResultsAdapter.clear();
+        mResultsHeader = new HeaderItem(0, getString(R.string.text_search_results));
+        mResultsAdapter.add(new ListRow(mResultsHeader, mSearchResultsAdapter));
         performSearch(mSearchResultsAdapter);
     }
 
@@ -197,9 +194,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     @Override
                     public void onError(Throwable e) {
                         //TODO: Handle error
-
-                        // if there's an error when searching then don't clear the current ones,
-                        // show a toast and remove title?
                         adapter.removeLoadingIndicator();
                         Toast.makeText(
                                 getActivity(),
@@ -211,9 +205,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
                     @Override
                     public void onNext(CombinedSearchResponse dualResponse) {
-                        // if there are no results then show a message saying there aren't any
-
-                        //TODO: Set pages...
                         if (dualResponse.list.isEmpty()) {
                             mResultsAdapter.clear();
                             mResultsHeader = new HeaderItem(0, getString(R.string.text_no_results));
@@ -244,7 +235,8 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
-                    public void onCompleted() { }
+                    public void onCompleted() {
+                    }
 
                     @Override
                     public void onError(Throwable e) {
@@ -290,7 +282,8 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
-                    public void onCompleted() { }
+                    public void onCompleted() {
+                    }
 
                     @Override
                     public void onError(Throwable e) {
@@ -376,9 +369,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     int index = mResultsAdapter.indexOf(row);
                     PaginationAdapter adapter =
                             ((PaginationAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
-                    if (index == (adapter.size() - 1) && adapter.shouldLoadNextPage()) {
-                        performSearch(adapter);
-                    }
 
                     if (item instanceof Tag) {
                         Tag tagOne = (Tag) item;
@@ -407,10 +397,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if (mPostResultsAdapter == null) {
             mPostResultsAdapter = new PostAdapter(getActivity(), tag);
         }
-        //mPostResultsAdapter.clear();
         mResultsAdapter.removeItems(1, 1);
-        mPostResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
-        mResultsAdapter.add(new ListRow(mPostResultsHeader, mPostResultsAdapter));
+        HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
+        mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
 
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");

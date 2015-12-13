@@ -200,7 +200,6 @@ public class PostGridFragment extends VerticalGridFragment {
                         @Override
                         public void onError(Throwable e) {
                             mPostAdapter.removeLoadingIndicator();
-                            mPostAdapter.removeLoadingIndicator();
                             if (mPostAdapter.size() == 0) {
                                 mPostAdapter.showTryAgainCard();
                             } else {
