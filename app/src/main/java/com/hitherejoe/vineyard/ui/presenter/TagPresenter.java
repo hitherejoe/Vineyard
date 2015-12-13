@@ -39,8 +39,6 @@ public class TagPresenter extends Presenter {
 
     private static void updateCardBackgroundColor(TagCardView view, boolean selected) {
         int color = selected ? sSelectedBackgroundColor : sDefaultBackgroundColor;
-        // Both background colors should be set because the view's background is temporarily visible
-        // during animations.
         view.setBackgroundColor(color);
     }
 

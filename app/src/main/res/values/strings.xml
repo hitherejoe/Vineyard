@@ -54,6 +54,11 @@
     <string name="error_message_sign_in_blank">Oops, username and password can\'t be empty!</string>
     <string name="error_message_sign_in_blank_username">Oops, username can\'t be empty!</string>
     <string name="error_message_sign_in_blank_password">Oops, password can\'t be empty!</string>
+    <string name="error_message_loading_more_posts">Sorry, there was an error loading more posts</string>
+    <string name="title_oops">Oops</string>
+    <string name="title_no_videos">No videos</string>
+    <string name="message_try_again">Try again?</string>
+    <string name="message_check_again">Check again?</string>
 
     <string-array name="categories">
         <item>Scary</item>

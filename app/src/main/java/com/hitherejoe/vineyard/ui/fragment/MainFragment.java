@@ -21,6 +21,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -30,7 +31,8 @@ import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.data.remote.VineyardService;
+import com.hitherejoe.vineyard.data.remote.VineyardService.PostResponse;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
@@ -138,7 +140,6 @@ public class MainFragment extends BrowseFragment {
             }
         });
 
-
         mOption = new Option(getString(R.string.text_auto_loop_title));
         mOption.iconResource = R.drawable.lopp;
         boolean shouldAutoLoop = mPreferencesHelper.getShouldAutoLoop();
@@ -221,15 +222,14 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void addPageLoadSubscription(final PostAdapter adapter) {
-        if (adapter.shouldShowLoadingIndicator()) adapter.shouldShowLoadingIndicator();
+        if (adapter.shouldShowLoadingIndicator()) adapter.showLoadingIndicator();
 
         Map<String, String> options = adapter.getAdapterOptions();
         String tag = options.get(PaginationAdapter.KEY_TAG);
         String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
         String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
-        Observable<VineyardService.PostResponse> observable;
-
+        Observable<PostResponse> observable;
         if (tag.equals(mPopularText)) {
             observable = mDataManager.getPopularPosts(nextPage, anchor);
         } else if (tag.equals(mEditorsPicksText)) {
@@ -241,26 +241,36 @@ public class MainFragment extends BrowseFragment {
         mCompositeSubscription.add(observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<VineyardService.PostResponse>() {
+                .unsubscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<PostResponse>() {
                     @Override
-                    public void onCompleted() {
-                        adapter.removeLoadingIndicator();
-                    }
+                    public void onCompleted() { }
 
                     @Override
                     public void onError(Throwable e) {
-                        //TODO: Handle error...
                         adapter.removeLoadingIndicator();
-                        Timber.e("There was an error loading the videos", e);
+                        if (adapter.size() == 0) {
+                            adapter.showTryAgainCard();
+                        } else {
+                            Toast.makeText(
+                                    getActivity(),
+                                    getString(R.string.error_message_loading_more_posts),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                        Timber.e("There was an error loading the posts", e);
                     }
 
                     @Override
-                    public void onNext(VineyardService.PostResponse postResponse) {
-                        adapter.setAnchor(postResponse.data.anchorStr);
-                        adapter.setNextPage(postResponse.data.nextPage);
-                        List<Post> posts = postResponse.data.records;
-                        Collections.sort(posts);
-                        adapter.addAllItems(posts);
+                    public void onNext(PostResponse postResponse) {
+                        adapter.removeLoadingIndicator();
+                        if (adapter.size() == 0 && postResponse.data.records.isEmpty()) {
+                            adapter.showReloadCard();
+                        } else {
+                            adapter.setAnchor(postResponse.data.anchorStr);
+                            adapter.setNextPage(postResponse.data.nextPage);
+                            adapter.addAllItems(postResponse.data.records);
+                        }
                     }
                 }));
     }
@@ -272,14 +282,22 @@ public class MainFragment extends BrowseFragment {
             if (item instanceof Post) {
                 Post post = (Post) item;
                 int index = mRowsAdapter.indexOf(row);
-                PostAdapter arrayObjectAdapter =
+                PostAdapter adapter =
                         ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
+                ArrayList<Post> postList = (ArrayList<Post>) adapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Option) {
                 //TODO: Handle more than this one option
                 startActivityForResult(
                         GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
+            } else if (item instanceof String) {
+                if (item.equals(CardPresenter.ITEM_RELOAD)) {
+                    int index = mRowsAdapter.indexOf(row);
+                    PostAdapter adapter =
+                            ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
+                    adapter.removeReloadCard();
+                    addPageLoadSubscription(adapter);
+                }
             }
         }
     };
