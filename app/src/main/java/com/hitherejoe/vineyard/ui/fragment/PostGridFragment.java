@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.VerticalGridFragment;
+import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -16,6 +17,7 @@ import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -29,6 +31,7 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -192,22 +195,34 @@ public class PostGridFragment extends VerticalGridFragment {
                     .unsubscribeOn(Schedulers.io())
                     .subscribe(new Subscriber<VineyardService.PostResponse>() {
                         @Override
-                        public void onCompleted() {
-                            mPostAdapter.removeLoadingIndicator();
-                        }
+                        public void onCompleted() { }
 
                         @Override
                         public void onError(Throwable e) {
-                            //TODO: Handle no search results or error loading results
                             mPostAdapter.removeLoadingIndicator();
-                            Timber.e("There was an error loading the videos", e);
+                            mPostAdapter.removeLoadingIndicator();
+                            if (mPostAdapter.size() == 0) {
+                                mPostAdapter.showTryAgainCard();
+                            } else {
+                                Toast.makeText(
+                                        getActivity(),
+                                        getString(R.string.error_message_loading_more_posts),
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                            Timber.e("There was an error loading the posts", e);
                         }
 
                         @Override
                         public void onNext(VineyardService.PostResponse postResponse) {
-                            mPostAdapter.setAnchor(postResponse.data.anchorStr);
-                            mPostAdapter.setNextPage(postResponse.data.nextPage);
-                            mPostAdapter.addAllItems(postResponse.data.records);
+                            mPostAdapter.removeLoadingIndicator();
+                            if (mPostAdapter.size() == 0 && postResponse.data.records.isEmpty()) {
+                                mPostAdapter.showReloadCard();
+                            } else {
+                                mPostAdapter.setAnchor(postResponse.data.anchorStr);
+                                mPostAdapter.setNextPage(postResponse.data.nextPage);
+                                mPostAdapter.addAllItems(postResponse.data.records);
+                            }
                         }
                     }));
         } else {
@@ -223,6 +238,15 @@ public class PostGridFragment extends VerticalGridFragment {
                 Post post = (Post) item;
                 ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+            } else if (item instanceof String) {
+                if (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+                    int index = mPostAdapter.indexOf(row);
+                    PostAdapter adapter =
+                            ((PostAdapter) ((ListRow) mPostAdapter.get(index)).getAdapter());
+                    adapter.removeReloadCard();
+                    addPageLoadSubscription();
+                }
             }
         }
     };
