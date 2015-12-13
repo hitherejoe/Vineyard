@@ -121,15 +121,17 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public void removeReloadCard() {
-        if (isReloadCardDisplayed()) {
-            remove(CardPresenter.ITEM_RELOAD);
+        if (isRefreshCardDisplayed()) {
+            removeItems(0, 1);
             notifyItemRangeRemoved(size(), 1);
         }
     }
 
-    public boolean isReloadCardDisplayed() {
+    public boolean isRefreshCardDisplayed() {
         Object item = get(size() - 1);
-        return item instanceof String && item.equals(CardPresenter.ITEM_RELOAD);
+        return item instanceof String &&
+                (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN));
     }
 
     public abstract void addAllItems(List<?> items);

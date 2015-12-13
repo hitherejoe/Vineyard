@@ -291,7 +291,8 @@ public class MainFragment extends BrowseFragment {
                 startActivityForResult(
                         GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
             } else if (item instanceof String) {
-                if (item.equals(CardPresenter.ITEM_RELOAD)) {
+                if (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
                     int index = mRowsAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
