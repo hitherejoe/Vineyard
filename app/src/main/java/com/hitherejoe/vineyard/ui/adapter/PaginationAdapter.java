@@ -121,7 +121,6 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public void removeReloadCard() {
-        Timber.e("REMOVE");
         if (isReloadCardDisplayed()) {
             remove(CardPresenter.ITEM_RELOAD);
             notifyItemRangeRemoved(size(), 1);
