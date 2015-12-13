@@ -14,9 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import timber.log.Timber;
-
-
 public abstract class PaginationAdapter extends ArrayObjectAdapter {
 
     public static final String KEY_TAG = "tag";
