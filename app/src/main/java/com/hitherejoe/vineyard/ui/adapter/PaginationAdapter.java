@@ -34,6 +34,7 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
         mContext = context;
         mPresenter = presenter;
         mLoadingPresenter = new LoadingPresenter();
+        mLoadingIndicatorPosition = -1;
         mNextPage = 1;
         mRowTag = tag;
         setPresenterSelector();
