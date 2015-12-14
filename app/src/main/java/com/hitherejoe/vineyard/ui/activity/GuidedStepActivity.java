@@ -20,7 +20,7 @@ public class GuidedStepActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActivityComponent().inject(this);
-        GuidedStepFragment.add(getFragmentManager(), new AutoLoopStepFragment());
+        GuidedStepFragment.addAsRoot(this, new AutoLoopStepFragment(), android.R.id.content);
     }
 
 }
