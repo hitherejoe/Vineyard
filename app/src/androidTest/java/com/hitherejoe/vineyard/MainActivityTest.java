@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.KeyEvent;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
@@ -28,6 +29,7 @@ import rx.Observable;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.pressKey;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -96,7 +98,27 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testPostsDisplayAndAreBrowseeable() {
+    public void testPostsDisplayAndAreBrowseeable() throws InterruptedException {
+        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
+        Collections.sort(mockTagPosts);
+        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
+        tagData.records = mockTagPosts;
+        postTagResponse.data = tagData;
+
+        when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        List<Post> mockEditorsPosts = TestDataFactory.createMockListOfPosts(17);
+        Collections.sort(mockEditorsPosts);
+        VineyardService.PostResponse postEditosResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data editorsData = new VineyardService.PostResponse.Data();
+        editorsData.records = mockEditorsPosts;
+        postEditosResponse.data = editorsData;
+
+        when(component.getMockDataManager().getEditorsPicksPosts(anyString(), anyString()))
+                .thenReturn(Observable.just(postEditosResponse));
+
         List<Post> mockPosts = TestDataFactory.createMockListOfPosts(17);
         Collections.sort(mockPosts);
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
@@ -109,27 +131,27 @@ public class MainActivityTest {
 
         main.launchActivity(null);
 
-        //TODO: Check all categories
         onView(withId(R.id.browse_headers))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        for (int i1 = 0; i1 < mockPosts.size(); i1++) {
-            checkItemAtPosition(i1, mockPosts.get(i1));
+
+        for (int i = 0; i < mockPosts.size(); i++) {
+            checkItemAtPosition(i, mockPosts.get(i));
         }
 
+        pressBack();
     }
 
-    private void checkItemAtPosition(int position, Post post) {
-        // VerticalGridFragment->BaseGridView->RecyclerView means we can use RecyclerViewActions! :D
+    private void checkItemAtPosition(int position, Post post) throws InterruptedException {
         if (position > 0) {
-            onView(withId(R.id.browse_grid))
-                    .perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
+            onView(withItemText(post.description, R.id.browse_container_dock)).perform(click());
+            Thread.sleep(200);
         }
-        onView(withItemText(post.description, R.id.browse_grid)).check(matches(isDisplayed()));
-        onView(withItemText(post.username, R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText(post.description, R.id.browse_container_dock)).check(matches(isDisplayed()));
+        onView(withItemText(post.username, R.id.browse_container_dock)).check(matches(isDisplayed()));
     }
 
     @Test
-    public void testOptionsDisplayAndAreBrowseable() {
+    public void testOptionsDisplayAndAreBrowsable() {
         stubVideoFeedData();
         main.launchActivity(null);
 
