@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.VerticalGridFragment;
+import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -16,6 +17,7 @@ import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -29,6 +31,7 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -47,8 +50,8 @@ public class PostGridFragment extends VerticalGridFragment {
 
     public static final String ARG_ITEM_TYPE = "arg_item_type";
     public static final String ARG_ITEM_ID = "arg_item_id";
-    public static final String TYPE_USER = "tag";
-    public static final String TYPE_TAG = "user";
+    public static final String TYPE_USER = "user";
+    public static final String TYPE_TAG = "tag";
 
     @Inject CompositeSubscription mCompositeSubscription;
     @Inject DataManager mDataManager;
@@ -81,6 +84,7 @@ public class PostGridFragment extends VerticalGridFragment {
         prepareBackgroundManager();
         Bundle args = getArguments();
         setTag(args.getString(ARG_ITEM_TYPE), args.getString(ARG_ITEM_ID));
+        setSearchAffordanceColor(R.color.search_opaque);
     }
 
     @Override
@@ -112,12 +116,13 @@ public class PostGridFragment extends VerticalGridFragment {
     public void setTag(String itemType, String itemId) {
         if (itemType.equals(TYPE_USER)) {
             mSelectedType = TYPE_USER;
+            setTitle(itemId);
         } if (itemType.equals(TYPE_TAG)) {
             mSelectedType = TYPE_TAG;
+            setTitle(String.format("#%s", itemId));
         }
-        setTitle(itemId);
-        mPostAdapter = new PostAdapter(getActivity(), itemId);
 
+        mPostAdapter = new PostAdapter(getActivity(), itemId);
         setAdapter(mPostAdapter);
         addPageLoadSubscription();
     }
@@ -192,22 +197,35 @@ public class PostGridFragment extends VerticalGridFragment {
                     .unsubscribeOn(Schedulers.io())
                     .subscribe(new Subscriber<VineyardService.PostResponse>() {
                         @Override
-                        public void onCompleted() {
-                            mPostAdapter.removeLoadingIndicator();
-                        }
+                        public void onCompleted() { }
 
                         @Override
                         public void onError(Throwable e) {
-                            //TODO: Handle no search results or error loading results
                             mPostAdapter.removeLoadingIndicator();
-                            Timber.e("There was an error loading the videos", e);
+                            if (mPostAdapter.size() == 0) {
+                                mPostAdapter.showTryAgainCard();
+                            } else {
+                                Toast.makeText(
+                                        getActivity(),
+                                        getString(R.string.error_message_loading_more_posts),
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                            Timber.e("There was an error loading the posts", e);
+                            e.printStackTrace();
                         }
 
                         @Override
                         public void onNext(VineyardService.PostResponse postResponse) {
-                            mPostAdapter.setAnchor(postResponse.data.anchorStr);
-                            mPostAdapter.setNextPage(postResponse.data.nextPage);
-                            mPostAdapter.addAllItems(postResponse.data.records);
+                            Timber.e("SIZE " + postResponse.data.records.size());
+                            mPostAdapter.removeLoadingIndicator();
+                            if (mPostAdapter.size() == 0 && postResponse.data.records.isEmpty()) {
+                                mPostAdapter.showReloadCard();
+                            } else {
+                                mPostAdapter.setAnchor(postResponse.data.anchorStr);
+                                mPostAdapter.setNextPage(postResponse.data.nextPage);
+                                mPostAdapter.addAllItems(postResponse.data.records);
+                            }
                         }
                     }));
         } else {
@@ -223,6 +241,15 @@ public class PostGridFragment extends VerticalGridFragment {
                 Post post = (Post) item;
                 ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+            } else if (item instanceof String) {
+                if (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+                    int index = mPostAdapter.indexOf(row);
+                    PostAdapter adapter =
+                            ((PostAdapter) ((ListRow) mPostAdapter.get(index)).getAdapter());
+                    adapter.removeReloadCard();
+                    addPageLoadSubscription();
+                }
             }
         }
     };

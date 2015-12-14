@@ -6,13 +6,13 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
 import com.hitherejoe.vineyard.ui.presenter.LoadingPresenter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 public abstract class PaginationAdapter extends ArrayObjectAdapter {
 
@@ -34,6 +34,7 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
         mContext = context;
         mPresenter = presenter;
         mLoadingPresenter = new LoadingPresenter();
+        mLoadingIndicatorPosition = -1;
         mNextPage = 1;
         mRowTag = tag;
         setPresenterSelector();
@@ -102,11 +103,33 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
     }
 
     public Map<String, String> getAdapterOptions() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(KEY_TAG, mRowTag);
         map.put(KEY_ANCHOR, mAnchor);
         map.put(KEY_NEXT_PAGE, String.valueOf(mNextPage.toString()));
         return map;
+    }
+
+    public void showReloadCard() {
+        add(CardPresenter.ITEM_RELOAD);
+    }
+
+    public void showTryAgainCard() {
+        add(CardPresenter.ITEM_TRY_AGAIN);
+    }
+
+    public void removeReloadCard() {
+        if (isRefreshCardDisplayed()) {
+            removeItems(0, 1);
+            notifyItemRangeRemoved(size(), 1);
+        }
+    }
+
+    public boolean isRefreshCardDisplayed() {
+        Object item = get(size() - 1);
+        return item instanceof String &&
+                (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN));
     }
 
     public abstract void addAllItems(List<?> items);

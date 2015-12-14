@@ -7,6 +7,7 @@ import com.hitherejoe.vineyard.data.model.User;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +22,7 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
+import timber.log.Timber;
 
 public interface VineyardService {
 
@@ -68,6 +70,10 @@ public interface VineyardService {
                     return response;
                 }
             });
+
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            client.interceptors().add(interceptor);
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(VineyardService.ENDPOINT)

@@ -5,9 +5,11 @@ import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -15,6 +17,10 @@ public class TestDataFactory {
 
     public static String generateRandomString() {
         return UUID.randomUUID().toString();
+    }
+
+    public static int generateRandomNumber() {
+        return new Random().nextInt(99999999);
     }
 
     public static Authentication createMockSuccessAuthentication() {
@@ -72,7 +78,9 @@ public class TestDataFactory {
     public static Post createMockPost() {
         Post post = new Post();
         post.avatarUrl = generateRandomString();
-        post.created = new Date().toString();
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault());
+        post.created = dateFormat.format(new Date());
         post.description = generateRandomString();
         post.postId = generateRandomString();
         post.thumbnailUrl = generateRandomString();

@@ -1,11 +1,10 @@
 package com.hitherejoe.vineyard;
 
 
-import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v17.leanback.widget.HeaderItem;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
@@ -19,22 +18,22 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import rx.Observable;
 
-import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
 import static com.hitherejoe.vineyard.util.EspressoTestMatchers.withDrawable;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -44,21 +43,11 @@ public class MainActivityTest {
     public final TestComponentRule component =
             new TestComponentRule(InstrumentationRegistry.getTargetContext());
     public final ActivityTestRule<MainActivity> main =
-            new ActivityTestRule<MainActivity>(MainActivity.class, false, false) {
-                @Override
-                protected Intent getActivityIntent() {
-                    // Override the default intent so we pass a false flag for syncing so it doesn't
-                    // start a sync service in the background that would affect  the behaviour of
-                    // this test.
-                    return MainActivity.getStartIntent(
-                            InstrumentationRegistry.getTargetContext());
-                }
-            };
+            new ActivityTestRule<MainActivity>(MainActivity.class, false, false);
 
-    // TestComponentRule needs to go first to make sure the Dagger ApplicationTestComponent is set
-    // in the Application before any Activity is launched.
     @Rule
     public final TestRule chain = RuleChain.outerRule(component).around(main);
+
     @Test
     public void testAllCategoriesShown() {
         stubVideoFeedData();
@@ -67,30 +56,19 @@ public class MainActivityTest {
         onView(withId(R.id.main_browse_fragment))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.browse_headers))
-                .check(matches(isDisplayed()));
-
-        onView(withId(R.id.browse_headers_dock))
-                .check(matches(isDisplayed()));
-
-        onView(withId(R.id.browse_headers_root))
-                .check(matches(isDisplayed()));
-
-        onData(instanceOf(HeaderItem.class))
-                .inAdapterView(withId(R.id.browse_headers))
-                .atPosition(0)
-                .check(matches(hasDescendant(withText("Editors Picks"))));
-
-        onView(withText("Popular"))
-                .check(matches(isDisplayed()))
-                .perform(scrollTo());
-
         String[] categories = getCategoriesArray();
-
-        for (String category : categories) {
-            onView(withText(category))
-                    .check(matches(isDisplayed()))
-            .perform(scrollTo());
+        List<String> categoryList = new ArrayList<>();
+        categoryList.add("Popular");
+        categoryList.add("Editors Picks");
+        categoryList.addAll(Arrays.asList(categories));
+        categoryList.add("Options");
+        for (int i = 0; i < categoryList.size(); i++) {
+            if (i > 0) {
+                onView(withId(R.id.browse_headers))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            }
+            onView(withItemText(categoryList.get(i), R.id.browse_headers))
+                    .check(matches(isDisplayed()));
         }
     }
 
@@ -105,7 +83,8 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testCategoryTitlesDisplay() {
+    public void testCategoryTitlesDisplay() throws InterruptedException {
+
         stubVideoFeedData();
 
         main.launchActivity(null);
@@ -113,14 +92,26 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()));
 
         String[] categories = getCategoriesArray();
+        List<String> categoryList = new ArrayList<>();
+        categoryList.add("Popular");
+        categoryList.add("Editors Picks");
+        categoryList.addAll(Arrays.asList(categories));
+        categoryList.add("Options");
+        for (int i = 0; i < categoryList.size(); i++) {
+            if (i > 0) {
+                onView(withId(R.id.browse_headers))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            }
+            onView(withId(R.id.browse_headers))
+                    .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
 
-        for (String category : categories) {
-            onView(withText(category))
-                    .perform(scrollTo(), click());
-            onView(withText(category))
+            onView(withItemText(categoryList.get(i), R.id.browse_container_dock))
                     .check(matches(isDisplayed()));
+
             pressBack();
+            Thread.sleep(3000);
         }
+
     }
 
     @Test
@@ -146,7 +137,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testPostsDisplayAndAreBrowsable() {
+    public void testPostsDisplayAndAreBrowseeable() {
         stubVideoFeedData();
 
         main.launchActivity(null);

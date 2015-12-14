@@ -19,6 +19,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
@@ -32,9 +33,9 @@ import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.adapter.TagAdapter;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -55,6 +56,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     @Inject DataManager mDataManager;
 
     private ArrayObjectAdapter mResultsAdapter;
+    private HeaderItem mResultsHeader;
     private Object mSelectedTag;
     private PostAdapter mPostResultsAdapter;
     private Subscription mSearchResultsSubscription;
@@ -148,18 +150,18 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
     private void loadQuery(String query) {
         if ((mSearchQuery != null && !mSearchQuery.equals(query))
+                && query.trim().length() > 0
                 || (!TextUtils.isEmpty(query) && !query.equals("nil"))) {
             mSearchQuery = query;
-            searchTaggedVideos(query);
+            searchTaggedPosts(query);
         }
     }
 
-    private void searchTaggedVideos(String tag) {
+    private void searchTaggedPosts(String tag) {
         mSearchResultsAdapter.setTag(tag);
-        if (mResultsAdapter.size() == 0) {
-            HeaderItem header = new HeaderItem(0, getString(R.string.text_search_results));
-            mResultsAdapter.add(new ListRow(header, mSearchResultsAdapter));
-        }
+        mResultsAdapter.clear();
+        mResultsHeader = new HeaderItem(0, getString(R.string.text_search_results));
+        mResultsAdapter.add(new ListRow(mResultsHeader, mSearchResultsAdapter));
         performSearch(mSearchResultsAdapter);
     }
 
@@ -168,6 +170,8 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if (mSearchResultsSubscription != null && !mSearchResultsSubscription.isUnsubscribed()) {
             mSearchResultsSubscription.unsubscribe();
         }
+        if (mPostResultsAdapter != null) mPostResultsAdapter.clear();
+        adapter.clear();
 
         Map<String, String> options = adapter.getAdapterOptions();
         String tag = options.get(PaginationAdapter.KEY_TAG);
@@ -191,15 +195,27 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     public void onError(Throwable e) {
                         //TODO: Handle error
                         adapter.removeLoadingIndicator();
+                        Toast.makeText(
+                                getActivity(),
+                                getString(R.string.error_message_retrieving_results),
+                                Toast.LENGTH_SHORT
+                        ).show();
                         Timber.e("There was an error loading the videos", e);
                     }
 
                     @Override
                     public void onNext(CombinedSearchResponse dualResponse) {
-                        //TODO: Set pages...
-                        adapter.addAllItems(dualResponse.list);
-                        mTagSearchAnchor = dualResponse.tagSearchAnchor;
-                        mUserSearchAnchor = dualResponse.userSearchAnchor;
+                        if (dualResponse.list.isEmpty()) {
+                            mResultsAdapter.clear();
+                            mResultsHeader = new HeaderItem(0, getString(R.string.text_no_results));
+                            mResultsAdapter.add(new ListRow(mResultsHeader, adapter));
+                            mTagSearchAnchor = "";
+                            mUserSearchAnchor = "";
+                        } else {
+                            adapter.addAllItems(dualResponse.list);
+                            mTagSearchAnchor = dualResponse.tagSearchAnchor;
+                            mUserSearchAnchor = dualResponse.userSearchAnchor;
+                        }
                     }
                 });
     }
@@ -220,21 +236,33 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
-                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        //TODO: Handle error
                         adapter.removeLoadingIndicator();
-                        Timber.e("There was an error loading the videos", e);
+                        if (adapter.size() == 0) {
+                            adapter.showTryAgainCard();
+                        } else {
+                            Toast.makeText(
+                                    getActivity(),
+                                    getString(R.string.error_message_loading_more_posts),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                        Timber.e("There was an error loading the posts", e);
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
-                        adapter.setAnchor(postResponse.data.anchorStr);
-                        adapter.setNextPage(postResponse.data.nextPage);
-                        adapter.addAllItems(postResponse.data.records);
+                        adapter.removeLoadingIndicator();
+                        if (adapter.size() == 0 && postResponse.data.records.isEmpty()) {
+                            adapter.showReloadCard();
+                        } else {
+                            adapter.setAnchor(postResponse.data.anchorStr);
+                            adapter.setNextPage(postResponse.data.nextPage);
+                            adapter.addAllItems(postResponse.data.records);
+                        }
                     }
                 });
     }
@@ -255,21 +283,33 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .subscribe(new Subscriber<VineyardService.PostResponse>() {
                     @Override
                     public void onCompleted() {
-                        adapter.removeLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        //TODO: Handle error
                         adapter.removeLoadingIndicator();
-                        Timber.e(e, "There was an error loading the videos");
+                        if (adapter.size() == 0) {
+                            adapter.showTryAgainCard();
+                        } else {
+                            Toast.makeText(
+                                    getActivity(),
+                                    getString(R.string.error_message_loading_more_posts),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                        Timber.e("There was an error loading the posts", e);
                     }
 
                     @Override
                     public void onNext(VineyardService.PostResponse postResponse) {
-                        adapter.setAnchor(postResponse.data.anchorStr);
-                        adapter.setNextPage(postResponse.data.nextPage);
-                        adapter.addAllItems(postResponse.data.records);
+                        adapter.removeLoadingIndicator();
+                        if (adapter.size() == 0 && postResponse.data.records.isEmpty()) {
+                            adapter.showReloadCard();
+                        } else {
+                            adapter.setAnchor(postResponse.data.anchorStr);
+                            adapter.setNextPage(postResponse.data.nextPage);
+                            adapter.addAllItems(postResponse.data.records);
+                        }
                     }
                 });
     }
@@ -300,6 +340,19 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             } else if (item instanceof User) {
                 User user = (User) item;
                 startActivity(PostGridActivity.getStartIntent(getActivity(), PostGridActivity.TYPE_USER, user.userId));
+            } else if (item instanceof String) {
+                if (item.equals(CardPresenter.ITEM_RELOAD) ||
+                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+                    int index = mResultsAdapter.indexOf(row);
+                    PostAdapter adapter =
+                            ((PostAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
+                    adapter.removeReloadCard();
+                    if (mSelectedTag instanceof Tag) {
+                        addPageLoadSubscriptionByTag(adapter);
+                    } else if (mSelectedTag instanceof User) {
+                        addPageLoadSubscriptionByUser(adapter);
+                    }
+                }
             }
         }
     };
@@ -316,9 +369,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     int index = mResultsAdapter.indexOf(row);
                     PaginationAdapter adapter =
                             ((PaginationAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
-                    if (index == (adapter.size() - 1) && adapter.shouldLoadNextPage()) {
-                        performSearch(adapter);
-                    }
 
                     if (item instanceof Tag) {
                         Tag tagOne = (Tag) item;
@@ -341,11 +391,16 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     };
 
     private void setListAdapterData(String tag) {
+        if (mPostResultsAdapter != null) {
+            mResultsAdapter.remove(mPostResultsAdapter);
+        }
         if (mPostResultsAdapter == null) {
             mPostResultsAdapter = new PostAdapter(getActivity(), tag);
-            HeaderItem header = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
-            mResultsAdapter.add(new ListRow(header, mPostResultsAdapter));
         }
+        mResultsAdapter.removeItems(1, 1);
+        HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
+        mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
+
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");
         if (!mPostResultsAdapter.shouldShowLoadingIndicator()) {

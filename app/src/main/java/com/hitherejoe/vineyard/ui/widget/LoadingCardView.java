@@ -25,8 +25,12 @@ public class LoadingCardView extends BaseCardView {
         buildLoadingCardView(getImageCardViewStyle(context, attrs, defStyleAttr));
     }
 
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
+
     private void buildLoadingCardView(int styleResId) {
-        // Make sure the ImageCardView is focusable.
         setFocusable(false);
         setFocusableInTouchMode(false);
         setCardType(CARD_TYPE_MAIN_ONLY);
@@ -50,10 +54,8 @@ public class LoadingCardView extends BaseCardView {
     }
 
     private static int getImageCardViewStyle(Context context, AttributeSet attrs, int defStyleAttr) {
-        // Read style attribute defined in XML layout.
         int style = null == attrs ? 0 : attrs.getStyleAttribute();
         if (0 == style) {
-            // Not found? Read global ImageCardView style from Theme attribute.
             TypedArray styledAttrs = context.obtainStyledAttributes(android.support.v17.leanback.R.styleable.LeanbackTheme);
             style = styledAttrs.getResourceId(android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
             styledAttrs.recycle();
@@ -67,11 +69,6 @@ public class LoadingCardView extends BaseCardView {
 
     public LoadingCardView(Context context, AttributeSet attrs) {
         this(context, attrs, android.support.v17.leanback.R.attr.imageCardViewStyle);
-    }
-
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
     }
 
 }
