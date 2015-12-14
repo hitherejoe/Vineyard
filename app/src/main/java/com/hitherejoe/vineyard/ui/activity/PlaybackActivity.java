@@ -132,6 +132,7 @@ public class PlaybackActivity extends BaseActivity {
             getMediaController().getTransportControls().skipToNext();
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L1) {
+            mWasSkipPressed = true;
             getMediaController().getTransportControls().skipToPrevious();
             return true;
         }
@@ -147,6 +148,10 @@ public class PlaybackActivity extends BaseActivity {
     @Override
     public boolean onSearchRequested() {
         return true;
+    }
+
+    public void setWasSkipPressed(boolean wasSkipPressed) {
+        mWasSkipPressed = wasSkipPressed;
     }
 
     private void loadViews() {
@@ -306,7 +311,7 @@ public class PlaybackActivity extends BaseActivity {
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            if (!mMediaPlayer.isLooping()) {
+            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
                 for (Post post : mPostsList) {
                     if (post.postId.equals(mediaId)) {
                         setVideoPath(post.videoUrl);
@@ -315,6 +320,7 @@ public class PlaybackActivity extends BaseActivity {
                         playPause(extras.getBoolean(AUTO_PLAY));
                     }
                 }
+                mWasSkipPressed = false;
             }
         }
 
@@ -334,24 +340,23 @@ public class PlaybackActivity extends BaseActivity {
                 String nextId = mPostsList.get(mCurrentItem).postId;
                 getMediaController().getTransportControls().playFromMediaId(nextId, bundle);
             }
-
-            mWasSkipPressed = false;
-
         }
 
         @Override
         public void onSkipToPrevious() {
-            PlaybackState.Builder stateBuilder =
-                    new PlaybackState.Builder().setActions(getAvailableActions());
-            stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_PREVIOUS, 0, 1.0f);
-            mSession.setPlaybackState(stateBuilder.build());
+            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
+                PlaybackState.Builder stateBuilder =
+                        new PlaybackState.Builder().setActions(getAvailableActions());
+                stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_PREVIOUS, 0, 1.0f);
+                mSession.setPlaybackState(stateBuilder.build());
 
-            if (mCurrentItem-- < 0) mCurrentItem = mPostsList.size() - 1;
-            Bundle bundle = new Bundle(1);
-            bundle.putBoolean(PlaybackActivity.AUTO_PLAY, true);
+                if (mCurrentItem-- < 0) mCurrentItem = mPostsList.size() - 1;
+                Bundle bundle = new Bundle(1);
+                bundle.putBoolean(PlaybackActivity.AUTO_PLAY, true);
 
-            String prevId = mPostsList.get(mCurrentItem).postId;
-            getMediaController().getTransportControls().playFromMediaId(prevId, bundle);
+                String prevId = mPostsList.get(mCurrentItem).postId;
+                getMediaController().getTransportControls().playFromMediaId(prevId, bundle);
+            }
         }
 
         @Override
@@ -383,8 +388,10 @@ public class PlaybackActivity extends BaseActivity {
         public void onCustomAction(@NonNull String action, Bundle extras) {
             if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_LOOP)) {
                 mMediaPlayer.setLooping(extras.getBoolean(EXTRA_IS_LOOP_ENABLED));
+            } else if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_SKIP_VIDEO)) {
+                mWasSkipPressed = true;
             }
-            super.onCustomAction(action, extras);
+             super.onCustomAction(action, extras);
         }
 
     }

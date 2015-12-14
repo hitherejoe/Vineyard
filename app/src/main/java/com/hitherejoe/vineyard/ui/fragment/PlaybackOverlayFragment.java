@@ -66,6 +66,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private static final int INITIAL_SPEED = 10000;
 
     public static final String CUSTOM_ACTION_LOOP = "custom_action_loop";
+    public static final String CUSTOM_ACTION_SKIP_VIDEO = "custom_action_skip_video";
 
     private Handler mClickTrackingHandler;
     private ArrayObjectAdapter mRowsAdapter;
@@ -320,6 +321,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     }
 
     private void next() {
+        mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
         mMediaController.getTransportControls().skipToNext();
     }
 
@@ -333,6 +335,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     }
 
     private void prev() {
+        mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
         mMediaController.getTransportControls().skipToPrevious();
     }
 
