@@ -32,8 +32,6 @@ import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService.PostResponse;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
-import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
@@ -41,6 +39,8 @@ import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
+import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -61,9 +61,12 @@ public class MainFragment extends BrowseFragment {
     public static final int REQUEST_CODE_AUTO_LOOP = 1352;
     public static final String RESULT_OPTION = "RESULT_OPTION";
 
-    @Inject CompositeSubscription mCompositeSubscription;
-    @Inject DataManager mDataManager;
-    @Inject PreferencesHelper mPreferencesHelper;
+    @Inject
+    CompositeSubscription mCompositeSubscription;
+    @Inject
+    DataManager mDataManager;
+    @Inject
+    PreferencesHelper mPreferencesHelper;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundManager mBackgroundManager;
@@ -140,6 +143,7 @@ public class MainFragment extends BrowseFragment {
 
         mOption = new Option(getString(R.string.text_auto_loop_title));
         mOption.iconResource = R.drawable.lopp;
+
         boolean shouldAutoLoop = mPreferencesHelper.getShouldAutoLoop();
         mOption.value = shouldAutoLoop
                 ? getString(R.string.text_auto_loop_enabled)
@@ -242,7 +246,8 @@ public class MainFragment extends BrowseFragment {
                 .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<PostResponse>() {
                     @Override
-                    public void onCompleted() { }
+                    public void onCompleted() {
+                    }
 
                     @Override
                     public void onError(Throwable e) {

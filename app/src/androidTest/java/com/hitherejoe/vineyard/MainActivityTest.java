@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
@@ -96,9 +97,35 @@ public class MainActivityTest {
 
     @Test
     public void testPostsDisplayAndAreBrowseeable() {
-        stubVideoFeedData();
+        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(17);
+        Collections.sort(mockPosts);
+        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
+        data.records = mockPosts;
+        postResponse.data = data;
+
+        when(component.getMockDataManager().getPopularPosts(anyString(), anyString()))
+                .thenReturn(Observable.just(postResponse));
 
         main.launchActivity(null);
+
+        //TODO: Check all categories
+        onView(withId(R.id.browse_headers))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        for (int i1 = 0; i1 < mockPosts.size(); i1++) {
+            checkItemAtPosition(i1, mockPosts.get(i1));
+        }
+
+    }
+
+    private void checkItemAtPosition(int position, Post post) {
+        // VerticalGridFragment->BaseGridView->RecyclerView means we can use RecyclerViewActions! :D
+        if (position > 0) {
+            onView(withId(R.id.browse_grid))
+                    .perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
+        }
+        onView(withItemText(post.description, R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText(post.username, R.id.browse_grid)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -139,6 +166,50 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()))
                 .perform(click());
         onView(withText(R.string.guided_step_auto_loop_title))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void autoLoopShowsSetState() {
+        stubVideoFeedData();
+
+        main.launchActivity(null);
+
+        List<String> categoryList = getCategoriesArray();
+        for (int i = 0; i < categoryList.size(); i++) {
+            if (i > 0) {
+                onView(withId(R.id.browse_headers))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            }
+        }
+
+        onView(withId(R.id.browse_headers))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(categoryList.size() - 1, click()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withText(R.string.guided_step_auto_loop_disabled_description))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withItemText("Options", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Disabled", R.id.browse_container_dock))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withText(R.string.guided_step_auto_loop_enabled_description))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withItemText("Options", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Enabled", R.id.browse_container_dock))
                 .check(matches(isDisplayed()));
     }
 
