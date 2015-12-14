@@ -7,8 +7,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.text.TextUtils;
-import android.view.View;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
@@ -16,9 +14,6 @@ import com.hitherejoe.vineyard.test.common.TestDataFactory;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
 import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -34,12 +29,10 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.core.deps.guava.base.Preconditions.checkArgument;
-import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
+import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -185,24 +178,8 @@ public class PostGridActivityTest {
             onView(withId(R.id.browse_grid))
                     .perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
         }
-        onView(withItemText(post.description)).check(matches(isDisplayed()));
-        onView(withItemText(post.username)).check(matches(isDisplayed()));
-    }
-
-    private Matcher<View> withItemText(final String itemText) {
-        checkArgument(!TextUtils.isEmpty(itemText), "itemText cannot be null or empty");
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public boolean matchesSafely(View item) {
-                return allOf(isDescendantOfA(withId(R.id.browse_grid)),
-                        withText(itemText)).matches(item);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("is isDescendantOfA RecyclerView with text " + itemText);
-            }
-        };
+        onView(withItemText(post.description, R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText(post.username, R.id.browse_grid)).check(matches(isDisplayed()));
     }
 
 }
