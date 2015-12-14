@@ -50,8 +50,8 @@ public class PostGridFragment extends VerticalGridFragment {
 
     public static final String ARG_ITEM_TYPE = "arg_item_type";
     public static final String ARG_ITEM_ID = "arg_item_id";
-    public static final String TYPE_USER = "tag";
-    public static final String TYPE_TAG = "user";
+    public static final String TYPE_USER = "user";
+    public static final String TYPE_TAG = "tag";
 
     @Inject CompositeSubscription mCompositeSubscription;
     @Inject DataManager mDataManager;
@@ -84,6 +84,7 @@ public class PostGridFragment extends VerticalGridFragment {
         prepareBackgroundManager();
         Bundle args = getArguments();
         setTag(args.getString(ARG_ITEM_TYPE), args.getString(ARG_ITEM_ID));
+        setSearchAffordanceColor(R.color.search_opaque);
     }
 
     @Override
@@ -115,12 +116,13 @@ public class PostGridFragment extends VerticalGridFragment {
     public void setTag(String itemType, String itemId) {
         if (itemType.equals(TYPE_USER)) {
             mSelectedType = TYPE_USER;
+            setTitle(itemId);
         } if (itemType.equals(TYPE_TAG)) {
             mSelectedType = TYPE_TAG;
+            setTitle(String.format("#%s", itemId));
         }
-        setTitle(itemId);
-        mPostAdapter = new PostAdapter(getActivity(), itemId);
 
+        mPostAdapter = new PostAdapter(getActivity(), itemId);
         setAdapter(mPostAdapter);
         addPageLoadSubscription();
     }
@@ -210,6 +212,7 @@ public class PostGridFragment extends VerticalGridFragment {
                                 ).show();
                             }
                             Timber.e("There was an error loading the posts", e);
+                            e.printStackTrace();
                         }
 
                         @Override
