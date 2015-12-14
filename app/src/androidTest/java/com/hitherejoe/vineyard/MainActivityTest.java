@@ -56,12 +56,7 @@ public class MainActivityTest {
         onView(withId(R.id.main_browse_fragment))
                 .check(matches(isDisplayed()));
 
-        String[] categories = getCategoriesArray();
-        List<String> categoryList = new ArrayList<>();
-        categoryList.add("Popular");
-        categoryList.add("Editors Picks");
-        categoryList.addAll(Arrays.asList(categories));
-        categoryList.add("Options");
+        List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
@@ -75,43 +70,6 @@ public class MainActivityTest {
     @Test
     public void testErrorFragmentDisplayed() {
         //TODO: When implemented
-    }
-
-    @Test
-    public void testCategoryRemovedIfErrorWhenLoading() {
-        //TODO: When implemented
-    }
-
-    @Test
-    public void testCategoryTitlesDisplay() throws InterruptedException {
-
-        stubVideoFeedData();
-
-        main.launchActivity(null);
-        onView(withId(R.id.main_browse_fragment))
-                .check(matches(isDisplayed()));
-
-        String[] categories = getCategoriesArray();
-        List<String> categoryList = new ArrayList<>();
-        categoryList.add("Popular");
-        categoryList.add("Editors Picks");
-        categoryList.addAll(Arrays.asList(categories));
-        categoryList.add("Options");
-        for (int i = 0; i < categoryList.size(); i++) {
-            if (i > 0) {
-                onView(withId(R.id.browse_headers))
-                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
-            }
-            onView(withId(R.id.browse_headers))
-                    .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
-
-            onView(withItemText(categoryList.get(i), R.id.browse_container_dock))
-                    .check(matches(isDisplayed()));
-
-            pressBack();
-            Thread.sleep(3000);
-        }
-
     }
 
     @Test
@@ -141,34 +99,47 @@ public class MainActivityTest {
         stubVideoFeedData();
 
         main.launchActivity(null);
-        String[] categories = InstrumentationRegistry.getContext().getResources().getStringArray(R.array.categories);
-        onView(withText(categories[0]))
-                .perform(scrollTo(), click());
     }
 
     @Test
-    public void testOptionsDisplayAndAreBrowsable() {
+    public void testOptionsDisplayAndAreBrowseable() {
         stubVideoFeedData();
-
         main.launchActivity(null);
-        String settingsText = InstrumentationRegistry.getContext().getResources().getString(R.string.header_text_settings);
-        onView(withText(settingsText))
-                .perform(scrollTo(), click());
-        // check items displayed
+
+        List<String> categoryList = getCategoriesArray();
+        for (int i = 0; i < categoryList.size(); i++) {
+            if (i > 0) {
+                onView(withId(R.id.browse_headers))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            }
+        }
+        onView(withId(R.id.browse_headers))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(categoryList.size() - 1, click()));
+        onView(withItemText("Options", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
     }
 
     @Test
-    public void testSettingsGuidedStepOpens() {
+    public void autoLoopGuidedStepOpens() {
         stubVideoFeedData();
-
         main.launchActivity(null);
-        String settingsText = InstrumentationRegistry.getContext().getResources().getString(R.string.header_text_settings);
-        onView(withText(settingsText))
-                .perform(scrollTo(), click());
-        // onView(withId(R.id.recycler_view))
-        //       .perform(
-        //             RecyclerViewActions.actionOnItemAtPosition(27, click()));
-        // click on auto-loop and check it launches
+
+        List<String> categoryList = getCategoriesArray();
+        for (int i = 0; i < categoryList.size(); i++) {
+            if (i > 0) {
+                onView(withId(R.id.browse_headers))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            }
+        }
+        onView(withId(R.id.browse_headers))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(categoryList.size() - 1, click()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withText(R.string.guided_step_auto_loop_title))
+                .check(matches(isDisplayed()));
     }
 
     @Test
@@ -176,9 +147,7 @@ public class MainActivityTest {
         stubVideoFeedData();
 
         main.launchActivity(null);
-        String[] categories = InstrumentationRegistry.getContext().getResources().getStringArray(R.array.categories);
-        onView(withText(categories[0]))
-                .perform(scrollTo(), click());
+
     }
 
     @Test
@@ -191,11 +160,14 @@ public class MainActivityTest {
         //TODO: When implemented
     }
 
-    private String[] getCategoriesArray() {
+    private List<String> getCategoriesArray() {
         String[] categories = InstrumentationRegistry.getTargetContext().getResources().getStringArray(R.array.categories);
-        int categoriesSize = categories.length;
-        //categories[categoriesSize + 1] = InstrumentationRegistry.getTargetContext().getResources().getString(R.string.header_text_settings);
-        return categories;
+        List<String> categoryList = new ArrayList<>();
+        categoryList.add("Popular");
+        categoryList.add("Editors Picks");
+        categoryList.addAll(Arrays.asList(categories));
+        categoryList.add("Options");
+        return categoryList;
     }
 
     private void stubVideoFeedData() {

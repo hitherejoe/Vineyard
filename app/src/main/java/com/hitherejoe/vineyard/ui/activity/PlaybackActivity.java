@@ -276,7 +276,6 @@ public class PlaybackActivity extends BaseActivity {
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                // first
                 if (!mMediaPlayer.isLooping()) {
                     mPlaybackState = LeanbackPlaybackState.IDLE;
                 } else {
