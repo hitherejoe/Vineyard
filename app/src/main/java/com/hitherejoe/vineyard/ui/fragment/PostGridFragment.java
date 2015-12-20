@@ -217,7 +217,6 @@ public class PostGridFragment extends VerticalGridFragment {
 
                         @Override
                         public void onNext(VineyardService.PostResponse postResponse) {
-                            Timber.e("SIZE " + postResponse.data.records.size());
                             mPostAdapter.removeLoadingIndicator();
                             if (mPostAdapter.size() == 0 && postResponse.data.records.isEmpty()) {
                                 mPostAdapter.showReloadCard();
