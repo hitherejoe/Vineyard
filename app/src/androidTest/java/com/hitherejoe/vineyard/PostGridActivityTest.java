@@ -35,6 +35,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -64,7 +65,6 @@ public class PostGridActivityTest {
         checkPostsDisplayOnRecyclerView(postList);
     }
 
-
     @Test
     public void listOfTagPostsShowsAndIsScrollable() {
         List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
@@ -85,6 +85,44 @@ public class PostGridActivityTest {
                 .check(matches(isDisplayed()));
 
         checkPostsDisplayOnRecyclerView(tagList);
+    }
+
+    @Test
+    public void tryAgainCardIsDisplayed() {
+        doReturn(Observable.just(new RuntimeException()))
+                .when(component.getMockDataManager())
+                .getPostsByTag(anyString(), anyString(), anyString());
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("#cat"))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Oops", R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText("Try again?", R.id.browse_grid)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void reloadCardIsDisplayed() {
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(0);
+        Collections.sort(tagList);
+        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
+        tagData.records = tagList;
+        postTagResponse.data = tagData;
+
+        when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("#cat"))
+                .check(matches(isDisplayed()));
+
+        onView(withItemText("No videos", R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText("Check again?", R.id.browse_grid)).check(matches(isDisplayed()));
     }
 
     @Test
