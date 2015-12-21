@@ -5,11 +5,13 @@ import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.ui.widget.VideoCardView;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
@@ -20,8 +22,8 @@ public class CardPresenter extends Presenter {
     public static final String ITEM_RELOAD = "item_reload";
     public static final String ITEM_TRY_AGAIN = "item_try_again";
 
-    private static final int CARD_WIDTH = 470;
-    private static final int CARD_HEIGHT = 264;
+    private static final int CARD_WIDTH = 300;
+    private static final int CARD_HEIGHT = 300;
     private static int sSelectedBackgroundColor;
     private static int sDefaultBackgroundColor;
     private Drawable mDefaultCardImage;
@@ -34,7 +36,7 @@ public class CardPresenter extends Presenter {
         sSelectedBackgroundColor = ContextCompat.getColor(context, R.color.primary_dark);
         mDefaultCardImage = ContextCompat.getDrawable(context, R.drawable.lb_ic_play);
 
-        ImageCardView cardView = new ImageCardView(parent.getContext()) {
+        final VideoCardView cardView = new VideoCardView(parent.getContext()) {
             @Override
             public void setSelected(boolean selected) {
                 updateCardBackgroundColor(this, selected);
@@ -42,13 +44,24 @@ public class CardPresenter extends Presenter {
             }
         };
 
+        cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    cardView.startVideo();
+                } else {
+                    cardView.stopVideo();
+                }
+            }
+        });
+
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
         updateCardBackgroundColor(cardView, false);
         return new ViewHolder(cardView);
     }
 
-    private static void updateCardBackgroundColor(ImageCardView view, boolean selected) {
+    private static void updateCardBackgroundColor(VideoCardView view, boolean selected) {
         int color = selected ? sSelectedBackgroundColor : sDefaultBackgroundColor;
         // Both background colors should be set because the view's background is temporarily visible
         // during animations.
@@ -60,13 +73,15 @@ public class CardPresenter extends Presenter {
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         if (item instanceof Post) {
             Post post = (Post) item;
-            ImageCardView cardView = (ImageCardView) viewHolder.view;
+            VideoCardView cardView = (VideoCardView) viewHolder.view;
 
             if (post.videoUrl != null) {
                 cardView.setTitleText(post.description);
                 cardView.setContentText(post.username);
-                cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
-                Glide.with(viewHolder.view.getContext())
+                cardView.setMainContainerDimensions(CARD_WIDTH, CARD_HEIGHT);
+                cardView.setVideoUrl(post.videoUrl);
+
+                Glide.with(cardView.getContext())
                         .load(post.thumbnailUrl)
                         .centerCrop()
                         .error(mDefaultCardImage)
@@ -96,6 +111,7 @@ public class CardPresenter extends Presenter {
             // Remove references to images so that the garbage collector can free up memory
             cardView.setBadgeImage(null);
             cardView.setMainImage(null);
+            //cardView.setVideoUrl(null);
         }
     }
 }
