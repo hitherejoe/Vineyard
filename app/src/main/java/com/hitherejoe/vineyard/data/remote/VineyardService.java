@@ -12,6 +12,7 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import java.io.IOException;
 import java.util.List;
 
+import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
@@ -43,6 +44,9 @@ public interface VineyardService {
 
     @GET("timelines/popular")
     Observable<PostResponse> getPopularPosts(@Query("page") String page, @Query("anchorStr") String anchor);
+
+    @GET("timelines/popular")
+    Call<PostResponse> getPopularPosts();
 
     @GET("timelines/promoted")
     Observable<PostResponse> getEditorsPicksPosts(@Query("page") String page, @Query("anchorStr") String anchor);

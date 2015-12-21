@@ -16,6 +16,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import retrofit.Call;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -60,6 +61,10 @@ public class DataManager {
 
     public Observable<VineyardService.PostResponse> getPopularPosts(String page, String anchor) {
         return mVineyardService.getPopularPosts(page, anchor);
+    }
+
+    public Call<VineyardService.PostResponse> getPopularPostsSynchronous() {
+        return mVineyardService.getPopularPosts();
     }
 
     public Observable<VineyardService.PostResponse> getEditorsPicksPosts(String page, String anchor) {

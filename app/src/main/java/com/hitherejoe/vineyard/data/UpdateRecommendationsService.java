@@ -18,14 +18,14 @@ import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import retrofit.Call;
+import retrofit.Response;
 import timber.log.Timber;
 
 /*
@@ -45,26 +45,15 @@ public class UpdateRecommendationsService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         DataManager mDataManager = VineyardApplication.get(this).getComponent().dataManager();
+        Call<VineyardService.PostResponse> popularPosts = mDataManager.getPopularPostsSynchronous();
+        try {
+            Response<VineyardService.PostResponse> response = popularPosts.execute();
+            VineyardService.PostResponse postResponse = response.body();
+            handleRecommendations(postResponse.data.records);
+        } catch (IOException e) {
+            Timber.e("There was an error retrieving the posts", e);
+        }
 
-        mDataManager.getPopularPosts("", "")
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<VineyardService.PostResponse>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e("There was an error loading the recommendations", e);
-                    }
-
-                    @Override
-                    public void onNext(VineyardService.PostResponse postResponse) {
-                        handleRecommendations(postResponse.data.records);
-                    }
-                });
     }
 
     private void handleRecommendations(List<Post> recommendations) {
@@ -95,19 +84,24 @@ public class UpdateRecommendationsService extends IntentService {
                     .setContentIntentData(ContentRecommendation.INTENT_TYPE_ACTIVITY,
                             buildPendingIntent((ArrayList<Post>) recommendations, post), 0, null);
 
-                Timber.e(post.thumbnailUrl);
-                Glide.with(getApplication())
+            try {
+                // No ContentRecommendation is complete without an image.
+                Bitmap bitmap = Glide.with(getApplication())
                         .load(post.thumbnailUrl)
                         .asBitmap()
-                        .centerCrop()
-                        .into(new SimpleTarget<Bitmap>(cardWidth, cardHeight) {
-                            @Override
-                            public void onResourceReady(Bitmap resource,
-                                                        GlideAnimation<? super Bitmap>
-                                                                glideAnimation) {
-                                builder.setContentImage(resource);
-                            }
-                        });
+                        .into(cardWidth, cardHeight) // Only use for synchronous .get()
+                        .get();
+                builder.setContentImage(bitmap);
+
+                // Create an object holding all the information used to recommend the content.
+                ContentRecommendation rec = builder.build();
+                Notification notification = rec.getNotificationObject(getApplicationContext());
+
+                // Recommend the content by publishing the notification.
+                mNotificationManager.notify(i + 1, notification);
+            } catch (InterruptedException | ExecutionException e) {
+                Timber.e(TAG, "Could not create recommendation: " + e);
+            }
 
                 // Create an object holding all the information used to recommend the content.
                 ContentRecommendation rec = builder.build();
