@@ -6,8 +6,8 @@
 
     <com.hitherejoe.vineyard.ui.widget.LoopingVideoView
         android:id="@+id/main_video"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
         android:visibility="invisible" />
 
     <ImageView
