@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import timber.log.Timber;
+
 /*
  * This class extends BroadcastReceiver and publishes Recommendations when received.
  */
@@ -20,6 +22,8 @@ public class RecommendationReceiver extends BroadcastReceiver {
     }
 
     private void scheduleRecommendationUpdate(Context context) {
+        Timber.i("Scheduling recommendations update...");
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent recommendationIntent = new Intent(context, UpdateRecommendationsService.class);
         PendingIntent alarmIntent = PendingIntent.getService(context, 0, recommendationIntent, 0);

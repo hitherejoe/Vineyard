@@ -8,10 +8,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.app.recommendation.ContentRecommendation;
+import android.support.v4.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.model.Post;
@@ -44,6 +43,7 @@ public class UpdateRecommendationsService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Timber.i("Retrieving popular posts for recommendations...");
         DataManager mDataManager = VineyardApplication.get(this).getComponent().dataManager();
         Call<VineyardService.PostResponse> popularPosts = mDataManager.getPopularPostsSynchronous();
         try {
@@ -61,9 +61,7 @@ public class UpdateRecommendationsService extends IntentService {
         int cardWidth = res.getDimensionPixelSize(R.dimen.card_width);
         int cardHeight = res.getDimensionPixelSize(R.dimen.card_height);
 
-        if (recommendations == null) {
-            return;
-        }
+        if (recommendations == null) return;
 
         if (mNotificationManager == null) {
             mNotificationManager = (NotificationManager) getApplicationContext()
@@ -80,12 +78,19 @@ public class UpdateRecommendationsService extends IntentService {
             Post post = recommendations.get(i);
             builder.setIdTag("Post" + i + 1)
                     .setTitle(post.description)
+                    .setProgress(100, 0)
+                    .setSortKey("1.0")
+                    .setAutoDismiss(true)
+                    .setColor(ContextCompat.getColor(this, R.color.primary))
+                    .setBackgroundImageUri(post.thumbnailUrl)
+                    .setGroup("Trending")
+                    .setStatus(ContentRecommendation.CONTENT_STATUS_READY)
+                    .setContentTypes(new String[]{ContentRecommendation.CONTENT_TYPE_VIDEO})
                     .setText(getString(R.string.header_text_popular))
                     .setContentIntentData(ContentRecommendation.INTENT_TYPE_ACTIVITY,
                             buildPendingIntent((ArrayList<Post>) recommendations, post), 0, null);
 
             try {
-                // No ContentRecommendation is complete without an image.
                 Bitmap bitmap = Glide.with(getApplication())
                         .load(post.thumbnailUrl)
                         .asBitmap()
@@ -103,13 +108,12 @@ public class UpdateRecommendationsService extends IntentService {
                 Timber.e(TAG, "Could not create recommendation: " + e);
             }
 
-                // Create an object holding all the information used to recommend the content.
-                ContentRecommendation rec = builder.build();
-                Notification notification = rec.getNotificationObject(getApplicationContext());
+            // Create an object holding all the information used to recommend the content.
+            ContentRecommendation rec = builder.build();
+            Notification notification = rec.getNotificationObject(getApplicationContext());
 
-                // Recommend the content by publishing the notification.
-                mNotificationManager.notify(i + 1, notification);
-
+            // Recommend the content by publishing the notification.
+            mNotificationManager.notify(i + 1, notification);
         }
     }
 
