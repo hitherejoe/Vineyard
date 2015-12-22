@@ -1,11 +1,13 @@
 package com.hitherejoe.vineyard.data.model;
 
 public class Option {
-    public int iconResource;
-    public String mTitle;
+    public String title;
     public String value;
+    public int iconResource;
 
-    public Option(String title) {
-        mTitle = title;
+    public Option(String title, String value, int iconResource) {
+        this.title = title;
+        this.value = value;
+        this.iconResource = iconResource;
     }
 }

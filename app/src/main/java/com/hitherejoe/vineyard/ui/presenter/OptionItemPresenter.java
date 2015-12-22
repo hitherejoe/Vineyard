@@ -31,16 +31,12 @@ public class OptionItemPresenter extends Presenter {
         if (item instanceof Option) {
             Option option = (Option) item;
             OptionCardView optionView = (OptionCardView) viewHolder.view;
-
-            if (!option.mTitle.equals(null)) {
-                optionView.setMainImageDimensions(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
-                optionView.setOptionTitleText(option.mTitle);
-                String value = option.value;
-                if (value != null) optionView.setOptionValueText(option.value);
-                Context context = viewHolder.view.getContext();
-                optionView.setOptionIcon(ContextCompat.getDrawable(context, option.iconResource));
-            }
-
+            optionView.setMainImageDimensions(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
+            optionView.setOptionTitleText(option.title);
+            String value = option.value;
+            if (value != null) optionView.setOptionValueText(option.value);
+            Context context = viewHolder.view.getContext();
+            optionView.setOptionIcon(ContextCompat.getDrawable(context, option.iconResource));
         }
     }
 

@@ -141,13 +141,16 @@ public class MainFragment extends BrowseFragment {
             }
         });
 
-        mOption = new Option(getString(R.string.text_auto_loop_title));
-        mOption.iconResource = R.drawable.lopp;
-
         boolean shouldAutoLoop = mPreferencesHelper.getShouldAutoLoop();
-        mOption.value = shouldAutoLoop
+        String optionValue = shouldAutoLoop
                 ? getString(R.string.text_auto_loop_enabled)
                 : getString(R.string.text_auto_loop_disabled);
+
+        mOption = new Option(
+                getString(R.string.text_auto_loop_title),
+                optionValue,
+                R.drawable.lopp);
+
 
         HeaderItem gridHeader =
                 new HeaderItem(mRowsAdapter.size(), getString(R.string.header_text_options));
@@ -290,17 +293,18 @@ public class MainFragment extends BrowseFragment {
                 ArrayList<Post> postList = (ArrayList<Post>) adapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Option) {
-                //TODO: Handle more than this one option
-                startActivityForResult(
-                        GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
-            } else if (item instanceof String) {
-                if (item.equals(CardPresenter.ITEM_RELOAD) ||
-                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+
+                Option option = (Option) item;
+                if (option.title.equals(getString(R.string.title_no_videos)) ||
+                        item.equals(getString(R.string.title_oops))) {
                     int index = mRowsAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                     adapter.removeReloadCard();
                     addPageLoadSubscription(adapter);
+                } else {
+                    startActivityForResult(
+                            GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
                 }
             }
         }

@@ -10,14 +10,14 @@ import com.hitherejoe.vineyard.ui.presenter.OptionItemPresenter;
 
 public class OptionsAdapter extends ArrayObjectAdapter {
 
-    private OptionItemPresenter mCardPresenter;
+    private OptionItemPresenter mOptionsItemPresenter;
 
     public OptionsAdapter(Context context) {
-        mCardPresenter = new OptionItemPresenter(context);
+        mOptionsItemPresenter = new OptionItemPresenter(context);
         setPresenterSelector(new PresenterSelector() {
             @Override
             public Presenter getPresenter(Object item) {
-                return mCardPresenter;
+                return mOptionsItemPresenter;
             }
         });
     }

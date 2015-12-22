@@ -24,6 +24,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
@@ -240,9 +241,10 @@ public class PostGridFragment extends VerticalGridFragment {
                 Post post = (Post) item;
                 ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
-            } else if (item instanceof String) {
-                if (item.equals(CardPresenter.ITEM_RELOAD) ||
-                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+            } else if (item instanceof Option) {
+                Option option = (Option) item;
+                if (option.title.equals(CardPresenter.ITEM_RELOAD) ||
+                        option.title.equals(CardPresenter.ITEM_TRY_AGAIN)) {
                     int index = mPostAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mPostAdapter.get(index)).getAdapter());
