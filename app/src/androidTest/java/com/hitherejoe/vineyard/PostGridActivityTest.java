@@ -26,6 +26,7 @@ import java.util.List;
 import rx.Observable;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -62,7 +63,7 @@ public class PostGridActivityTest {
         onView(withText("123"))
                 .check(matches(isDisplayed()));
 
-        checkPostsDisplayOnRecyclerView(postList);
+        checkPostsDisplayOnRecyclerView(postList, 0, true);
     }
 
     @Test
@@ -84,7 +85,51 @@ public class PostGridActivityTest {
         onView(withText("#cat"))
                 .check(matches(isDisplayed()));
 
-        checkPostsDisplayOnRecyclerView(tagList);
+        checkPostsDisplayOnRecyclerView(tagList, 0, true);
+    }
+
+    @Test
+    public void listOfUserPostsShowsAndIsScrollableWithPagination() throws InterruptedException {
+        List<Post> postList = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(postList);
+        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
+        data.records = postList;
+        postResponse.data = data;
+        data.nextPage = 2;
+        data.anchorStr = "anchor_string";
+
+        when(component.getMockDataManager().getPostsByUser(anyString(), eq("1"), anyString()))
+                .thenReturn(Observable.just(postResponse));
+
+        List<Post> postListTwo = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(postListTwo);
+        VineyardService.PostResponse postResponseTwo = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data dataTwo = new VineyardService.PostResponse.Data();
+        dataTwo.records = postListTwo;
+        postResponseTwo.data = dataTwo;
+        dataTwo.nextPage = 0;
+        dataTwo.anchorStr = "anchor_string";
+
+        when(component.getMockDataManager().getPostsByUser(anyString(), eq("2"), anyString()))
+                .thenReturn(Observable.just(postResponseTwo));
+
+        when(component.getMockDataManager().getPostsByUser(anyString(), eq("0"), anyString()))
+                .thenReturn(Observable.<VineyardService.PostResponse>empty());
+
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_USER, "123");
+        main.launchActivity(intent);
+
+        onView(withText("123"))
+                .check(matches(isDisplayed()));
+
+        checkPostsDisplayOnRecyclerView(postList, 0, true);
+
+        Thread.sleep(200);
+
+        checkPostsDisplayOnRecyclerView(postListTwo, postList.size(), false);
+        pressBack();
     }
 
     @Test
@@ -148,6 +193,8 @@ public class PostGridActivityTest {
                 .check(doesNotExist());
         onView(withText(dismissText))
                 .check(doesNotExist());
+
+        pressBack();
     }
 
     private void stubPostListUserDate(List<Post> postList) {
@@ -189,28 +236,30 @@ public class PostGridActivityTest {
      *
      * @param postsToCheck posts to be checked
      */
-    private void checkPostsDisplayOnRecyclerView(List<Post> postsToCheck) {
+    private void checkPostsDisplayOnRecyclerView(List<Post> postsToCheck, int position, boolean isFirst) {
         int columnCount = 5;
-        int size = postsToCheck.size();
+        int size = postsToCheck.size() + position;
+        int pos = 0;
 
-        for (int i = 0; i < size; i++) {
+        for (int i = position; i < size; i++) {
             // The first item starts as selected, clicking on this would open the Playback Activity
-            checkItemAtPosition(i, postsToCheck.get(i));
+            checkItemAtPosition(i, postsToCheck.get(pos), isFirst);
 
             // If we get to the end of the current row then we need to go down to the next one
             if (((i + 1) % columnCount) == 0) {
                 int nextRowStart = i + columnCount;
                 int nextRowEnd = nextRowStart - columnCount + 1;
                 for (int n = nextRowStart; n >= nextRowEnd; n--) {
-                    checkItemAtPosition(n, postsToCheck.get(n));
+                    checkItemAtPosition(n, postsToCheck.get(n - position), isFirst);
                 }
                 // Set i to the start of the row beneath the one we've just checked
                 i = i + columnCount;
             }
+            pos++;
         }
     }
 
-    private void checkItemAtPosition(int position, Post post) {
+    private void checkItemAtPosition(int position, Post post, boolean isFirst) {
         // VerticalGridFragment->BaseGridView->RecyclerView means we can use RecyclerViewActions! :D
         if (position > 0) {
             onView(withId(R.id.browse_grid))

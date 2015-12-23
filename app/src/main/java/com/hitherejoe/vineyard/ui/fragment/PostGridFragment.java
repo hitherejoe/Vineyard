@@ -243,8 +243,8 @@ public class PostGridFragment extends VerticalGridFragment {
                 startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
             } else if (item instanceof Option) {
                 Option option = (Option) item;
-                if (option.title.equals(CardPresenter.ITEM_RELOAD) ||
-                        option.title.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+                if (option.title.equals(getString(R.string.title_oops)) ||
+                        option.title.equals(getString(R.string.title_no_videos))) {
                     int index = mPostAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mPostAdapter.get(index)).getAdapter());
