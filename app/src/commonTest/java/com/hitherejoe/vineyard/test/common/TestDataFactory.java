@@ -85,7 +85,7 @@ public class TestDataFactory {
         post.postId = generateRandomString();
         post.thumbnailUrl = generateRandomString();
         post.username = generateRandomString();
-        post.videoUrl = generateRandomString();
+        post.videoUrl = "http://v.cdn.vine.co/r/videos/CF9585B3A31290758684187713536_43febf64eb6.4.0.3440879595394339929.mp4?versionId=7I0dX8TUQhdODSNLb_JpzboBW4vrMqn.";
         return post;
     }
 

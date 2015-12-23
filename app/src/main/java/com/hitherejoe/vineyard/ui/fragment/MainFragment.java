@@ -39,7 +39,6 @@ import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 
 import java.net.URI;
@@ -61,12 +60,9 @@ public class MainFragment extends BrowseFragment {
     public static final int REQUEST_CODE_AUTO_LOOP = 1352;
     public static final String RESULT_OPTION = "RESULT_OPTION";
 
-    @Inject
-    CompositeSubscription mCompositeSubscription;
-    @Inject
-    DataManager mDataManager;
-    @Inject
-    PreferencesHelper mPreferencesHelper;
+    @Inject CompositeSubscription mCompositeSubscription;
+    @Inject DataManager mDataManager;
+    @Inject PreferencesHelper mPreferencesHelper;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundManager mBackgroundManager;
