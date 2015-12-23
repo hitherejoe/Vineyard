@@ -85,7 +85,7 @@ public class PostGridFragment extends VerticalGridFragment {
         prepareBackgroundManager();
         Bundle args = getArguments();
         setTag(args.getString(ARG_ITEM_TYPE), args.getString(ARG_ITEM_ID));
-        setSearchAffordanceColor(R.color.search_opaque);
+        setSearchAffordanceColor(ContextCompat.getColor(getActivity(), R.color.accent));
     }
 
     @Override
