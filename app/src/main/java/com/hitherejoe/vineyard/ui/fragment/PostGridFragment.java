@@ -245,10 +245,7 @@ public class PostGridFragment extends VerticalGridFragment {
                 Option option = (Option) item;
                 if (option.title.equals(getString(R.string.title_oops)) ||
                         option.title.equals(getString(R.string.title_no_videos))) {
-                    int index = mPostAdapter.indexOf(row);
-                    PostAdapter adapter =
-                            ((PostAdapter) ((ListRow) mPostAdapter.get(index)).getAdapter());
-                    adapter.removeReloadCard();
+                    mPostAdapter.removeReloadCard();
                     addPageLoadSubscription();
                 }
             }

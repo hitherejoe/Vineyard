@@ -34,6 +34,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -63,7 +64,7 @@ public class PostGridActivityTest {
         onView(withText("123"))
                 .check(matches(isDisplayed()));
 
-        checkPostsDisplayOnRecyclerView(postList, 0, true);
+        checkPostsDisplayOnRecyclerView(postList, 0);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class PostGridActivityTest {
         onView(withText("#cat"))
                 .check(matches(isDisplayed()));
 
-        checkPostsDisplayOnRecyclerView(tagList, 0, true);
+        checkPostsDisplayOnRecyclerView(tagList, 0);
     }
 
     @Test
@@ -124,11 +125,11 @@ public class PostGridActivityTest {
         onView(withText("123"))
                 .check(matches(isDisplayed()));
 
-        checkPostsDisplayOnRecyclerView(postList, 0, true);
+        checkPostsDisplayOnRecyclerView(postList, 0);
 
         Thread.sleep(200);
 
-        checkPostsDisplayOnRecyclerView(postListTwo, postList.size(), false);
+        checkPostsDisplayOnRecyclerView(postListTwo, postList.size());
         pressBack();
     }
 
@@ -145,6 +146,89 @@ public class PostGridActivityTest {
                 .check(matches(isDisplayed()));
         onView(withItemText("Oops", R.id.browse_grid)).check(matches(isDisplayed()));
         onView(withItemText("Try again?", R.id.browse_grid)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void tryAgainCardFetchesContentWhenClicked() throws InterruptedException {
+        doReturn(Observable.just(new RuntimeException()))
+                .when(component.getMockDataManager())
+                .getPostsByTag(anyString(), anyString(), anyString());
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("#cat"))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Oops", R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText("Try again?", R.id.browse_grid)).check(matches(isDisplayed()));
+
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(tagList);
+        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
+        tagData.records = tagList;
+        postTagResponse.data = tagData;
+        when(component.getMockDataManager().getPostsByTag(eq("cat"), anyString(), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        onView(withId(R.id.browse_grid))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+
+        onView(withItemText("Oops", R.id.browse_grid)).check(doesNotExist());
+        onView(withItemText("Try again?", R.id.browse_grid)).check(doesNotExist());
+
+        checkPostsDisplayOnRecyclerView(tagList, 0);
+
+        pressBack();
+    }
+
+    @Test
+    public void tryAgainCardFetchesContentOnFocus() throws InterruptedException {
+        List<Post> emptyTagList = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(emptyTagList);
+        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
+        tagData.records = emptyTagList;
+        postTagResponse.data = tagData;
+        postTagResponse.data.nextPage = 2;
+
+        when(component.getMockDataManager().getPostsByTag(eq("cat"), eq("1"), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("#cat"))
+                .check(matches(isDisplayed()));
+
+        doReturn(Observable.just(new RuntimeException()))
+                .when(component.getMockDataManager())
+                .getPostsByTag(eq("cat"), eq("2"), anyString());
+
+
+        checkPostsDisplayOnRecyclerView(emptyTagList, 0);
+
+        onView(withId(R.id.browse_grid))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(emptyTagList.size() - 4, click()));
+
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(tagList);
+        tagData.records = tagList;
+        postTagResponse.data = tagData;
+        postTagResponse.data.nextPage = 0;
+        doReturn(Observable.just(postTagResponse))
+                .when(component.getMockDataManager())
+                .getPostsByTag(eq("cat"), eq("2"), anyString());
+        when(component.getMockDataManager().getPostsByUser(anyString(), eq("0"), anyString()))
+                .thenReturn(Observable.<VineyardService.PostResponse>empty());
+
+        onView(withId(R.id.browse_grid))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(emptyTagList.size() - 5, click()));
+
+        checkPostsDisplayOnRecyclerView(tagList, emptyTagList.size());
+
+        pressBack();
     }
 
     @Test
@@ -168,6 +252,47 @@ public class PostGridActivityTest {
 
         onView(withItemText("No videos", R.id.browse_grid)).check(matches(isDisplayed()));
         onView(withItemText("Check again?", R.id.browse_grid)).check(matches(isDisplayed()));
+
+        pressBack();
+    }
+
+    @Test
+    public void reloadCardReloadsContentWhenClicked() {
+        List<Post> emptyTagList = TestDataFactory.createMockListOfPosts(0);
+        Collections.sort(emptyTagList);
+        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
+        tagData.records = emptyTagList;
+        postTagResponse.data = tagData;
+
+        when(component.getMockDataManager().getPostsByTag(eq("cat"), anyString(), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        Context context = InstrumentationRegistry.getTargetContext();
+        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        main.launchActivity(intent);
+
+        onView(withText("#cat"))
+                .check(matches(isDisplayed()));
+
+        onView(withItemText("No videos", R.id.browse_grid)).check(matches(isDisplayed()));
+        onView(withItemText("Check again?", R.id.browse_grid)).check(matches(isDisplayed()));
+
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        Collections.sort(tagList);
+        tagData.records = tagList;
+        postTagResponse.data = tagData;
+        when(component.getMockDataManager().getPostsByTag(eq("cat"), anyString(), anyString()))
+                .thenReturn(Observable.just(postTagResponse));
+
+        onView(withItemText("Check again?", R.id.browse_grid)).perform(click());
+
+        onView(withItemText("No videos", R.id.browse_grid)).check(doesNotExist());
+        onView(withItemText("Check again?", R.id.browse_grid)).check(doesNotExist());
+
+        checkPostsDisplayOnRecyclerView(tagList, 0);
+
+        pressBack();
     }
 
     @Test
@@ -236,21 +361,21 @@ public class PostGridActivityTest {
      *
      * @param postsToCheck posts to be checked
      */
-    private void checkPostsDisplayOnRecyclerView(List<Post> postsToCheck, int position, boolean isFirst) {
+    private void checkPostsDisplayOnRecyclerView(List<Post> postsToCheck, int position) {
         int columnCount = 5;
         int size = postsToCheck.size() + position;
         int pos = 0;
 
         for (int i = position; i < size; i++) {
             // The first item starts as selected, clicking on this would open the Playback Activity
-            checkItemAtPosition(i, postsToCheck.get(pos), isFirst);
+            checkItemAtPosition(i, postsToCheck.get(pos));
 
             // If we get to the end of the current row then we need to go down to the next one
             if (((i + 1) % columnCount) == 0) {
                 int nextRowStart = i + columnCount;
                 int nextRowEnd = nextRowStart - columnCount + 1;
                 for (int n = nextRowStart; n >= nextRowEnd; n--) {
-                    checkItemAtPosition(n, postsToCheck.get(n - position), isFirst);
+                    checkItemAtPosition(n, postsToCheck.get(n - position));
                 }
                 // Set i to the start of the row beneath the one we've just checked
                 i = i + columnCount;
@@ -259,7 +384,7 @@ public class PostGridActivityTest {
         }
     }
 
-    private void checkItemAtPosition(int position, Post post, boolean isFirst) {
+    private void checkItemAtPosition(int position, Post post) {
         // VerticalGridFragment->BaseGridView->RecyclerView means we can use RecyclerViewActions! :D
         if (position > 0) {
             onView(withId(R.id.browse_grid))
