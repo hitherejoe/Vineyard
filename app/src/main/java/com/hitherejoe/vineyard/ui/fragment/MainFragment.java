@@ -40,6 +40,8 @@ import com.hitherejoe.vineyard.ui.adapter.OptionsAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
+import com.hitherejoe.vineyard.util.NetworkUtil;
+import com.hitherejoe.vineyard.util.ToastFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -75,6 +77,10 @@ public class MainFragment extends BrowseFragment {
 
     private String mPopularText;
     private String mEditorsPicksText;
+
+    public static MainFragment newInstance() {
+        return new MainFragment();
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -282,12 +288,16 @@ public class MainFragment extends BrowseFragment {
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
-                Post post = (Post) item;
-                int index = mRowsAdapter.indexOf(row);
-                PostAdapter adapter =
-                        ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                ArrayList<Post> postList = (ArrayList<Post>) adapter.getAllItems();
-                startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                if (NetworkUtil.isWifiConnected(getActivity())) {
+                    Post post = (Post) item;
+                    int index = mRowsAdapter.indexOf(row);
+                    PostAdapter adapter =
+                            ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
+                    ArrayList<Post> postList = (ArrayList<Post>) adapter.getAllItems();
+                    startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                } else {
+                    ToastFactory.createWifiErrorToast(getActivity()).show();
+                }
             } else if (item instanceof Option) {
 
                 Option option = (Option) item;

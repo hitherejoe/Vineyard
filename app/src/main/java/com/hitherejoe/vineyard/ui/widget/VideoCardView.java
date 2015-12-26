@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.util.NetworkUtil;
 
 import timber.log.Timber;
 
@@ -143,7 +144,7 @@ public class VideoCardView extends BaseCardView {
         if (null != background) {
             setInfoAreaBackground(background);
         }
-        // Backward compatibility: There has to be an icon in the default
+        // Backward compatibility: There has to be an icon in the ic_card_default
         // version. If there is one, we have to set it's visibility to 'GONE'.
         // Disabling 'adjustIconVisibility' allows the user to set the icon's
         // visibility state in XML rather than code.
@@ -209,7 +210,9 @@ public class VideoCardView extends BaseCardView {
     }
 
     public void startVideo() {
-        mPreviewCard.setLoading();
+        if (NetworkUtil.isWifiConnected(getContext())) {
+            mPreviewCard.setLoading();
+        }
     }
 
     public void stopVideo() {

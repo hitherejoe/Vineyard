@@ -51,6 +51,8 @@
     <string name="dialog_error_no_connection">Sorry, you need a connection to do that!</string>
 
     <string name="error_message_network_connection">Please check your network connection and try again!</string>
+    <string name="error_message_wifi_needed">Oops, you need a WiFi connection to do that!</string>
+    <string name="error_message_wifi_needed_app">Oops, you need a WiFi connection to use Vineyard!</string>
     <string name="error_message_sign_in">Oops, there was a problem signing in. Please try again!</string>
     <string name="error_message_sign_in_blank">Oops, username and password can\'t be empty!</string>
     <string name="error_message_sign_in_blank_username">Oops, username can\'t be empty!</string>
@@ -61,6 +63,7 @@
     <string name="title_no_videos">No videos</string>
     <string name="message_try_again">Try again?</string>
     <string name="message_check_again">Check again?</string>
+    <string name="text_close">Close</string>
 
     <string-array name="categories">
         <item>Scary</item>

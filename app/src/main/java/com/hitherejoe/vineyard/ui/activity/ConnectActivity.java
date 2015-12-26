@@ -60,7 +60,7 @@ public class ConnectActivity extends BaseActivity {
 
     @OnClick(R.id.button_sign_in)
     public void onSignInClicked() {
-        if (NetworkUtil.isNetworkConnected(this)) {
+        if (NetworkUtil.isWifiConnected(this)) {
             replaceButtonWithProgress(true);
             validateData();
         } else {

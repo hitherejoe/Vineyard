@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
+import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
@@ -34,6 +36,8 @@ import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.adapter.TagAdapter;
 import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
+import com.hitherejoe.vineyard.util.NetworkUtil;
+import com.hitherejoe.vineyard.util.ToastFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -152,8 +156,12 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if ((mSearchQuery != null && !mSearchQuery.equals(query))
                 && query.trim().length() > 0
                 || (!TextUtils.isEmpty(query) && !query.equals("nil"))) {
-            mSearchQuery = query;
-            searchTaggedPosts(query);
+            if (NetworkUtil.isWifiConnected(getActivity())) {
+                mSearchQuery = query;
+                searchTaggedPosts(query);
+            } else {
+                ToastFactory.createWifiErrorToast(getActivity()).show();
+            }
         }
     }
 
@@ -328,21 +336,36 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
-                Post post = (Post) item;
-                int index = mResultsAdapter.indexOf(row);
-                PostAdapter arrayObjectAdapter =
-                        ((PostAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
-                ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
-                startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                if (NetworkUtil.isWifiConnected(getActivity())) {
+                    Post post = (Post) item;
+                    int index = mResultsAdapter.indexOf(row);
+                    PostAdapter arrayObjectAdapter =
+                            ((PostAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
+                    ArrayList<Post> postList = (ArrayList<Post>) arrayObjectAdapter.getAllItems();
+                    startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                } else {
+                    showNetworkUnavailableToast();
+                }
             } else if (item instanceof Tag) {
-                Tag tag = (Tag) item;
-                startActivity(PostGridActivity.getStartIntent(getActivity(), PostGridActivity.TYPE_TAG, tag.tag));
+                if (NetworkUtil.isWifiConnected(getActivity())) {
+                    Tag tag = (Tag) item;
+                    startActivity(PostGridActivity.getStartIntent(
+                            getActivity(), PostGridActivity.TYPE_TAG, tag.tag));
+                } else {
+                    showNetworkUnavailableToast();
+                }
             } else if (item instanceof User) {
-                User user = (User) item;
-                startActivity(PostGridActivity.getStartIntent(getActivity(), PostGridActivity.TYPE_USER, user.userId));
-            } else if (item instanceof String) {
-                if (item.equals(CardPresenter.ITEM_RELOAD) ||
-                        item.equals(CardPresenter.ITEM_TRY_AGAIN)) {
+                if (NetworkUtil.isWifiConnected(getActivity())) {
+                    User user = (User) item;
+                    startActivity(PostGridActivity.getStartIntent(
+                            getActivity(), PostGridActivity.TYPE_USER, user.userId));
+                } else {
+                    showNetworkUnavailableToast();
+                }
+            } else if (item instanceof Option) {
+                Option option = (Option) item;
+                if (option.title.equals(getString(R.string.message_check_again)) ||
+                        option.title.equals(getString(R.string.message_try_again))) {
                     int index = mResultsAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mResultsAdapter.get(index)).getAdapter());
@@ -356,6 +379,10 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             }
         }
     };
+
+    private void showNetworkUnavailableToast() {
+        ToastFactory.createWifiErrorToast(getActivity()).show();
+    }
 
     private OnItemViewSelectedListener mOnItemViewSelectedListener = new OnItemViewSelectedListener() {
         @Override
@@ -398,8 +425,13 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             mPostResultsAdapter = new PostAdapter(getActivity(), tag);
         }
         mResultsAdapter.removeItems(1, 1);
-        HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
-        mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
+        final HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
+            }
+        });
 
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");

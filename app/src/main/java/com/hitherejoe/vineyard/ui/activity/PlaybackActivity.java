@@ -21,6 +21,8 @@ import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.fragment.PlaybackOverlayFragment;
 import com.hitherejoe.vineyard.util.DataUtils;
+import com.hitherejoe.vineyard.util.NetworkUtil;
+import com.hitherejoe.vineyard.util.ToastFactory;
 
 import java.util.ArrayList;
 
@@ -312,15 +314,20 @@ public class PlaybackActivity extends BaseActivity {
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
-                for (Post post : mPostsList) {
-                    if (post.postId.equals(mediaId)) {
-                        setVideoPath(post.videoUrl);
-                        mPlaybackState = LeanbackPlaybackState.PAUSED;
-                        updateMetadata(post);
-                        playPause(extras.getBoolean(AUTO_PLAY));
+                if (NetworkUtil.isWifiConnected(PlaybackActivity.this)) {
+                    for (Post post : mPostsList) {
+                        if (post.postId.equals(mediaId)) {
+                            setVideoPath(post.videoUrl);
+                            mPlaybackState = LeanbackPlaybackState.PAUSED;
+                            updateMetadata(post);
+                            playPause(extras.getBoolean(AUTO_PLAY));
+                        }
                     }
+                    mWasSkipPressed = false;
+                } else {
+                    ToastFactory.createWifiErrorToast(PlaybackActivity.this).show();
+                    finish();
                 }
-                mWasSkipPressed = false;
             }
         }
 

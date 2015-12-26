@@ -17,11 +17,11 @@ public class NetworkUtil {
                 && ((HttpException) throwable).code() == statusCode;
     }
 
-    public static boolean isNetworkConnected(Context context) {
-        ConnectivityManager cm =
+    public static boolean isWifiConnected(Context context) {
+        ConnectivityManager connManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
 }

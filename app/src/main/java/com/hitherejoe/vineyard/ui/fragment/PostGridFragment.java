@@ -33,6 +33,8 @@ import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
+import com.hitherejoe.vineyard.util.NetworkUtil;
+import com.hitherejoe.vineyard.util.ToastFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -238,9 +240,13 @@ public class PostGridFragment extends VerticalGridFragment {
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
-                Post post = (Post) item;
-                ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
-                startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                if (NetworkUtil.isWifiConnected(getActivity())) {
+                    Post post = (Post) item;
+                    ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
+                    startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
+                } else {
+                    ToastFactory.createWifiErrorToast(getActivity()).show();
+                }
             } else if (item instanceof Option) {
                 Option option = (Option) item;
                 if (option.title.equals(getString(R.string.title_oops)) ||

@@ -12,15 +12,13 @@ import com.bumptech.glide.Glide;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.widget.VideoCardView;
+import com.hitherejoe.vineyard.util.NetworkUtil;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
  * It contains an Image CardView
  */
 public class CardPresenter extends Presenter {
-
-    public static final String ITEM_RELOAD = "item_reload";
-    public static final String ITEM_TRY_AGAIN = "item_try_again";
 
     private static final int CARD_WIDTH = 300;
     private static final int CARD_HEIGHT = 300;
@@ -34,7 +32,7 @@ public class CardPresenter extends Presenter {
         Context context = parent.getContext();
         sDefaultBackgroundColor = ContextCompat.getColor(context, R.color.primary);
         sSelectedBackgroundColor = ContextCompat.getColor(context, R.color.primary_dark);
-        mDefaultCardImage = ContextCompat.getDrawable(context, R.drawable.lb_ic_play);
+        mDefaultCardImage = ContextCompat.getDrawable(context, R.drawable.ic_card_default);
 
         final VideoCardView cardView = new VideoCardView(parent.getContext()) {
             @Override

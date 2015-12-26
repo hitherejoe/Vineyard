@@ -41,7 +41,7 @@ public class LoopingVideoView extends VideoView {
     }
 
     public void stopVideo() {
-        if (mMediaPlayer != null) {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
             mMediaPlayer.stop();
             mMediaPlayer = null;
         }
