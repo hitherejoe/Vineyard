@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.VerticalGridFragment;
 import android.support.v17.leanback.widget.ListRow;
@@ -26,6 +27,8 @@ import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.data.model.Tag;
+import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
@@ -51,8 +54,7 @@ import timber.log.Timber;
 
 public class PostGridFragment extends VerticalGridFragment {
 
-    public static final String ARG_ITEM_TYPE = "arg_item_type";
-    public static final String ARG_ITEM_ID = "arg_item_id";
+    public static final String ARG_ITEM = "arg_item";
     public static final String TYPE_USER = "user";
     public static final String TYPE_TAG = "tag";
 
@@ -70,11 +72,14 @@ public class PostGridFragment extends VerticalGridFragment {
     private Runnable mBackgroundRunnable;
     private String mSelectedType;
 
-    public static PostGridFragment newInstance(String itemType, String itemId) {
+    public static PostGridFragment newInstance(Object selectedItem) {
         PostGridFragment postGridFragment = new PostGridFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_ITEM_TYPE, itemType);
-        args.putString(ARG_ITEM_ID, itemId);
+        if (selectedItem instanceof User) {
+            args.putParcelable(ARG_ITEM, (User) selectedItem);
+        } else if (selectedItem instanceof Tag) {
+            args.putParcelable(ARG_ITEM, (Tag) selectedItem);
+        }
         postGridFragment.setArguments(args);
         return postGridFragment;
     }
@@ -86,7 +91,7 @@ public class PostGridFragment extends VerticalGridFragment {
         setupFragment();
         prepareBackgroundManager();
         Bundle args = getArguments();
-        setTag(args.getString(ARG_ITEM_TYPE), args.getString(ARG_ITEM_ID));
+        setTag(args.getParcelable(ARG_ITEM));
         setSearchAffordanceColor(ContextCompat.getColor(getActivity(), R.color.accent));
     }
 
@@ -116,16 +121,18 @@ public class PostGridFragment extends VerticalGridFragment {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
 
-    public void setTag(String itemType, String itemId) {
-        if (itemType.equals(TYPE_USER)) {
+    public void setTag(Object selectedItem) {
+        String tag = null;
+        if (selectedItem instanceof User) {
             mSelectedType = TYPE_USER;
-            setTitle(itemId);
-        } if (itemType.equals(TYPE_TAG)) {
+            tag = ((User) selectedItem).userId;
+            setTitle(((User) selectedItem).username);
+        } else if (selectedItem instanceof Tag) {
             mSelectedType = TYPE_TAG;
-            setTitle(String.format("#%s", itemId));
+            tag = ((Tag) selectedItem).tag;
+            setTitle(tag);
         }
-
-        mPostAdapter = new PostAdapter(getActivity(), itemId);
+        mPostAdapter = new PostAdapter(getActivity(), tag);
         setAdapter(mPostAdapter);
         addPageLoadSubscription();
     }
@@ -215,7 +222,6 @@ public class PostGridFragment extends VerticalGridFragment {
                                 ).show();
                             }
                             Timber.e("There was an error loading the posts", e);
-                            e.printStackTrace();
                         }
 
                         @Override

@@ -349,16 +349,14 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             } else if (item instanceof Tag) {
                 if (NetworkUtil.isWifiConnected(getActivity())) {
                     Tag tag = (Tag) item;
-                    startActivity(PostGridActivity.getStartIntent(
-                            getActivity(), PostGridActivity.TYPE_TAG, tag.tag));
+                    startActivity(PostGridActivity.getStartIntent(getActivity(), tag));
                 } else {
                     showNetworkUnavailableToast();
                 }
             } else if (item instanceof User) {
                 if (NetworkUtil.isWifiConnected(getActivity())) {
                     User user = (User) item;
-                    startActivity(PostGridActivity.getStartIntent(
-                            getActivity(), PostGridActivity.TYPE_USER, user.userId));
+                    startActivity(PostGridActivity.getStartIntent(getActivity(), user));
                 } else {
                     showNetworkUnavailableToast();
                 }
@@ -402,14 +400,14 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         String tag = tagOne.tag;
                         adapter.setTag(tag);
 
-                        setListAdapterData(tag);
+                        setListAdapterData(tag, tag);
                         addPageLoadSubscriptionByTag(mPostResultsAdapter);
                     } else {
                         User user = (User) item;
-                        String tag = user.userId;
-                        adapter.setTag(tag);
+                        String userId = user.userId;
+                        adapter.setTag(userId);
 
-                        setListAdapterData(tag);
+                        setListAdapterData(user.username, userId);
                         addPageLoadSubscriptionByUser(mPostResultsAdapter);
                     }
                 }
@@ -417,7 +415,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         }
     };
 
-    private void setListAdapterData(String tag) {
+    private void setListAdapterData(String title, String tag) {
         if (mPostResultsAdapter != null) {
             mResultsAdapter.remove(mPostResultsAdapter);
         }
@@ -425,7 +423,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             mPostResultsAdapter = new PostAdapter(getActivity(), tag);
         }
         mResultsAdapter.removeItems(1, 1);
-        final HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, tag));
+        final HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, title));
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -435,6 +433,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
         mPostResultsAdapter.setTag(tag);
         mPostResultsAdapter.setAnchor("");
+        mPostResultsAdapter.setNextPage(1);
         if (!mPostResultsAdapter.shouldShowLoadingIndicator()) {
             mPostResultsAdapter.removeItems(1, mPostResultsAdapter.size() - 2);
         } else {
