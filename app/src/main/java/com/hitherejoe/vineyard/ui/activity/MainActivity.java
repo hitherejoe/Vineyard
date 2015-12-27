@@ -36,8 +36,8 @@ public class MainActivity extends BaseActivity {
         } else {
             fragment = buildErrorFragment();
         }
-        getFragmentManager().beginTransaction().replace(mFragmentContainer.getId(), fragment)
-                .addToBackStack(null).commit();
+        getFragmentManager().beginTransaction()
+                .replace(mFragmentContainer.getId(), fragment).commit();
     }
 
     @Override

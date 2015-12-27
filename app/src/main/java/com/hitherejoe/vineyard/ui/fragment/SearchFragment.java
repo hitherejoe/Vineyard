@@ -35,7 +35,6 @@ import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.adapter.TagAdapter;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.ToastFactory;
 
@@ -169,7 +168,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         mSearchResultsAdapter.setTag(tag);
         mResultsAdapter.clear();
         mResultsHeader = new HeaderItem(0, getString(R.string.text_search_results));
-        mResultsAdapter.add(new ListRow(mResultsHeader, mSearchResultsAdapter));
+        ListRow listRow = new ListRow(mResultsHeader, mSearchResultsAdapter);
+        Timber.e(listRow.getId() + "");
+        mResultsAdapter.add(listRow);
         performSearch(mSearchResultsAdapter);
     }
 

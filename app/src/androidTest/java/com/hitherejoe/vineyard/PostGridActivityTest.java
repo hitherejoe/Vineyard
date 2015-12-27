@@ -9,6 +9,8 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.data.model.Tag;
+import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.test.common.TestDataFactory;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
@@ -58,7 +60,9 @@ public class PostGridActivityTest {
         stubPostListUserDate(postList);
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_USER, "123");
+        User mockUser = TestDataFactory.createMockUser();
+        mockUser.userId = "123";
+        Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
         onView(withText("123"))
@@ -80,7 +84,8 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.just(postTagResponse));
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -119,7 +124,9 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.<VineyardService.PostResponse>empty());
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_USER, "123");
+        User mockUser = TestDataFactory.createMockUser();
+        mockUser.userId = "123";
+        Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
         onView(withText("123"))
@@ -139,7 +146,8 @@ public class PostGridActivityTest {
                 .when(component.getMockDataManager())
                 .getPostsByTag(anyString(), anyString(), anyString());
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -154,7 +162,8 @@ public class PostGridActivityTest {
                 .when(component.getMockDataManager())
                 .getPostsByTag(anyString(), anyString(), anyString());
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -196,7 +205,8 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.just(postTagResponse));
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -244,7 +254,8 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.just(postTagResponse));
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -269,7 +280,8 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.just(postTagResponse));
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_TAG, "cat");
+        Tag mockTag = TestDataFactory.createMockTag("cat");
+        Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
         onView(withText("#cat"))
@@ -302,7 +314,9 @@ public class PostGridActivityTest {
         stubPostListUserDate(postList);
 
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, PostGridActivity.TYPE_USER, "123");
+        User mockUser = TestDataFactory.createMockUser();
+        mockUser.userId = "123";
+        Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
         onView(withText("123"))
@@ -335,7 +349,7 @@ public class PostGridActivityTest {
     @Test
     public void errorFragmentDisplayed() {
         Context context = InstrumentationRegistry.getTargetContext();
-        Intent intent = PostGridActivity.getStartIntent(context, null, null);
+        Intent intent = PostGridActivity.getStartIntent(context, null);
         main.launchActivity(intent);
 
         String errorTitle = context.getString(R.string.text_error_oops_title);

@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 
 public class PostGridActivity extends BaseActivity {
 
-    @Bind(R.id.frame_container)
+    @Bind(R.id.frame_container_post_grid)
     FrameLayout mFragmentContainer;
 
     public static final String EXTRA_ITEM = "extra_item";
@@ -51,8 +51,8 @@ public class PostGridActivity extends BaseActivity {
         } else {
             fragment = PostGridFragment.newInstance(object);
         }
-        getFragmentManager().beginTransaction().replace(mFragmentContainer.getId(), fragment)
-                .addToBackStack(null).commit();
+        getFragmentManager().beginTransaction()
+                .replace(mFragmentContainer.getId(), fragment).commit();
     }
 
     @Override

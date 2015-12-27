@@ -16,7 +16,7 @@ import java.util.UUID;
 public class TestDataFactory {
 
     public static String generateRandomString() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().substring(0, 5);
     }
 
     public static int generateRandomNumber() {
@@ -75,6 +75,14 @@ public class TestDataFactory {
         return mockTag;
     }
 
+    public static Tag createMockTag() {
+        Tag mockTag = new Tag();
+        mockTag.tag = generateRandomString();
+        mockTag.tagId = new Random().nextInt(2000);
+        mockTag.postCount = new Random().nextInt(2000);
+        return mockTag;
+    }
+
     public static Post createMockPost() {
         Post post = new Post();
         post.avatarUrl = generateRandomString();
@@ -101,6 +109,14 @@ public class TestDataFactory {
         List<Tag> mockPosts = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             mockPosts.add(createMockTag(tag));
+        }
+        return mockPosts;
+    }
+
+    public static List<Tag> createMockListOfTags(int count) {
+        List<Tag> mockPosts = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            mockPosts.add(createMockTag());
         }
         return mockPosts;
     }

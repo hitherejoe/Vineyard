@@ -45,7 +45,7 @@ public class MainActivityTest {
     public final TestComponentRule component =
             new TestComponentRule(InstrumentationRegistry.getTargetContext());
     public final ActivityTestRule<MainActivity> main =
-            new ActivityTestRule<MainActivity>(MainActivity.class, false, false);
+            new ActivityTestRule<>(MainActivity.class, false, false);
 
     @Rule
     public final TestRule chain = RuleChain.outerRule(component).around(main);
@@ -55,8 +55,6 @@ public class MainActivityTest {
         stubVideoFeedData();
 
         main.launchActivity(null);
-        onView(withId(R.id.main_browse_fragment))
-                .check(matches(isDisplayed()));
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
