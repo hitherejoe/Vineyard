@@ -6,8 +6,12 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
@@ -19,9 +23,14 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Option;
@@ -38,6 +47,7 @@ import com.hitherejoe.vineyard.ui.adapter.TagAdapter;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.ToastFactory;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -53,12 +63,18 @@ import timber.log.Timber;
 public class SearchFragment extends android.support.v17.leanback.app.SearchFragment
         implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
 
+    private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final boolean FINISH_ON_RECOGNIZER_CANCELED = true;
     private static final int REQUEST_SPEECH = 0x00000010;
 
     @Inject DataManager mDataManager;
 
     private ArrayObjectAdapter mResultsAdapter;
+    private BackgroundManager mBackgroundManager;
+    private Drawable mDefaultBackground;
+    private DisplayMetrics mMetrics;
+    private Runnable mBackgroundRunnable;
+    private Handler mHandler;
     private HeaderItem mResultsHeader;
     private Object mSelectedTag;
     private PostAdapter mPostResultsAdapter;
@@ -78,16 +94,10 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
         mResultsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mSearchResultsAdapter = new TagAdapter(getActivity(), "");
+        mHandler = new Handler();
         setSearchResultProvider(this);
+        setupBackgroundManager();
         setListeners();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mSearchResultsSubscription != null) mSearchResultsSubscription.unsubscribe();
-        if (mTagSubscription != null) mTagSubscription.unsubscribe();
-        if (mUserSubscription != null) mUserSubscription.unsubscribe();
-        super.onDestroy();
     }
 
     @Override
@@ -96,9 +106,23 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         mIsStopping = false;
     }
 
+
+    public void onDestroy() {
+        if (mBackgroundRunnable != null) {
+            mHandler.removeCallbacks(mBackgroundRunnable);
+            mBackgroundRunnable = null;
+        }
+        mBackgroundManager = null;
+        if (mSearchResultsSubscription != null) mSearchResultsSubscription.unsubscribe();
+        if (mTagSubscription != null) mTagSubscription.unsubscribe();
+        if (mUserSubscription != null) mUserSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
+        mBackgroundManager.release();
         mIsStopping = true;
     }
 
@@ -139,6 +163,46 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     public boolean onQueryTextSubmit(String query) {
         loadQuery(query);
         return true;
+    }
+
+    private void setupBackgroundManager() {
+        mBackgroundManager = BackgroundManager.getInstance(getActivity());
+        mBackgroundManager.attach(getActivity().getWindow());
+        mBackgroundManager.setColor(ContextCompat.getColor(getActivity(), R.color.bg_grey));
+        mDefaultBackground =
+                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.bg_grey));
+        mMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+    }
+
+    private void startBackgroundTimer(final URI backgroundURI) {
+        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
+        mBackgroundRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (backgroundURI != null) updateBackground(backgroundURI.toString());
+            }
+        };
+        mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
+    }
+
+    protected void updateBackground(String uri) {
+        int width = mMetrics.widthPixels;
+        int height = mMetrics.heightPixels;
+        Glide.with(getActivity())
+                .load(uri)
+                .asBitmap()
+                .centerCrop()
+                .error(mDefaultBackground)
+                .into(new SimpleTarget<Bitmap>(width, height) {
+                    @Override
+                    public void onResourceReady(Bitmap resource,
+                                                GlideAnimation<? super Bitmap>
+                                                        glideAnimation) {
+                        mBackgroundManager.setBitmap(resource);
+                    }
+                });
+        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
     }
 
     public boolean hasResults() {
@@ -429,6 +493,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         addPageLoadSubscriptionByUser(mPostResultsAdapter);
                     }
                 }
+            } else if (item instanceof Post) {
+                String backgroundUrl = ((Post) item).thumbnailUrl;
+                if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
             }
         }
     };

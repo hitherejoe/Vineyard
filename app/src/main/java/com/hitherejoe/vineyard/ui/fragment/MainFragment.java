@@ -193,7 +193,8 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
         mBackgroundManager.attach(getActivity().getWindow());
         mDefaultBackground =
-                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.primary_light));
+                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.bg_grey));
+        mBackgroundManager.setColor(ContextCompat.getColor(getActivity(), R.color.bg_grey));
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
     }
