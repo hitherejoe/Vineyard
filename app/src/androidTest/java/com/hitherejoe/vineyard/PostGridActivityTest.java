@@ -61,7 +61,7 @@ public class PostGridActivityTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         User mockUser = TestDataFactory.createMockUser();
-        mockUser.userId = "123";
+        mockUser.username = "123";
         Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
@@ -72,7 +72,7 @@ public class PostGridActivityTest {
     }
 
     @Test
-    public void listOfTagPostsShowsAndIsScrollable() {
+    public void listOfTagPostsShowsAndIsScrollable() throws InterruptedException {
         List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
         Collections.sort(tagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
@@ -87,6 +87,8 @@ public class PostGridActivityTest {
         Tag mockTag = TestDataFactory.createMockTag("cat");
         Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
+
+        Thread.sleep(2000);
 
         onView(withText("#cat"))
                 .check(matches(isDisplayed()));
@@ -125,7 +127,7 @@ public class PostGridActivityTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         User mockUser = TestDataFactory.createMockUser();
-        mockUser.userId = "123";
+        mockUser.username = "123";
         Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
@@ -137,7 +139,6 @@ public class PostGridActivityTest {
         Thread.sleep(200);
 
         checkPostsDisplayOnRecyclerView(postListTwo, postList.size());
-        pressBack();
     }
 
     @Test
@@ -187,8 +188,6 @@ public class PostGridActivityTest {
         onView(withItemText("Try again?", R.id.browse_grid)).check(doesNotExist());
 
         checkPostsDisplayOnRecyclerView(tagList, 0);
-
-        pressBack();
     }
 
     @Test
@@ -237,8 +236,6 @@ public class PostGridActivityTest {
                 .perform(RecyclerViewActions.actionOnItemAtPosition(emptyTagList.size() - 5, click()));
 
         checkPostsDisplayOnRecyclerView(tagList, emptyTagList.size());
-
-        pressBack();
     }
 
     @Test
@@ -263,8 +260,6 @@ public class PostGridActivityTest {
 
         onView(withItemText("No videos", R.id.browse_grid)).check(matches(isDisplayed()));
         onView(withItemText("Check again?", R.id.browse_grid)).check(matches(isDisplayed()));
-
-        pressBack();
     }
 
     @Test
@@ -303,8 +298,6 @@ public class PostGridActivityTest {
         onView(withItemText("Check again?", R.id.browse_grid)).check(doesNotExist());
 
         checkPostsDisplayOnRecyclerView(tagList, 0);
-
-        pressBack();
     }
 
     @Test
@@ -315,7 +308,7 @@ public class PostGridActivityTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         User mockUser = TestDataFactory.createMockUser();
-        mockUser.userId = "123";
+        mockUser.username = "123";
         Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
@@ -332,8 +325,6 @@ public class PostGridActivityTest {
                 .check(doesNotExist());
         onView(withText(dismissText))
                 .check(doesNotExist());
-
-        pressBack();
     }
 
     private void stubPostListUserDate(List<Post> postList) {

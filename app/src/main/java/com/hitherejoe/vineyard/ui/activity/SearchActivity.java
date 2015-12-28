@@ -5,11 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 
 public class SearchActivity extends BaseActivity {
 
-    private SearchFragment mFragment;
+    private SearchFragment mSearchFragment;
 
     public static Intent getStartIntent(Context context) {
         return new Intent(context, SearchActivity.class);
@@ -20,16 +21,23 @@ public class SearchActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        mFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.search_fragment);
+        mSearchFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.search_fragment);
     }
 
     @Override
     public boolean onSearchRequested() {
-        if (mFragment.hasResults()) {
+        if (mSearchFragment.hasResults()) {
             startActivity(new Intent(this, SearchActivity.class));
         } else {
-            mFragment.startRecognition();
+            mSearchFragment.startRecognition();
         }
         return true;
+    }
+
+    public boolean isFragmentActive() {
+        return mSearchFragment.isAdded() &&
+                !mSearchFragment.isDetached() &&
+                !mSearchFragment.isRemoving() &&
+                !mSearchFragment.isStopping();
     }
 }

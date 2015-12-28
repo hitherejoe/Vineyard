@@ -109,7 +109,7 @@ public class SearchActivityTest {
     }
 
     @Test
-    public void queryShowsTagAndUserResults() {
+    public void queryShowsTagAndUserResults() throws InterruptedException {
         main.launchActivity(null);
 
         List<Object> term = stubTagUserAndPostData();
@@ -117,10 +117,11 @@ public class SearchActivityTest {
         String by;
         Object object = term.get(0);
 
+
         if(object instanceof Tag) {
             by = ((Tag) object).tag;
         } else {
-            by = ((User) object).userId;
+            by = ((User) object).username;
         }
 
         onView(withId(R.id.lb_search_text_editor))
@@ -134,6 +135,8 @@ public class SearchActivityTest {
                 .check(doesNotExist());
         onView(withText(R.string.text_search_results))
                 .check(matches(isDisplayed()));
+
+        Thread.sleep(2000);
 
         onView(withText("Posts for " + by))
                 .check(matches(isDisplayed()));
@@ -152,23 +155,9 @@ public class SearchActivityTest {
 
         pressKey(KeyEvent.KEYCODE_SEARCH);
 
-        Thread.sleep(2000);
-
         for (int n = 0; n < term.size(); n++) {
             checkItemAtPosition(n, term.get(n));
         }
-
-        String by;
-        Object object = term.get(0);
-
-        if(object instanceof Tag) {
-            by = ((Tag) object).tag;
-        } else {
-            by = ((User) object).userId;
-        }
-
-        onView(withText(by))
-                .perform(click());
     }
 
     @Test
@@ -281,8 +270,6 @@ public class SearchActivityTest {
 
         pressKey(KeyEvent.KEYCODE_SEARCH);
 
-        Thread.sleep(2000);
-
         String by;
         Object object = term.get(0);
 
@@ -300,8 +287,6 @@ public class SearchActivityTest {
 
         onView(withId(R.id.frame_container_post_grid))
                 .check(matches(isDisplayed()));
-
-        pressBack();
     }
 
     private List<Object> stubTagUserAndPostData() {

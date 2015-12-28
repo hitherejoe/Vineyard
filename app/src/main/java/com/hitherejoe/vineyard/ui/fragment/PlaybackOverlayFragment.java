@@ -283,7 +283,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     }
 
     private void addOtherRows() {
-        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
+        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter(getActivity()));
         listRowAdapter.addAll(0, mItems);
         HeaderItem header = new HeaderItem(0, getResources().getString(R.string.related_posts));
         mRowsAdapter.add(new ListRow(header, listRowAdapter));

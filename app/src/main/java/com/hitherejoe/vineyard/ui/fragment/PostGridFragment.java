@@ -5,10 +5,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.VerticalGridFragment;
-import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -35,7 +33,6 @@ import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.adapter.PaginationAdapter;
 import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.ToastFactory;
 
@@ -71,6 +68,7 @@ public class PostGridFragment extends VerticalGridFragment {
     private PostAdapter mPostAdapter;
     private Runnable mBackgroundRunnable;
     private String mSelectedType;
+    private boolean mIsStopping;
 
     public static PostGridFragment newInstance(Object selectedItem) {
         PostGridFragment postGridFragment = new PostGridFragment();
@@ -107,9 +105,20 @@ public class PostGridFragment extends VerticalGridFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mIsStopping = false;
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         mBackgroundManager.release();
+        mIsStopping = true;
+    }
+
+    public boolean isStopping() {
+        return mIsStopping;
     }
 
     private void prepareBackgroundManager() {
@@ -130,7 +139,7 @@ public class PostGridFragment extends VerticalGridFragment {
         } else if (selectedItem instanceof Tag) {
             mSelectedType = TYPE_TAG;
             tag = ((Tag) selectedItem).tag;
-            setTitle(tag);
+            setTitle(String.format("#%s", tag));
         }
         mPostAdapter = new PostAdapter(getActivity(), tag);
         setAdapter(mPostAdapter);

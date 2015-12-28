@@ -3,6 +3,7 @@ package com.hitherejoe.vineyard.ui.adapter;
 import android.content.Context;
 
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 public class PostAdapter extends PaginationAdapter {
 
     public PostAdapter(Context context, String tag) {
-        super(context, new CardPresenter(), tag);
+        super(context, new CardPresenter(context), tag);
     }
 
     @Override

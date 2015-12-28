@@ -70,6 +70,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     private String mSearchQuery;
     private String mTagSearchAnchor;
     private String mUserSearchAnchor;
+    private boolean mIsStopping;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,22 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if (mTagSubscription != null) mTagSubscription.unsubscribe();
         if (mUserSubscription != null) mUserSubscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mIsStopping = false;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mIsStopping = true;
+    }
+
+    public boolean isStopping() {
+        return mIsStopping;
     }
 
     @Override

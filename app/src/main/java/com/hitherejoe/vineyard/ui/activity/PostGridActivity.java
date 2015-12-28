@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.ErrorFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -15,6 +16,7 @@ import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 public class PostGridActivity extends BaseActivity {
 
@@ -22,8 +24,7 @@ public class PostGridActivity extends BaseActivity {
     FrameLayout mFragmentContainer;
 
     public static final String EXTRA_ITEM = "extra_item";
-    public static final String TYPE_TAG = "tag";
-    public static final String TYPE_USER = "user";
+    private Fragment mPostGridFragment;
 
     public static Intent getStartIntent(Context context, Object selectedItem) {
         Intent intent = new Intent(context, PostGridActivity.class);
@@ -42,23 +43,33 @@ public class PostGridActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         Bundle bundle = getIntent().getExtras();
-        Object object = bundle.getParcelable(EXTRA_ITEM);
+        Object object = null;
+        if (bundle != null) {
+            object = bundle.getParcelable(EXTRA_ITEM);
+        }
 
-        Fragment fragment;
         if (object == null ||
                 (!(object instanceof User) && !(object instanceof Tag))) {
-            fragment = buildErrorFragment();
+            mPostGridFragment = buildErrorFragment();
         } else {
-            fragment = PostGridFragment.newInstance(object);
+            mPostGridFragment = PostGridFragment.newInstance(object);
         }
         getFragmentManager().beginTransaction()
-                .replace(mFragmentContainer.getId(), fragment).commit();
+                .add(mFragmentContainer.getId(), mPostGridFragment).commit();
     }
 
     @Override
     public boolean onSearchRequested() {
         startActivity(new Intent(this, SearchActivity.class));
         return true;
+    }
+
+    public boolean isFragmentActive() {
+        return mPostGridFragment instanceof PostGridFragment &&
+                mPostGridFragment.isAdded() &&
+                !mPostGridFragment.isDetached() &&
+                !mPostGridFragment.isRemoving() &&
+                !((PostGridFragment) mPostGridFragment).isStopping();
     }
 
     private ErrorFragment buildErrorFragment() {

@@ -11,7 +11,12 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
+import com.hitherejoe.vineyard.ui.activity.SearchActivity;
+import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.ui.widget.VideoCardView;
+
+import timber.log.Timber;
 
 public class CardPresenter extends Presenter {
 
@@ -20,10 +25,15 @@ public class CardPresenter extends Presenter {
     private static int sSelectedBackgroundColor;
     private static int sDefaultBackgroundColor;
     private Drawable mDefaultCardImage;
+    private Context mContext;
+
+    public CardPresenter(Context context) {
+        mContext = context;
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        Context context = parent.getContext();
+        final Context context = parent.getContext();
         sDefaultBackgroundColor = ContextCompat.getColor(context, R.color.primary);
         sSelectedBackgroundColor = ContextCompat.getColor(context, R.color.primary_dark);
         mDefaultCardImage = ContextCompat.getDrawable(context, R.drawable.ic_card_default);
@@ -42,7 +52,18 @@ public class CardPresenter extends Presenter {
                 if (hasFocus) {
                     cardView.startVideo();
                 } else {
-                    cardView.stopVideo();
+                    Timber.e("ON STOP CALLED");
+                    if (mContext instanceof PostGridActivity) {
+                        if (((PostGridActivity) mContext).isFragmentActive()) {
+                            cardView.stopVideo();
+                        }
+                    } else if (mContext instanceof SearchActivity) {
+                        if (((SearchActivity) mContext).isFragmentActive()) {
+                            cardView.stopVideo();
+                        }
+                    } else {
+                        cardView.stopVideo();
+                    }
                 }
             }
         });
