@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.BaseCardView;
-import android.support.v17.leanback.widget.ImageCardView;
-import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -20,23 +18,27 @@ import com.hitherejoe.vineyard.R;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class OptionCardView extends BaseCardView {
+public class IconCardView extends BaseCardView {
 
-    RelativeLayout mCardLayout;
+    @Bind(R.id.layout_option_card)
+    RelativeLayout mLayout;
 
-    ImageView mOptionIcon;
+    @Bind(R.id.image_option)
+    ImageView mIcon;
 
-    TextView mOptionTitle;
+    @Bind(R.id.text_option_title)
+    TextView mTitle;
 
-    TextView mOptionValue;
+    @Bind(R.id.text_option_value)
+    TextView mValue;
 
-    public OptionCardView(Context context, int styleResId) {
+    public IconCardView(Context context, int styleResId) {
         super(new ContextThemeWrapper(context, styleResId), null, 0);
         buildptionCardView(styleResId);
 
     }
 
-    public OptionCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IconCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(getStyledContext(context, attrs, defStyleAttr), attrs, defStyleAttr);
         buildptionCardView(getImageCardViewStyle(context, attrs, defStyleAttr));
     }
@@ -51,32 +53,30 @@ public class OptionCardView extends BaseCardView {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View view = inflater.inflate(R.layout.view_options_item, this);
-        mCardLayout = (RelativeLayout) view.findViewById(R.id.layout_option_card);
-        mOptionIcon = (ImageView) view.findViewById(R.id.image_option);
-        mOptionTitle = (TextView) view.findViewById(R.id.text_option_title);
-        mOptionValue = (TextView) view.findViewById(R.id.text_option_value);
-        TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
-
+        ButterKnife.bind(view);
+        TypedArray cardAttrs =
+                getContext().obtainStyledAttributes(
+                        styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
         cardAttrs.recycle();
     }
 
     public void setMainImageDimensions(int width, int height) {
-        ViewGroup.LayoutParams lp = mCardLayout.getLayoutParams();
+        ViewGroup.LayoutParams lp = mLayout.getLayoutParams();
         lp.width = width;
         lp.height = height;
-        mCardLayout.setLayoutParams(lp);
+        mLayout.setLayoutParams(lp);
     }
 
     public void setOptionIcon(Drawable drawable) {
-        mOptionIcon.setImageDrawable(drawable);
+        mIcon.setImageDrawable(drawable);
     }
 
     public void setOptionTitleText(String titleText) {
-        mOptionTitle.setText(titleText);
+        mTitle.setText(titleText);
     }
 
     public void setOptionValueText(String valueText) {
-        mOptionValue.setText(valueText);
+        mValue.setText(valueText);
     }
 
     private static Context getStyledContext(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -89,18 +89,21 @@ public class OptionCardView extends BaseCardView {
         int style = null == attrs ? 0 : attrs.getStyleAttribute();
         if (0 == style) {
             // Not found? Read global ImageCardView style from Theme attribute.
-            TypedArray styledAttrs = context.obtainStyledAttributes(android.support.v17.leanback.R.styleable.LeanbackTheme);
-            style = styledAttrs.getResourceId(android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
+            TypedArray styledAttrs =
+                    context.obtainStyledAttributes(
+                            android.support.v17.leanback.R.styleable.LeanbackTheme);
+            style = styledAttrs.getResourceId(
+                    android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
             styledAttrs.recycle();
         }
         return style;
     }
 
-    public OptionCardView(Context context) {
+    public IconCardView(Context context) {
         this(context, null);
     }
 
-    public OptionCardView(Context context, AttributeSet attrs) {
+    public IconCardView(Context context, AttributeSet attrs) {
         this(context, attrs, android.support.v17.leanback.R.attr.imageCardViewStyle);
     }
 

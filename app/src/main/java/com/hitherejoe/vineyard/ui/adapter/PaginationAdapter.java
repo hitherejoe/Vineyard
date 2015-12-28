@@ -3,19 +3,14 @@ package com.hitherejoe.vineyard.ui.adapter;
 import android.content.Context;
 import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
-import android.support.v4.content.ContextCompat;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
-import com.hitherejoe.vineyard.ui.presenter.ImageCardPresenter;
 import com.hitherejoe.vineyard.ui.presenter.OptionItemPresenter;
 import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
 import com.hitherejoe.vineyard.ui.presenter.LoadingPresenter;
-import com.hitherejoe.vineyard.ui.widget.OptionCardView;
 
 import java.util.HashMap;
 import java.util.List;

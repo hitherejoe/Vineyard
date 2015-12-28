@@ -10,28 +10,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 
-import timber.log.Timber;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class VideoCardView extends BaseCardView {
 
     public static final int CARD_TYPE_FLAG_IMAGE_ONLY = 0;
     public static final int CARD_TYPE_FLAG_TITLE = 1;
     public static final int CARD_TYPE_FLAG_CONTENT = 2;
-    public static final int CARD_TYPE_FLAG_ICON_RIGHT = 4;
-    public static final int CARD_TYPE_FLAG_ICON_LEFT = 8;
 
-    private PreviewCardView mPreviewCard;
-    private ViewGroup mInfoArea;
+    @Bind(R.id.layout_preview_card)
+    PreviewCardView mPreviewCard;
+
+    @Bind(R.id.info_field)
+    ViewGroup mInfoArea;
+
     private TextView mTitleView;
     private TextView mContentView;
-    private ImageView mBadgeImage;
     private boolean mAttachedToWindow;
 
     public VideoCardView(Context context, int styleResId) {
@@ -44,36 +44,52 @@ public class VideoCardView extends BaseCardView {
         buildImageCardView(getImageCardViewStyle(context, attrs, defStyleAttr));
     }
 
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mAttachedToWindow = true;
+        ImageView mImageView = mPreviewCard.getImageView();
+        if (mImageView.getAlpha() == 0) fadeIn();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        ImageView mImageView = mPreviewCard.getImageView();
+        mAttachedToWindow = false;
+        mImageView.animate().cancel();
+        mImageView.setAlpha(1f);
+        super.onDetachedFromWindow();
+    }
+
     private void buildImageCardView(int styleResId) {
         // Make sure the ImageCardView is focusable.
         setFocusable(true);
         setFocusableInTouchMode(true);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        inflater.inflate(R.layout.lb_video_card_view, this);
-        TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, R.styleable.lbImageCardView);
-        int cardType = cardAttrs.getInt(R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
+        View view = inflater.inflate(R.layout.lb_video_card_view, this);
+        ButterKnife.bind(view);
+
+        TypedArray cardAttrs =
+                getContext().obtainStyledAttributes(styleResId, R.styleable.lbImageCardView);
+        int cardType =
+                cardAttrs.getInt(
+                        R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
         boolean hasImageOnly = cardType == CARD_TYPE_FLAG_IMAGE_ONLY;
         boolean hasTitle = (cardType & CARD_TYPE_FLAG_TITLE) == CARD_TYPE_FLAG_TITLE;
         boolean hasContent = (cardType & CARD_TYPE_FLAG_CONTENT) == CARD_TYPE_FLAG_CONTENT;
-        boolean hasIconRight = (cardType & CARD_TYPE_FLAG_ICON_RIGHT) == CARD_TYPE_FLAG_ICON_RIGHT;
-        boolean hasIconLeft = !hasIconRight && (cardType & CARD_TYPE_FLAG_ICON_LEFT) == CARD_TYPE_FLAG_ICON_LEFT;
 
-        mPreviewCard = (PreviewCardView) findViewById(R.id.layout_preview_card);
-
-        mPreviewCard.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Timber.e("HAS FOCUS: " + hasFocus);
-            }
-        });
-
-        mInfoArea = (ViewGroup) findViewById(R.id.info_field);
         if (hasImageOnly) {
             removeView(mInfoArea);
             cardAttrs.recycle();
             return;
         }
+
         // Create children
         if (hasTitle) {
             mTitleView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_title, mInfoArea, false);
@@ -83,55 +99,6 @@ public class VideoCardView extends BaseCardView {
         if (hasContent) {
             mContentView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_content, mInfoArea, false);
             mInfoArea.addView(mContentView);
-        }
-
-        if (hasIconRight || hasIconLeft) {
-            int layoutId = R.layout.lb_image_card_view_themed_badge_right;
-            if (hasIconLeft) {
-                layoutId = R.layout.lb_image_card_view_themed_badge_left;
-            }
-            mBadgeImage = (ImageView) inflater.inflate(layoutId, mInfoArea, false);
-            mInfoArea.addView(mBadgeImage);
-        }
-
-        // Set up LayoutParams for children
-        if (hasTitle && !hasContent && mBadgeImage != null) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mTitleView
-                    .getLayoutParams();
-            // Adjust title TextView if there is an icon but no content
-            if (hasIconLeft) {
-                relativeLayoutParams.addRule(RelativeLayout.END_OF, mBadgeImage.getId());
-            } else {
-                relativeLayoutParams.addRule(RelativeLayout.START_OF, mBadgeImage.getId());
-            }
-            mTitleView.setLayoutParams(relativeLayoutParams);
-        }
-
-        // Set up LayoutParams for children
-        if (hasContent) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mContentView
-                    .getLayoutParams();
-            if (!hasTitle) {
-                relativeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            }
-            // Adjust content TextView if icon is on the left
-            if (hasIconLeft) {
-                relativeLayoutParams.removeRule(RelativeLayout.START_OF);
-                relativeLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_START);
-                relativeLayoutParams.addRule(RelativeLayout.END_OF, mBadgeImage.getId());
-            }
-            mContentView.setLayoutParams(relativeLayoutParams);
-        }
-
-        if (mBadgeImage != null) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mBadgeImage
-                    .getLayoutParams();
-            if (hasContent) {
-                relativeLayoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mContentView.getId());
-            } else if (hasTitle) {
-                relativeLayoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mTitleView.getId());
-            }
-            mBadgeImage.setLayoutParams(relativeLayoutParams);
         }
 
         // Backward compatibility: Newly created ImageCardViews should change
@@ -144,13 +111,7 @@ public class VideoCardView extends BaseCardView {
         if (null != background) {
             setInfoAreaBackground(background);
         }
-        // Backward compatibility: There has to be an icon in the ic_card_default
-        // version. If there is one, we have to set it's visibility to 'GONE'.
-        // Disabling 'adjustIconVisibility' allows the user to set the icon's
-        // visibility state in XML rather than code.
-        if (mBadgeImage != null && mBadgeImage.getDrawable() == null) {
-            mBadgeImage.setVisibility(View.GONE);
-        }
+
         cardAttrs.recycle();
     }
 
@@ -243,33 +204,10 @@ public class VideoCardView extends BaseCardView {
         ImageView mImageView = mPreviewCard.getImageView();
         mImageView.setAlpha(0f);
         if (mAttachedToWindow) {
-            mImageView.animate().alpha(1f)
-                    .setDuration(mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime));
+            int duration =
+                    mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime);
+            mImageView.animate().alpha(1f).setDuration(duration);
         }
-    }
-
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mAttachedToWindow = true;
-        ImageView mImageView = mPreviewCard.getImageView();
-        if (mImageView.getAlpha() == 0) {
-            fadeIn();
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        ImageView mImageView = mPreviewCard.getImageView();
-        mAttachedToWindow = false;
-        mImageView.animate().cancel();
-        mImageView.setAlpha(1f);
-        super.onDetachedFromWindow();
     }
 
 }

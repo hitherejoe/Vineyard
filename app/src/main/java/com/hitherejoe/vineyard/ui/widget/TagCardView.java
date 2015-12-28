@@ -7,15 +7,22 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hitherejoe.vineyard.R;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class TagCardView extends BaseCardView {
 
-    private TextView mTagNameText;
-    private ImageView mResultImage;
+    @Bind(R.id.text_tag_name)
+    TextView mTagNameText;
+
+    @Bind(R.id.image_icon)
+    ImageView mResultImage;
 
     public TagCardView(Context context, int styleResId) {
         super(new ContextThemeWrapper(context, styleResId), null, 0);
@@ -28,18 +35,17 @@ public class TagCardView extends BaseCardView {
     }
 
     private void buildLoadingCardView(int styleResId) {
-        // Make sure the ImageCardView is focusable.
         setFocusable(false);
         setFocusableInTouchMode(false);
         setCardType(CARD_TYPE_MAIN_ONLY);
         setBackgroundResource(R.color.primary_light);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        inflater.inflate(R.layout.view_tag_card, this);
-        TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
-
-        mTagNameText = (TextView) findViewById(R.id.text_tag_name);
-        mResultImage = (ImageView) findViewById(R.id.image_icon);
+        View view = inflater.inflate(R.layout.view_tag_card, this);
+        ButterKnife.bind(view);
+        TypedArray cardAttrs =
+                getContext().obtainStyledAttributes(
+                        styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
         cardAttrs.recycle();
     }
 
@@ -61,8 +67,11 @@ public class TagCardView extends BaseCardView {
         int style = null == attrs ? 0 : attrs.getStyleAttribute();
         if (0 == style) {
             // Not found? Read global ImageCardView style from Theme attribute.
-            TypedArray styledAttrs = context.obtainStyledAttributes(android.support.v17.leanback.R.styleable.LeanbackTheme);
-            style = styledAttrs.getResourceId(android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
+            TypedArray styledAttrs =
+                    context.obtainStyledAttributes(
+                            android.support.v17.leanback.R.styleable.LeanbackTheme);
+            style = styledAttrs.getResourceId(
+                    android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
             styledAttrs.recycle();
         }
         return style;

@@ -68,7 +68,7 @@ public class PreviewCardView extends FrameLayout {
         mOverlayView.setVisibility(View.VISIBLE);
         mProgressCard.setVisibility(View.VISIBLE);
         mVideoView.setVisibility(View.VISIBLE);
-        mVideoView.setVideo(mVideoUrl, new LoopingVideoView.OnVideoReadyListener() {
+        mVideoView.setupMediaPlayer(mVideoUrl, new LoopingVideoView.OnVideoReadyListener() {
             @Override
             public void onVideoReady() {
                 mOverlayView.setVisibility(View.INVISIBLE);
@@ -79,7 +79,7 @@ public class PreviewCardView extends FrameLayout {
     }
 
     public void setFinished() {
-        mVideoView.stopVideo();
+        mVideoView.stopMediaPlayer();
         mImageView.setVisibility(View.VISIBLE);
         mVideoView.setVisibility(View.INVISIBLE);
         mOverlayView.setVisibility(View.INVISIBLE);

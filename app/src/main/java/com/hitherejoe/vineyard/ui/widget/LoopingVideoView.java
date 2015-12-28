@@ -26,7 +26,7 @@ public class LoopingVideoView extends VideoView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setVideo(String url, final OnVideoReadyListener onVideoReadyListener) {
+    public void setupMediaPlayer(String url, final OnVideoReadyListener onVideoReadyListener) {
         setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -40,8 +40,8 @@ public class LoopingVideoView extends VideoView {
         setVideoURI(Uri.parse(url));
     }
 
-    public void stopVideo() {
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+    public void stopMediaPlayer() {
+        if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer = null;
         }

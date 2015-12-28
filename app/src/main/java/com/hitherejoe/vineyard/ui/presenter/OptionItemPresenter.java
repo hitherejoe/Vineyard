@@ -6,7 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.widget.OptionCardView;
+import com.hitherejoe.vineyard.ui.widget.IconCardView;
 
 
 public class OptionItemPresenter extends Presenter {
@@ -21,8 +21,8 @@ public class OptionItemPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        OptionCardView optionCardView = new OptionCardView(parent.getContext());
-        return new ViewHolder(optionCardView);
+        IconCardView iconCardView = new IconCardView(parent.getContext());
+        return new ViewHolder(iconCardView);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class OptionItemPresenter extends Presenter {
         //((GridItemView) viewHolder.view).setText((String) item);
         if (item instanceof Option) {
             Option option = (Option) item;
-            OptionCardView optionView = (OptionCardView) viewHolder.view;
+            IconCardView optionView = (IconCardView) viewHolder.view;
             optionView.setMainImageDimensions(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
             optionView.setOptionTitleText(option.title);
             String value = option.value;

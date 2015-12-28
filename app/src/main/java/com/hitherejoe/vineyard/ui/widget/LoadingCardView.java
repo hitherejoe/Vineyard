@@ -38,7 +38,9 @@ public class LoadingCardView extends BaseCardView {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.view_loading_card, this);
-        TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
+        TypedArray cardAttrs =
+                getContext().obtainStyledAttributes(
+                        styleResId, android.support.v17.leanback.R.styleable.lbImageCardView);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progress_indicator);
         cardAttrs.recycle();
@@ -56,8 +58,11 @@ public class LoadingCardView extends BaseCardView {
     private static int getImageCardViewStyle(Context context, AttributeSet attrs, int defStyleAttr) {
         int style = null == attrs ? 0 : attrs.getStyleAttribute();
         if (0 == style) {
-            TypedArray styledAttrs = context.obtainStyledAttributes(android.support.v17.leanback.R.styleable.LeanbackTheme);
-            style = styledAttrs.getResourceId(android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
+            TypedArray styledAttrs =
+                    context.obtainStyledAttributes(
+                            android.support.v17.leanback.R.styleable.LeanbackTheme);
+            style = styledAttrs.getResourceId(
+                            android.support.v17.leanback.R.styleable.LeanbackTheme_imageCardViewStyle, 0);
             styledAttrs.recycle();
         }
         return style;
