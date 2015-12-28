@@ -72,7 +72,7 @@ public class PostGridActivityTest {
     }
 
     @Test
-    public void listOfTagPostsShowsAndIsScrollable() throws InterruptedException {
+    public void listOfTagPostsShowsAndIsScrollable() {
         List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
         Collections.sort(tagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
@@ -88,8 +88,6 @@ public class PostGridActivityTest {
         Intent intent = PostGridActivity.getStartIntent(context, mockTag);
         main.launchActivity(intent);
 
-        Thread.sleep(2000);
-
         onView(withText("#cat"))
                 .check(matches(isDisplayed()));
 
@@ -97,7 +95,7 @@ public class PostGridActivityTest {
     }
 
     @Test
-    public void listOfUserPostsShowsAndIsScrollableWithPagination() throws InterruptedException {
+    public void listOfUserPostsShowsAndIsScrollableWithPagination() {
         List<Post> postList = TestDataFactory.createMockListOfPosts(20);
         Collections.sort(postList);
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
@@ -136,8 +134,6 @@ public class PostGridActivityTest {
 
         checkPostsDisplayOnRecyclerView(postList, 0);
 
-        Thread.sleep(200);
-
         checkPostsDisplayOnRecyclerView(postListTwo, postList.size());
     }
 
@@ -158,7 +154,7 @@ public class PostGridActivityTest {
     }
 
     @Test
-    public void tryAgainCardFetchesContentWhenClicked() throws InterruptedException {
+    public void tryAgainCardFetchesContentWhenClicked() {
         doReturn(Observable.just(new RuntimeException()))
                 .when(component.getMockDataManager())
                 .getPostsByTag(anyString(), anyString(), anyString());
@@ -191,7 +187,7 @@ public class PostGridActivityTest {
     }
 
     @Test
-    public void tryAgainCardFetchesContentOnFocus() throws InterruptedException {
+    public void tryAgainCardFetchesContentOnFocus() {
         List<Post> emptyTagList = TestDataFactory.createMockListOfPosts(20);
         Collections.sort(emptyTagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();

@@ -2,11 +2,9 @@ package com.hitherejoe.vineyard;
 
 
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.KeyEvent;
-import android.widget.EditText;
 
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.model.Tag;
@@ -14,7 +12,6 @@ import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.test.common.TestDataFactory;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
-import com.hitherejoe.vineyard.ui.activity.MainActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 
@@ -25,7 +22,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +29,6 @@ import java.util.List;
 import rx.Observable;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
@@ -46,10 +41,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
-import static com.hitherejoe.vineyard.util.EspressoTestMatchers.withDrawable;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -109,7 +102,7 @@ public class SearchActivityTest {
     }
 
     @Test
-    public void queryShowsTagAndUserResults() throws InterruptedException {
+    public void queryShowsTagAndUserResults() {
         main.launchActivity(null);
 
         List<Object> term = stubTagUserAndPostData();
@@ -118,7 +111,7 @@ public class SearchActivityTest {
         Object object = term.get(0);
 
 
-        if(object instanceof Tag) {
+        if (object instanceof Tag) {
             by = ((Tag) object).tag;
         } else {
             by = ((User) object).username;
@@ -136,14 +129,12 @@ public class SearchActivityTest {
         onView(withText(R.string.text_search_results))
                 .check(matches(isDisplayed()));
 
-        Thread.sleep(2000);
-
         onView(withText("Posts for " + by))
                 .check(matches(isDisplayed()));
     }
 
     @Test
-    public void searchResultsDisplayAndAreScrollable() throws InterruptedException {
+    public void searchResultsDisplayAndAreScrollable() {
         main.launchActivity(null);
 
         List<Object> term = stubTagUserAndPostData();
@@ -156,12 +147,12 @@ public class SearchActivityTest {
         pressKey(KeyEvent.KEYCODE_SEARCH);
 
         for (int n = 0; n < term.size(); n++) {
-            checkItemAtPosition(n, term.get(n));
+            checkItemAtPosition(term.get(n));
         }
     }
 
     @Test
-    public void postResultsDisplayAndAreScrollable() throws InterruptedException {
+    public void postResultsDisplayAndAreScrollable() {
         main.launchActivity(null);
 
         SearchFragment.CombinedSearchResponse combinedSearchResponse = new SearchFragment.CombinedSearchResponse();
@@ -200,15 +191,6 @@ public class SearchActivityTest {
         combinedSearchResponse.tagSearchAnchor = "";
         combinedSearchResponse.userSearchAnchor = "";
 
-        String by;
-        Object object = list.get(0);
-
-        if(object instanceof Tag) {
-            by = ((Tag) object).tag;
-        } else {
-            by = ((User) object).userId;
-        }
-
         when(component.getMockDataManager().search(anyString(), anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Observable.just(combinedSearchResponse));
 
@@ -244,13 +226,13 @@ public class SearchActivityTest {
         onView(withText(tag))
                 .perform(click());
         for (int n = 0; n < mockPostsTwo.size(); n++) {
-            checkItemAtPosition(n, mockPostsTwo.get(n));
+            checkItemAtPosition(mockPostsTwo.get(n));
         }
 
         onView(withText(user.username))
                 .perform(click());
         for (int n = 0; n < mockPostsOne.size(); n++) {
-            checkItemAtPosition(n, mockPostsOne.get(n));
+            checkItemAtPosition(mockPostsOne.get(n));
         }
 
         onView(withText(user.username))
@@ -258,7 +240,7 @@ public class SearchActivityTest {
     }
 
     @Test
-    public void searchResultOpensVerticalGridActivity() throws InterruptedException {
+    public void searchResultOpensVerticalGridActivity() {
         main.launchActivity(null);
 
         List<Object> term = stubTagUserAndPostData();
@@ -273,7 +255,7 @@ public class SearchActivityTest {
         String by;
         Object object = term.get(0);
 
-        if(object instanceof Tag) {
+        if (object instanceof Tag) {
             by = ((Tag) object).tag;
         } else {
             by = ((User) object).username;
@@ -341,7 +323,7 @@ public class SearchActivityTest {
         String by;
         Object object = list.get(0);
 
-        if(object instanceof Tag) {
+        if (object instanceof Tag) {
             by = ((Tag) object).tag;
         } else {
             by = ((User) object).userId;
@@ -381,17 +363,7 @@ public class SearchActivityTest {
                 .thenReturn(Observable.just(postEditosResponse));
     }
 
-    private VineyardService.PostResponse createMockPostResponse() {
-        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
-        Collections.sort(mockTagPosts);
-        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
-        tagData.records = mockTagPosts;
-        postTagResponse.data = tagData;
-        return postTagResponse;
-    }
-
-    private void checkItemAtPosition(int position, Object object) throws InterruptedException {
+    private void checkItemAtPosition(Object object) {
 
         String item = null;
         if (object instanceof User) {
