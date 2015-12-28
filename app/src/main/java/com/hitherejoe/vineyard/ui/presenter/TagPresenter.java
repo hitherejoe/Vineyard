@@ -9,10 +9,6 @@ import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.ui.widget.TagCardView;
 
-/*
- * A CardPresenter is used to generate Views and bind Objects to them on demand.
- * It contains an Image CardView
- */
 public class TagPresenter extends Presenter {
 
     private static int sSelectedBackgroundColor;
@@ -38,8 +34,7 @@ public class TagPresenter extends Presenter {
     }
 
     private static void updateCardBackgroundColor(TagCardView view, boolean selected) {
-        int color = selected ? sSelectedBackgroundColor : sDefaultBackgroundColor;
-        view.setBackgroundColor(color);
+        view.setBackgroundColor(selected ? sSelectedBackgroundColor : sDefaultBackgroundColor);
     }
 
     @Override
@@ -50,7 +45,7 @@ public class TagPresenter extends Presenter {
 
             if (post.tag != null) {
                 cardView.setCardText(post.tag);
-                cardView.setCardIcon(R.drawable.ic_tag_white_24dp);
+                cardView.setCardIcon(R.drawable.ic_tag);
             }
         } else if (item instanceof User) {
             User post = (User) item;
@@ -58,7 +53,7 @@ public class TagPresenter extends Presenter {
 
             if (post.username != null) {
                 cardView.setCardText(post.username);
-                cardView.setCardIcon(R.drawable.ic_account_white_24dp);
+                cardView.setCardIcon(R.drawable.ic_user);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard.ui.presenter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -14,10 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hitherejoe.vineyard.R;
-import com.hitherejoe.vineyard.ui.fragment.MainFragment;
-
 
 public class IconHeaderItemPresenter extends RowHeaderPresenter {
+
     private float mUnselectedAlpha;
 
     @Override
@@ -28,7 +28,6 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View view = inflater.inflate(R.layout.item_icon_header, null);
-
         return new ViewHolder(view);
     }
 
@@ -43,20 +42,22 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
     }
 
     public void setIconDrawable(String name, View rootView) {
-        String[] categories = rootView.getResources().getStringArray(R.array.categories);
-        TypedArray resources = rootView.getResources().obtainTypedArray(R.array.icons);
+        Resources res = rootView.getResources();
+        String[] categories = res.getStringArray(R.array.categories);
+        TypedArray resources = res.obtainTypedArray(R.array.icons);
         int drawableResource = 0;
 
-        if (name.equals(rootView.getResources().getString(R.string.header_text_popular))) {
+        if (name.equals(res.getString(R.string.header_text_popular))) {
             drawableResource = R.drawable.ic_fire;
-        } else if (name.equals(rootView.getResources().getString(R.string.header_text_editors_picks))) {
+        } else if (name.equals(res.getString(R.string.header_text_editors_picks))) {
             drawableResource = R.drawable.ic_border_color_white_24dp;
-        } else if (name.equals(rootView.getResources().getString(R.string.header_text_options))) {
+        } else if (name.equals(res.getString(R.string.header_text_options))) {
             drawableResource = R.drawable.ic_settings_white_24dp;
         } else {
             for (int i = 0; i < categories.length; i++) {
                 if (categories[i].equals(name)) {
                     drawableResource = resources.getResourceId(i, 0);
+                    break;
                 }
             }
         }
@@ -64,7 +65,7 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
 
         if (drawableResource != 0) {
             ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
-            Drawable icon = rootView.getResources().getDrawable(drawableResource, null);
+            Drawable icon = res.getDrawable(drawableResource, null);
             iconView.setImageDrawable(icon);
         }
     }

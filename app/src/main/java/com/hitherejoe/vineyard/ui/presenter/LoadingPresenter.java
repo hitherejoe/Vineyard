@@ -5,10 +5,6 @@ import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
 
-/*
- * A CardPresenter is used to generate Views and bind Objects to them on demand.
- * It contains an Loading CardView
- */
 public class LoadingPresenter extends Presenter {
 
     @Override

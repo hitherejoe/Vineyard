@@ -6,14 +6,14 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.presenter.OptionItemPresenter;
+import com.hitherejoe.vineyard.ui.presenter.IconItemPresenter;
 
 public class OptionsAdapter extends ArrayObjectAdapter {
 
-    private OptionItemPresenter mOptionsItemPresenter;
+    private IconItemPresenter mOptionsItemPresenter;
 
     public OptionsAdapter(Context context) {
-        mOptionsItemPresenter = new OptionItemPresenter(context);
+        mOptionsItemPresenter = new IconItemPresenter();
         setPresenterSelector(new PresenterSelector() {
             @Override
             public Presenter getPresenter(Object item) {

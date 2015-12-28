@@ -8,7 +8,7 @@ import android.support.v17.leanback.widget.PresenterSelector;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Option;
-import com.hitherejoe.vineyard.ui.presenter.OptionItemPresenter;
+import com.hitherejoe.vineyard.ui.presenter.IconItemPresenter;
 import com.hitherejoe.vineyard.ui.widget.LoadingCardView;
 import com.hitherejoe.vineyard.ui.presenter.LoadingPresenter;
 
@@ -25,7 +25,7 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
     private Context mContext;
     private Integer mNextPage;
     private LoadingPresenter mLoadingPresenter;
-    private OptionItemPresenter mOptionItemPresenter;
+    private IconItemPresenter mIconItemPresenter;
     private Presenter mPresenter;
 
     private String mRowTag;
@@ -37,7 +37,7 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
         mContext = context;
         mPresenter = presenter;
         mLoadingPresenter = new LoadingPresenter();
-        mOptionItemPresenter = new OptionItemPresenter(mContext);
+        mIconItemPresenter = new IconItemPresenter();
         mLoadingIndicatorPosition = -1;
         mNextPage = 1;
         mRowTag = tag;
@@ -59,7 +59,7 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
                 if (item instanceof LoadingCardView) {
                     return mLoadingPresenter;
                 } else if (item instanceof Option) {
-                    return mOptionItemPresenter;
+                    return mIconItemPresenter;
                 }
                 return mPresenter;
             }

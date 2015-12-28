@@ -8,15 +8,12 @@ import android.view.ViewGroup;
 import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.ui.widget.IconCardView;
 
-
-public class OptionItemPresenter extends Presenter {
+public class IconItemPresenter extends Presenter {
     private static int GRID_ITEM_WIDTH = 350;
     private static int GRID_ITEM_HEIGHT = 400;
 
-    private Context mContext;
+    public IconItemPresenter() {
 
-    public OptionItemPresenter(Context context) {
-        mContext = context;
     }
 
     @Override
@@ -27,7 +24,6 @@ public class OptionItemPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-        //((GridItemView) viewHolder.view).setText((String) item);
         if (item instanceof Option) {
             Option option = (Option) item;
             IconCardView optionView = (IconCardView) viewHolder.view;
@@ -41,6 +37,5 @@ public class OptionItemPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(ViewHolder viewHolder) {
-    }
+    public void onUnbindViewHolder(ViewHolder viewHolder) { }
 }
