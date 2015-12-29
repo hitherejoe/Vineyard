@@ -31,7 +31,7 @@ is used to display the Post cards and the [Icon Item Presenter](/app/src/main/ja
 the option and error message cards.
 
 <p align="center">
-    <img src="images/main.png" alt="Main"/>
+    <img src="images/browse.png" alt="Main"/>
 </p>
 <p align="center">
     <img src="images/preview_post.gif" alt="Preview Post"/>
