@@ -1,6 +1,10 @@
 Vineyard [![Build Status](https://travis-ci.org/hitherejoe/Vineyard.svg?branch=master)](https://travis-ci.org/hitherejoe/Vineyard)
 ========
 
+<p align="center">
+    <img src="images/banner.png" alt="Loading Card"/>
+</p>
+
 Vineyard is an _unofficial_ Vine client for Android TV. The project currently consists of:
 
 - Android TV Application
