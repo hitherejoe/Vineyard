@@ -161,7 +161,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        setBadgeDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.banner));
+        setBadgeDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.banner_shadow));
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
         setBrandColor(ContextCompat.getColor(getActivity(), R.color.primary));
@@ -213,7 +213,7 @@ public class MainFragment extends BrowseFragment {
 
     private void loadPostsFromCategory(String tag, int headerPosition) {
         PostAdapter listRowAdapter = new PostAdapter(getActivity(), tag);
-        addPageLoadSubscription(listRowAdapter);
+        addPostLoadSubscription(listRowAdapter);
         HeaderItem header = new HeaderItem(headerPosition, tag);
         mRowsAdapter.add(new ListRow(header, listRowAdapter));
     }
@@ -239,7 +239,7 @@ public class MainFragment extends BrowseFragment {
         mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
     }
 
-    private void addPageLoadSubscription(final PostAdapter adapter) {
+    private void addPostLoadSubscription(final PostAdapter adapter) {
         if (adapter.shouldShowLoadingIndicator()) adapter.showLoadingIndicator();
 
         Map<String, String> options = adapter.getAdapterOptions();
@@ -316,7 +316,7 @@ public class MainFragment extends BrowseFragment {
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
                     adapter.removeReloadCard();
-                    addPageLoadSubscription(adapter);
+                    addPostLoadSubscription(adapter);
                 } else {
                     startActivityForResult(
                             GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
@@ -335,8 +335,11 @@ public class MainFragment extends BrowseFragment {
                 int index = mRowsAdapter.indexOf(row);
                 PostAdapter adapter =
                         ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-                if (index == (adapter.size() - 1) && adapter.shouldLoadNextPage()) {
-                    addPageLoadSubscription(adapter);
+
+                Timber.e(index + " : " + adapter.size() + " : " + adapter.shouldLoadNextPage());
+                if (adapter.get(adapter.size() - 1).equals(item) && adapter.shouldLoadNextPage()) {
+                    Timber.e("IN!!!");
+                    addPostLoadSubscription(adapter);
                 }
             }
         }
