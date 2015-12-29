@@ -65,7 +65,7 @@
 
     <string-array name="categories">
         <item>Popular</item>
-        <item>Editor's Picks</item>
+        <item>Editor\'s Picks</item>
         <item>Scary</item>
         <item>Comedy</item>
         <item>Animals</item>
