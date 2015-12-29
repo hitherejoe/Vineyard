@@ -26,7 +26,7 @@ This functionality is split across the following screens:
 
 [Browse Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/MainFragment.java)
 <p align="center">
-    <img src="images/browse.png" alt="Web Launcher"/>
+    <img src="images/preview_post.gif" alt="Web Launcher"/>
 </p>
 
 
