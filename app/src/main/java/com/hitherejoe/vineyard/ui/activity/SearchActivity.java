@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.hitherejoe.vineyard.R;
-import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 
 public class SearchActivity extends BaseActivity {
