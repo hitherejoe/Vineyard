@@ -34,7 +34,7 @@ the option and error message cards.
     <img src="images/browse.png" alt="Main"/>
 </p>
 <p align="center">
-    <img src="images/preview_post.gif" alt="Preview Post"/>
+    <img src="images/browse_preview_post.gif" alt="Preview Post"/>
 </p>
 
 
