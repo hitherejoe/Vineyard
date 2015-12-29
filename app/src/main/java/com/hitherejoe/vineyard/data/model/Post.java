@@ -22,18 +22,6 @@ public class Post implements Comparable<Post>, Parcelable {
     public String videoUrl;
     public String tag;
 
-    public Date getFormattedDate() {
-        try {
-            SimpleDateFormat dateFormat =
-                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault());
-            return dateFormat.parse(this.created);
-        } catch (ParseException e) {
-            Timber.e(e, "There was a problem parsing the Post Date.");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @Override
     public int compareTo(@NonNull Post another) {
         return another.getFormattedDate().compareTo(getFormattedDate());
@@ -56,7 +44,17 @@ public class Post implements Comparable<Post>, Parcelable {
         dest.writeString(this.tag);
     }
 
-    public Post() {
+    public Post() { }
+
+    public Date getFormattedDate() {
+        try {
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault());
+            return dateFormat.parse(this.created);
+        } catch (ParseException e) {
+            Timber.e(e, "There was a problem parsing the Post Date.");
+        }
+        return null;
     }
 
     protected Post(Parcel in) {

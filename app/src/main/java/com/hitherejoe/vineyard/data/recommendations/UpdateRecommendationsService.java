@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.data;
+package com.hitherejoe.vineyard.data.recommendations;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.VineyardApplication;
+import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
@@ -57,6 +58,7 @@ public class UpdateRecommendationsService extends IntentService {
     }
 
     private void handleRecommendations(List<Post> recommendations) {
+        Timber.i("Building recommendations...");
         Resources res = getResources();
         int cardWidth = res.getDimensionPixelSize(R.dimen.card_width);
         int cardHeight = res.getDimensionPixelSize(R.dimen.card_height);

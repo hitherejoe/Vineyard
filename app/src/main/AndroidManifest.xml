@@ -69,7 +69,7 @@
             android:theme="@style/Theme.Example.Leanback.GuidedStep" />
 
         <receiver
-            android:name=".data.RecommendationReceiver"
+            android:name=".data.recommendations.RecommendationReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -78,7 +78,7 @@
         </receiver>
 
         <service
-            android:name=".data.UpdateRecommendationsService"
+            android:name=".data.recommendations.UpdateRecommendationsService"
             android:enabled="true" />
     </application>
 

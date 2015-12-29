@@ -24,7 +24,6 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
-import timber.log.Timber;
 
 public interface VineyardService {
 

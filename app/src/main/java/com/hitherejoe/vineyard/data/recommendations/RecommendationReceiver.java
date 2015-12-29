@@ -1,4 +1,4 @@
-package com.hitherejoe.vineyard.data;
+package com.hitherejoe.vineyard.data.recommendations;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
