@@ -47,11 +47,7 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
         TypedArray resources = res.obtainTypedArray(R.array.icons);
         int drawableResource = 0;
 
-        if (name.equals(res.getString(R.string.header_text_popular))) {
-            drawableResource = R.drawable.ic_fire;
-        } else if (name.equals(res.getString(R.string.header_text_editors_picks))) {
-            drawableResource = R.drawable.ic_border_color_white_24dp;
-        } else if (name.equals(res.getString(R.string.header_text_options))) {
+        if (name.equals(res.getString(R.string.header_text_options))) {
             drawableResource = R.drawable.ic_settings_white_24dp;
         } else {
             for (int i = 0; i < categories.length; i++) {

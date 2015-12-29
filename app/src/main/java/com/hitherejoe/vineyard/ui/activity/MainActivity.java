@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.ui.fragment.MainFragment;
+import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 
 import butterknife.Bind;
@@ -19,6 +20,8 @@ public class MainActivity extends BaseActivity {
 
     @Bind(R.id.frame_container)
     FrameLayout mFragmentContainer;
+
+    private Fragment mBrowseFragment;
 
     public static Intent getStartIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -30,20 +33,27 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        Fragment fragment;
         if (NetworkUtil.isWifiConnected(this)) {
-            fragment = MainFragment.newInstance();
+            mBrowseFragment = MainFragment.newInstance();
         } else {
-            fragment = buildErrorFragment();
+            mBrowseFragment = buildErrorFragment();
         }
         getFragmentManager().beginTransaction()
-                .replace(mFragmentContainer.getId(), fragment).commit();
+                .replace(mFragmentContainer.getId(), mBrowseFragment).commit();
     }
 
     @Override
     public boolean onSearchRequested() {
         startActivity(new Intent(this, SearchActivity.class));
         return true;
+    }
+
+    public boolean isFragmentActive() {
+        return mBrowseFragment instanceof MainFragment &&
+                mBrowseFragment.isAdded() &&
+                !mBrowseFragment.isDetached() &&
+                !mBrowseFragment.isRemoving() &&
+                !((MainFragment) mBrowseFragment).isStopping();
     }
 
     private ErrorFragment buildErrorFragment() {

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Post;
+import com.hitherejoe.vineyard.ui.activity.MainActivity;
 import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.widget.VideoCardView;
@@ -56,6 +57,10 @@ public class CardPresenter extends Presenter {
                         }
                     } else if (mContext instanceof SearchActivity) {
                         if (((SearchActivity) mContext).isFragmentActive()) {
+                            cardView.stopVideo();
+                        }
+                    } else if (mContext instanceof MainActivity) {
+                        if (((MainActivity) mContext).isFragmentActive()) {
                             cardView.stopVideo();
                         }
                     } else {

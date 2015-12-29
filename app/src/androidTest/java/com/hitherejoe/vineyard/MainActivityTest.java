@@ -51,13 +51,14 @@ public class MainActivityTest {
     public final TestRule chain = RuleChain.outerRule(component).around(main);
 
     @Test
-    public void testAllCategoriesShown() {
+    public void allCategoriesAreDisplayed() {
         stubVideoFeedData();
 
         main.launchActivity(null);
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
+            // We don't need to click on the first item as it's already in focus
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
@@ -68,12 +69,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testErrorFragmentDisplayed() {
-        //TODO: When implemented
-    }
-
-    @Test
-    public void testBadgeDrawableIsDisplayed() {
+    public void badgeDrawableIsDisplayed() {
         stubVideoFeedData();
 
         main.launchActivity(null);
@@ -84,7 +80,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testSearchActivityOpens() {
+    public void searchActivityOpens() {
         stubVideoFeedData();
 
         main.launchActivity(null);
@@ -95,8 +91,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testPostsDisplayAndAreBrowseable() throws InterruptedException {
-
+    public void postsDisplayAndAreBrowseable() throws InterruptedException {
         VineyardService.PostResponse postResponsePopular = createMockPostResponse();
         doReturn(Observable.just(postResponsePopular))
                 .when(component.getMockDataManager())
@@ -179,28 +174,29 @@ public class MainActivityTest {
 
         main.launchActivity(null);
 
-        List<VineyardService.PostResponse> responses = new ArrayList<>();
-        responses.add(postResponsePopular);
-        responses.add(postResponseEditors);
-        responses.add(postResponseScary);
-        responses.add(postResponseComedy);
-        responses.add(postResponseAnimals);
-        responses.add(postResponseMusic);
-        responses.add(postResponseArt);
-        responses.add(postResponseDance);
-        responses.add(postResponseSports);
-        responses.add(postResponseOmg);
-        responses.add(postResponseStyle);
-        responses.add(postResponseFamily);
-        responses.add(postResponseFood);
-        responses.add(postResponseDiy);
-        responses.add(postResponsePlaces);
-        responses.add(postResponseNews);
+        List<VineyardService.PostResponse> responses = Arrays.asList(
+                postResponsePopular,
+                postResponseEditors,
+                postResponseScary,
+                postResponseComedy,
+                postResponseAnimals,
+                postResponseMusic,
+                postResponseArt,
+                postResponseDance,
+                postResponseSports,
+                postResponseOmg,
+                postResponseStyle,
+                postResponseFamily,
+                postResponseFood,
+                postResponseDiy,
+                postResponsePlaces,
+                postResponseNews);
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size() - 1; i++) {
             onView(withId(R.id.browse_headers))
                     .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
+            // We don't need to click on the first item as it's already in focus
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
@@ -209,8 +205,8 @@ public class MainActivityTest {
             for (int n = 0; n < posts.size(); n++) {
                 checkItemAtPosition(n, posts.get(n));
             }
-
             pressBack();
+            // No developer options to disable animations on the ADT-1, so this sleep is needed
             Thread.sleep(200);
         }
     }
@@ -222,6 +218,7 @@ public class MainActivityTest {
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
+            // We don't need to click on the first item as it's already in focus
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
@@ -242,6 +239,7 @@ public class MainActivityTest {
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
+            // We don't need to click on the first item as it's already in focus
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
@@ -264,6 +262,7 @@ public class MainActivityTest {
 
         List<String> categoryList = getCategoriesArray();
         for (int i = 0; i < categoryList.size(); i++) {
+            // We don't need to click on the first item as it's already in focus
             if (i > 0) {
                 onView(withId(R.id.browse_headers))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(i, click()));
@@ -300,36 +299,16 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()));
     }
 
-    @Test
-    public void testPlaybackActivityOpens() {
-        stubVideoFeedData();
-
-        main.launchActivity(null);
-
-    }
-
-    @Test
-    public void testBackgroundChangesOnItemSelected() {
-        //TODO: When implemented
-    }
-
-    @Test
-    public void testLoadingIndicatorIsShown() {
-        //TODO: When implemented
-    }
-
     private List<String> getCategoriesArray() {
         String[] categories = InstrumentationRegistry.getTargetContext().getResources().getStringArray(R.array.categories);
         List<String> categoryList = new ArrayList<>();
-        categoryList.add("Popular");
-        categoryList.add("Editors Picks");
         categoryList.addAll(Arrays.asList(categories));
         categoryList.add("Options");
         return categoryList;
     }
 
     private void stubVideoFeedData() {
-        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(17);
+        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(5);
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
         data.records = mockPosts;
@@ -338,7 +317,7 @@ public class MainActivityTest {
         when(component.getMockDataManager().getPopularPosts(anyString(), anyString()))
                 .thenReturn(Observable.just(postResponse));
 
-        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
+        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(5);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
         tagData.records = mockTagPosts;
@@ -347,7 +326,7 @@ public class MainActivityTest {
         when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
                 .thenReturn(Observable.just(postTagResponse));
 
-        List<Post> mockEditorsPosts = TestDataFactory.createMockListOfPosts(17);
+        List<Post> mockEditorsPosts = TestDataFactory.createMockListOfPosts(5);
         VineyardService.PostResponse postEditosResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data editorsData = new VineyardService.PostResponse.Data();
         editorsData.records = mockEditorsPosts;
@@ -358,18 +337,19 @@ public class MainActivityTest {
     }
 
     private VineyardService.PostResponse createMockPostResponse() {
-        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
-        Collections.sort(mockTagPosts);
-        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
-        tagData.records = mockTagPosts;
-        postTagResponse.data = tagData;
-        return postTagResponse;
+        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(5);
+        Collections.sort(mockPosts);
+        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
+        data.records = mockPosts;
+        postResponse.data = data;
+        return postResponse;
     }
 
     private void checkItemAtPosition(int position, Post post) throws InterruptedException {
         if (position > 0) {
             onView(withItemText(post.description, R.id.browse_container_dock)).perform(click());
+            // No developer options to disable animations on the ADT-1, so this sleep is needed
             Thread.sleep(200);
         }
         onView(withItemText(post.description, R.id.browse_container_dock)).check(matches(isDisplayed()));

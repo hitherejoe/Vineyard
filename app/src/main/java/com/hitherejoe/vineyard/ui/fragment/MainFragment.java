@@ -77,6 +77,7 @@ public class MainFragment extends BrowseFragment {
 
     private String mPopularText;
     private String mEditorsPicksText;
+    private boolean mIsStopping;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -124,9 +125,20 @@ public class MainFragment extends BrowseFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mIsStopping = false;
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         mBackgroundManager.release();
+        mIsStopping = true;
+    }
+
+    public boolean isStopping() {
+        return mIsStopping;
     }
 
     protected void updateBackground(String uri) {

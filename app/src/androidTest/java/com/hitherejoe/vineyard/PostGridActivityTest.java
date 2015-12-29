@@ -28,15 +28,16 @@ import java.util.List;
 import rx.Observable;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -55,13 +56,14 @@ public class PostGridActivityTest {
 
     @Test
     public void listOfUserPostsShowsAndIsScrollable() {
-        List<Post> postList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> postList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(postList);
-        stubPostListUserDate(postList);
+        stubPostGridData(postList);
 
         Context context = InstrumentationRegistry.getTargetContext();
         User mockUser = TestDataFactory.createMockUser();
         mockUser.username = "123";
+
         Intent intent = PostGridActivity.getStartIntent(context, mockUser);
         main.launchActivity(intent);
 
@@ -73,7 +75,7 @@ public class PostGridActivityTest {
 
     @Test
     public void listOfTagPostsShowsAndIsScrollable() {
-        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(tagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
@@ -96,8 +98,9 @@ public class PostGridActivityTest {
 
     @Test
     public void listOfUserPostsShowsAndIsScrollableWithPagination() {
-        List<Post> postList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> postList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(postList);
+
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
         data.records = postList;
@@ -108,8 +111,9 @@ public class PostGridActivityTest {
         when(component.getMockDataManager().getPostsByUser(anyString(), eq("1"), anyString()))
                 .thenReturn(Observable.just(postResponse));
 
-        List<Post> postListTwo = TestDataFactory.createMockListOfPosts(20);
+        List<Post> postListTwo = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(postListTwo);
+
         VineyardService.PostResponse postResponseTwo = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data dataTwo = new VineyardService.PostResponse.Data();
         dataTwo.records = postListTwo;
@@ -142,6 +146,7 @@ public class PostGridActivityTest {
         doReturn(Observable.just(new RuntimeException()))
                 .when(component.getMockDataManager())
                 .getPostsByTag(anyString(), anyString(), anyString());
+
         Context context = InstrumentationRegistry.getTargetContext();
         Tag mockTag = TestDataFactory.createMockTag("cat");
         Intent intent = PostGridActivity.getStartIntent(context, mockTag);
@@ -158,6 +163,7 @@ public class PostGridActivityTest {
         doReturn(Observable.just(new RuntimeException()))
                 .when(component.getMockDataManager())
                 .getPostsByTag(anyString(), anyString(), anyString());
+
         Context context = InstrumentationRegistry.getTargetContext();
         Tag mockTag = TestDataFactory.createMockTag("cat");
         Intent intent = PostGridActivity.getStartIntent(context, mockTag);
@@ -168,7 +174,7 @@ public class PostGridActivityTest {
         onView(withItemText("Oops", R.id.browse_grid)).check(matches(isDisplayed()));
         onView(withItemText("Try again?", R.id.browse_grid)).check(matches(isDisplayed()));
 
-        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(tagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
@@ -188,11 +194,11 @@ public class PostGridActivityTest {
 
     @Test
     public void tryAgainCardFetchesContentOnFocus() {
-        List<Post> emptyTagList = TestDataFactory.createMockListOfPosts(20);
-        Collections.sort(emptyTagList);
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(10);
+        Collections.sort(tagList);
         VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
-        tagData.records = emptyTagList;
+        tagData.records = tagList;
         postTagResponse.data = tagData;
         postTagResponse.data.nextPage = 2;
 
@@ -211,15 +217,22 @@ public class PostGridActivityTest {
                 .when(component.getMockDataManager())
                 .getPostsByTag(eq("cat"), eq("2"), anyString());
 
+        checkPostsDisplayOnRecyclerView(tagList, 0);
 
-        checkPostsDisplayOnRecyclerView(emptyTagList, 0);
+        String errorMessage =
+                InstrumentationRegistry.getTargetContext()
+                        .getString(R.string.error_message_loading_more_posts);
+
+        onView(withText(errorMessage))
+                .inRoot(withDecorView(not(is(main.getActivity().getWindow().getDecorView()))))
+                .check(matches(isDisplayed()));
 
         onView(withId(R.id.browse_grid))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(emptyTagList.size() - 4, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(tagList.size() - 4, click()));
 
-        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
-        Collections.sort(tagList);
-        tagData.records = tagList;
+        List<Post> secondTagList = TestDataFactory.createMockListOfPosts(10);
+        Collections.sort(secondTagList);
+        tagData.records = secondTagList;
         postTagResponse.data = tagData;
         postTagResponse.data.nextPage = 0;
         doReturn(Observable.just(postTagResponse))
@@ -229,9 +242,9 @@ public class PostGridActivityTest {
                 .thenReturn(Observable.<VineyardService.PostResponse>empty());
 
         onView(withId(R.id.browse_grid))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(emptyTagList.size() - 5, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(secondTagList.size() - 5, click()));
 
-        checkPostsDisplayOnRecyclerView(tagList, emptyTagList.size());
+        checkPostsDisplayOnRecyclerView(secondTagList, tagList.size());
     }
 
     @Test
@@ -281,7 +294,7 @@ public class PostGridActivityTest {
         onView(withItemText("No videos", R.id.browse_grid)).check(matches(isDisplayed()));
         onView(withItemText("Check again?", R.id.browse_grid)).check(matches(isDisplayed()));
 
-        List<Post> tagList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> tagList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(tagList);
         tagData.records = tagList;
         postTagResponse.data = tagData;
@@ -298,9 +311,9 @@ public class PostGridActivityTest {
 
     @Test
     public void errorFragmentNotDisplayed() {
-        List<Post> postList = TestDataFactory.createMockListOfPosts(20);
+        List<Post> postList = TestDataFactory.createMockListOfPosts(10);
         Collections.sort(postList);
-        stubPostListUserDate(postList);
+        stubPostGridData(postList);
 
         Context context = InstrumentationRegistry.getTargetContext();
         User mockUser = TestDataFactory.createMockUser();
@@ -323,16 +336,6 @@ public class PostGridActivityTest {
                 .check(doesNotExist());
     }
 
-    private void stubPostListUserDate(List<Post> postList) {
-        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
-        data.records = postList;
-        postResponse.data = data;
-
-        when(component.getMockDataManager().getPostsByUser(anyString(), eq("1"), anyString()))
-                .thenReturn(Observable.just(postResponse));
-    }
-
     @Test
     public void errorFragmentDisplayed() {
         Context context = InstrumentationRegistry.getTargetContext();
@@ -351,8 +354,15 @@ public class PostGridActivityTest {
                 .check(matches(isDisplayed()));
     }
 
-    //TODO: Test dismiss button functionality, this will have to be done from the search activity
-    // as we'll need to check if the activity finishes and returns to the previous screen
+    private void stubPostGridData(List<Post> postList) {
+        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
+        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
+        data.records = postList;
+        postResponse.data = data;
+
+        when(component.getMockDataManager().getPostsByUser(anyString(), eq("1"), anyString()))
+                .thenReturn(Observable.just(postResponse));
+    }
 
     /**
      * This method checks that the given list of posts display within the VerticalGridView. At the time

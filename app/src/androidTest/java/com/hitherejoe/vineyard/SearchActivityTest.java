@@ -1,6 +1,8 @@
 package com.hitherejoe.vineyard;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -12,8 +14,8 @@ import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.test.common.TestDataFactory;
 import com.hitherejoe.vineyard.test.common.rules.TestComponentRule;
+import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
-import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,13 +88,13 @@ public class SearchActivityTest {
     public void queryShowsNoTagOrUserResults() {
         main.launchActivity(null);
 
-        SearchFragment.CombinedSearchResponse combinedSearchResponse = new SearchFragment.CombinedSearchResponse();
-        combinedSearchResponse.list = new ArrayList<>();
-        combinedSearchResponse.tagSearchAnchor = "c";
-        combinedSearchResponse.userSearchAnchor = "c";
+        VineyardService.KeywordSearchResponse keywordSearchResponse = new VineyardService.KeywordSearchResponse();
+        keywordSearchResponse.list = new ArrayList<>();
+        keywordSearchResponse.tagSearchAnchor = "c";
+        keywordSearchResponse.userSearchAnchor = "c";
 
         when(component.getMockDataManager().search(eq("c"), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(combinedSearchResponse));
+                .thenReturn(Observable.just(keywordSearchResponse));
 
         onView(withId(R.id.lb_search_text_editor))
                 .perform(replaceText("c"));
@@ -105,17 +107,10 @@ public class SearchActivityTest {
     public void queryShowsTagAndUserResults() {
         main.launchActivity(null);
 
-        List<Object> term = stubTagUserAndPostData();
+        ArrayList<Object> objectList = createMockObjectList();
+        stubTagUserAndPostData(objectList);
 
-        String by;
-        Object object = term.get(0);
-
-
-        if (object instanceof Tag) {
-            by = ((Tag) object).tag;
-        } else {
-            by = ((User) object).username;
-        }
+        String by = getSearchByItem(objectList.get(0));
 
         onView(withId(R.id.lb_search_text_editor))
                 .perform(replaceText("cat"));
@@ -137,7 +132,8 @@ public class SearchActivityTest {
     public void searchResultsDisplayAndAreScrollable() {
         main.launchActivity(null);
 
-        List<Object> term = stubTagUserAndPostData();
+        ArrayList<Object> objectList = createMockObjectList();
+        stubTagUserAndPostData(objectList);
 
         onView(withId(R.id.lb_search_text_editor))
                 .perform(replaceText("cat"));
@@ -146,8 +142,8 @@ public class SearchActivityTest {
 
         pressKey(KeyEvent.KEYCODE_SEARCH);
 
-        for (int n = 0; n < term.size(); n++) {
-            checkItemAtPosition(term.get(n));
+        for (int n = 0; n < objectList.size(); n++) {
+            checkItemAtPosition(objectList.get(n));
         }
     }
 
@@ -155,7 +151,7 @@ public class SearchActivityTest {
     public void postResultsDisplayAndAreScrollable() {
         main.launchActivity(null);
 
-        SearchFragment.CombinedSearchResponse combinedSearchResponse = new SearchFragment.CombinedSearchResponse();
+        VineyardService.KeywordSearchResponse keywordSearchResponse = new VineyardService.KeywordSearchResponse();
         ArrayList<Object> list = new ArrayList<>();
         List<Tag> tags = TestDataFactory.createMockListOfTags(1);
         list.addAll(tags);
@@ -187,12 +183,12 @@ public class SearchActivityTest {
             }
         });
 
-        combinedSearchResponse.list = list;
-        combinedSearchResponse.tagSearchAnchor = "";
-        combinedSearchResponse.userSearchAnchor = "";
+        keywordSearchResponse.list = list;
+        keywordSearchResponse.tagSearchAnchor = "";
+        keywordSearchResponse.userSearchAnchor = "";
 
         when(component.getMockDataManager().search(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(combinedSearchResponse));
+                .thenReturn(Observable.just(keywordSearchResponse));
 
         List<Post> mockPostsOne = TestDataFactory.createMockListOfPosts(5);
         Collections.sort(mockPostsOne);
@@ -243,7 +239,8 @@ public class SearchActivityTest {
     public void searchResultOpensVerticalGridActivity() {
         main.launchActivity(null);
 
-        List<Object> term = stubTagUserAndPostData();
+        ArrayList<Object> objectList = createMockObjectList();
+        stubTagUserAndPostData(objectList);
 
         onView(withId(R.id.lb_search_text_editor))
                 .perform(replaceText("cat"));
@@ -252,14 +249,7 @@ public class SearchActivityTest {
 
         pressKey(KeyEvent.KEYCODE_SEARCH);
 
-        String by;
-        Object object = term.get(0);
-
-        if (object instanceof Tag) {
-            by = ((Tag) object).tag;
-        } else {
-            by = ((User) object).username;
-        }
+        String by = getSearchByItem(objectList.get(0));
 
         onView(withText(by))
                 .perform(click());
@@ -271,26 +261,11 @@ public class SearchActivityTest {
                 .check(matches(isDisplayed()));
     }
 
-    private List<Object> stubTagUserAndPostData() {
-        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(10);
-        VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
-        data.records = mockPosts;
-        postResponse.data = data;
-
-        when(component.getMockDataManager().getPostsByUser(anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(postResponse));
-
-        when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(postResponse));
-
-        SearchFragment.CombinedSearchResponse combinedSearchResponse = new SearchFragment.CombinedSearchResponse();
-        ArrayList<Object> list = new ArrayList<>();
-        List<Tag> tags = TestDataFactory.createMockListOfTags(10);
-        list.addAll(tags);
-        List<User> users = TestDataFactory.createMockListOfUsers(10);
-        list.addAll(users);
-        Collections.sort(list, new Comparator<Object>() {
+    private ArrayList<Object> createMockObjectList() {
+        ArrayList<Object> objectList = new ArrayList<>();
+        objectList.addAll(TestDataFactory.createMockListOfTags(10));
+        objectList.addAll(TestDataFactory.createMockListOfUsers(10));
+        Collections.sort(objectList, new Comparator<Object>() {
             @Override
             public int compare(Object lhs, Object rhs) {
                 if (lhs instanceof Tag) {
@@ -315,52 +290,39 @@ public class SearchActivityTest {
                 return 0;
             }
         });
-
-        combinedSearchResponse.list = list;
-        combinedSearchResponse.tagSearchAnchor = "";
-        combinedSearchResponse.userSearchAnchor = "";
-
-        String by;
-        Object object = list.get(0);
-
-        if (object instanceof Tag) {
-            by = ((Tag) object).tag;
-        } else {
-            by = ((User) object).userId;
-        }
-
-        when(component.getMockDataManager().search(anyString(), anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(combinedSearchResponse));
-        return list;
+        return objectList;
     }
 
-    private void stubVideoFeedData() {
-        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(17);
+    private void stubTagUserAndPostData(ArrayList<Object> list) {
+        List<Post> mockPosts = TestDataFactory.createMockListOfPosts(10);
         VineyardService.PostResponse postResponse = new VineyardService.PostResponse();
         VineyardService.PostResponse.Data data = new VineyardService.PostResponse.Data();
         data.records = mockPosts;
         postResponse.data = data;
 
-        when(component.getMockDataManager().getPopularPosts(anyString(), anyString()))
+        when(component.getMockDataManager().getPostsByUser(anyString(), anyString(), anyString()))
                 .thenReturn(Observable.just(postResponse));
 
-        List<Post> mockTagPosts = TestDataFactory.createMockListOfPosts(17);
-        VineyardService.PostResponse postTagResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data tagData = new VineyardService.PostResponse.Data();
-        tagData.records = mockTagPosts;
-        postTagResponse.data = tagData;
-
         when(component.getMockDataManager().getPostsByTag(anyString(), anyString(), anyString()))
-                .thenReturn(Observable.just(postTagResponse));
+                .thenReturn(Observable.just(postResponse));
 
-        List<Post> mockEditorsPosts = TestDataFactory.createMockListOfPosts(17);
-        VineyardService.PostResponse postEditosResponse = new VineyardService.PostResponse();
-        VineyardService.PostResponse.Data editorsData = new VineyardService.PostResponse.Data();
-        editorsData.records = mockEditorsPosts;
-        postEditosResponse.data = editorsData;
+        VineyardService.KeywordSearchResponse keywordSearchResponse = new VineyardService.KeywordSearchResponse();
 
-        when(component.getMockDataManager().getEditorsPicksPosts(anyString(), anyString()))
-                .thenReturn(Observable.just(postEditosResponse));
+
+        keywordSearchResponse.list = list;
+        keywordSearchResponse.tagSearchAnchor = "";
+        keywordSearchResponse.userSearchAnchor = "";
+
+        when(component.getMockDataManager().search(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(Observable.just(keywordSearchResponse));
+    }
+
+    private String getSearchByItem(Object object) {
+        if (object instanceof Tag) {
+            return ((Tag) object).tag;
+        } else {
+            return ((User) object).username;
+        }
     }
 
     private void checkItemAtPosition(Object object) {

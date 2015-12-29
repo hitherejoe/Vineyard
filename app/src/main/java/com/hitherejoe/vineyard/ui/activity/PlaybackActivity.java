@@ -43,8 +43,7 @@ public class PlaybackActivity extends BaseActivity {
     public static final String EXTRA_IS_LOOP_ENABLED = "EXTRA_IS_LOOP_ENABLED";
     private boolean mWasSkipPressed;
 
-    @Inject
-    DataManager mDataManager;
+    @Inject DataManager mDataManager;
 
     @Bind(R.id.videoView)
     VideoView mVideoView;

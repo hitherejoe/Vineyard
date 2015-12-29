@@ -85,7 +85,9 @@
     </string-array>
 
     <string-array name="icons">
-        <item>@drawable/ic_football</item>
+        <item>@drawable/ic_popular</item>
+        <item>@drawable/ic_editors_picks</item>
+        <item>@drawable/ic_scary</item>
         <item>@drawable/ic_tongue</item>
         <item>@drawable/ic_cat</item>
         <item>@drawable/ic_music</item>
