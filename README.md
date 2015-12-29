@@ -23,7 +23,7 @@ Many of the screens used some of these custom components created especially for 
 ##[Video Card View](/app/src/main/java/com/hitherejoe/vineyard/ui/widget/VideoCardView.java)
 
 <p align="center">
-    <img src="images/video_card_view.gif" alt="Web Launcher"/>
+    <img src="images/video_card_view.gif" alt="Video Card View"/>
 </p>
 
 This view extends the BaseCardView class so that we can make our own custom CardView. The functionality
@@ -46,14 +46,18 @@ The Loading Card View again extends the BaseCardView class and is a simple cardv
 a loading indicator to the user. This is used when Pagination is in use (using the PaginationAdapter)
 to notify the user that Posts are being loaded.
 
-[image]
+<p align="center">
+    <img src="images/loading.png" alt="Check Again Card"/>
+</p>
 
 ##[Tag Card View](/app/src/main/java/com/hitherejoe/vineyard/ui/widget/TagCardView.java)
 
 The Tag Card View again extends the BaseCardView class and is a simple cardview that displays either
 a hashtag or username. This is used to display the search results in the SearchFragment.
 
-[image]
+<p align="center">
+    <img src="images/tag_card.png" alt="Tag Card"/>
+</p>
 
 ##[Icon Card View](/app/src/main/java/com/hitherejoe/vineyard/ui/widget/IconCardView.java)
 
@@ -62,15 +66,21 @@ display an icon with both a title and description. Currently I use this for seve
 
 - Displaying options
 
-[image]
+<p align="center">
+    <img src="images/options_card.png" alt="Options Card"/>
+</p>
 
 - Displaying a 'Try Again' card when there is an error fetching results
 
-[image]
+<p align="center">
+    <img src="images/try_again_card.png" alt="Try Again Card"/>
+</p>
 
 - Displaying a 'Check Again' card when an empty result list is returned
 
-[image]
+<p align="center">
+    <img src="images/check_again_card.png" alt="Check Again Card"/>
+</p>
 
 #Screens
 
@@ -83,10 +93,10 @@ is used to display the Post cards and the [Icon Item Presenter](/app/src/main/ja
 the option and error message cards.
 
 <p align="center">
-    <img src="images/main.png" alt="Web Launcher"/>
+    <img src="images/main.png" alt="Main"/>
 </p>
 <p align="center">
-    <img src="images/preview_post.gif" alt="Web Launcher"/>
+    <img src="images/preview_post.gif" alt="Preview Post"/>
 </p>
 
 
@@ -95,11 +105,11 @@ the option and error message cards.
 The Playback Activity is used to play the video from a Vine post. Which used the [PlaybackOverlayFragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PlaybackOverlayFragment.java) to display the playback controls over the top of the PlaybackActivity.
 
 <p align="center">
-    <img src="images/video.png" alt="Web Launcher"/>
+    <img src="images/video.png" alt="Video"/>
 </p>
 
 <p align="center">
-    <img src="images/video_related.png" alt="Web Launcher"/>
+    <img src="images/video_related.png" alt="Video Related"/>
 </p>
 
 
@@ -111,7 +121,11 @@ display the tag/username query results, the posts are then displayed beneath whe
 result becomes focused.
 
 <p align="center">
-    <img src="images/search.png" alt="Web Launcher"/>
+    <img src="images/search.png" alt="Search"/>
+</p>
+
+<p align="center">
+    <img src="images/search_no_results.png" alt="Search No Results"/>
 </p>
 
 ##[Post Grid Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PostGridFragment.java)
@@ -120,7 +134,7 @@ The Post Grid Fragment is used to show a grid of videos from either a Hashtag or
 is launched when a hashtag/username result is clicked in the [Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java).
 
 <p align="center">
-    <img src="images/post_grid.png" alt="Web Launcher"/>
+    <img src="images/post_grid.png" alt="Post Grid"/>
 </p>
 
 ##[AutoLoop Step Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/AutoLoopStepFragment.java)
@@ -130,7 +144,7 @@ videos will automatically loop until the video is either stopped or skipped. If 
 then videos will automatically play until the final one in the playlist is reached.
 
 <p align="center">
-    <img src="images/settings.png" alt="Web Launcher"/>
+    <img src="images/settings.png" alt="Settings"/>
 </p>
 
 #Building
