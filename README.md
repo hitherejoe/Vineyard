@@ -16,6 +16,71 @@ Release 1.0 of the application allows you to:
 - View video grids for Users and Hashtags
 - Toggle the Auto-Loop option via Settings
 
+#Screens
+
+##[Browse Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/MainFragment.java)
+
+The browse fragment is what is used to display the browseable categories, post and options card. The
+[Icon Header Item Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/IconHeaderItemPresenter.java) is used
+to setup and display the categories in the headers dock, the [Post Adapter](/app/src/main/java/com/hitherejoe/vineyard/ui/adapter/PostAdapter.java) and  [Card Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/CardPresenter.java)
+is used to display the Post cards and the [Icon Item Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/IconItemPresenter.java) sets and displays
+the option and error message cards.
+
+<p align="center">
+    <img src="images/main.png" alt="Main"/>
+</p>
+<p align="center">
+    <img src="images/preview_post.gif" alt="Preview Post"/>
+</p>
+
+
+##[Playback Activity](/app/src/main/java/com/hitherejoe/vineyard/ui/activity/PlaybackActivity.java)
+
+The Playback Activity is used to play the video from a Vine post. Which used the [PlaybackOverlayFragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PlaybackOverlayFragment.java) to display the playback controls over the top of the PlaybackActivity.
+
+<p align="center">
+    <img src="images/video.png" alt="Video"/>
+</p>
+
+<p align="center">
+    <img src="images/video_related.png" alt="Video Related"/>
+</p>
+
+
+##[Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java)
+
+The Search Fragment allows users to search for Vine Posts by either tags or usernames. The
+[Tag Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/TagPresenter.java) is used to
+display the tag/username query results, the posts are then displayed beneath whenever a tag/username
+result becomes focused.
+
+<p align="center">
+    <img src="images/search.png" alt="Search"/>
+</p>
+
+<p align="center">
+    <img src="images/search_no_results.png" alt="Search No Results"/>
+</p>
+
+##[Post Grid Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PostGridFragment.java)
+
+The Post Grid Fragment is used to show a grid of videos from either a Hashtag or User feed. This screen
+is launched when a hashtag/username result is clicked in the [Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java).
+
+<p align="center">
+    <img src="images/post_grid.png" alt="Post Grid"/>
+</p>
+
+##[AutoLoop Step Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/AutoLoopStepFragment.java)
+
+The AutoLoop Step Fragment is used to toggle the AutoLoop setting for post videos. When enabled,
+videos will automatically loop until the video is either stopped or skipped. If this is not enabled
+then videos will automatically play until the final one in the playlist is reached.
+
+<p align="center">
+    <img src="images/settings.png" alt="Settings"/>
+</p>
+
 #Custom Components
 
 Many of the screens used some of these custom components created especially for the needs of this app:
@@ -80,71 +145,6 @@ display an icon with both a title and description. Currently I use this for seve
 
 <p align="center">
     <img src="images/check_again_card.png" alt="Check Again Card"/>
-</p>
-
-#Screens
-
-##[Browse Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/MainFragment.java)
-
-The browse fragment is what is used to display the browseable categories, post and options card. The
-[Icon Header Item Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/IconHeaderItemPresenter.java) is used
-to setup and display the categories in the headers dock, the [Post Adapter](/app/src/main/java/com/hitherejoe/vineyard/ui/adapter/PostAdapter.java) and  [Card Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/CardPresenter.java)
-is used to display the Post cards and the [Icon Item Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/IconItemPresenter.java) sets and displays
-the option and error message cards.
-
-<p align="center">
-    <img src="images/main.png" alt="Main"/>
-</p>
-<p align="center">
-    <img src="images/preview_post.gif" alt="Preview Post"/>
-</p>
-
-
-##[Playback Activity](/app/src/main/java/com/hitherejoe/vineyard/ui/activity/PlaybackActivity.java)
-
-The Playback Activity is used to play the video from a Vine post. Which used the [PlaybackOverlayFragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PlaybackOverlayFragment.java) to display the playback controls over the top of the PlaybackActivity.
-
-<p align="center">
-    <img src="images/video.png" alt="Video"/>
-</p>
-
-<p align="center">
-    <img src="images/video_related.png" alt="Video Related"/>
-</p>
-
-
-##[Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java)
-
-The Search Fragment allows users to search for Vine Posts by either tags or usernames. The
-[Tag Presenter](/app/src/main/java/com/hitherejoe/vineyard/ui/presenter/TagPresenter.java) is used to
-display the tag/username query results, the posts are then displayed beneath whenever a tag/username
-result becomes focused.
-
-<p align="center">
-    <img src="images/search.png" alt="Search"/>
-</p>
-
-<p align="center">
-    <img src="images/search_no_results.png" alt="Search No Results"/>
-</p>
-
-##[Post Grid Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PostGridFragment.java)
-
-The Post Grid Fragment is used to show a grid of videos from either a Hashtag or User feed. This screen
-is launched when a hashtag/username result is clicked in the [Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java).
-
-<p align="center">
-    <img src="images/post_grid.png" alt="Post Grid"/>
-</p>
-
-##[AutoLoop Step Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/AutoLoopStepFragment.java)
-
-The AutoLoop Step Fragment is used to toggle the AutoLoop setting for post videos. When enabled,
-videos will automatically loop until the video is either stopped or skipped. If this is not enabled
-then videos will automatically play until the final one in the playlist is reached.
-
-<p align="center">
-    <img src="images/settings.png" alt="Settings"/>
 </p>
 
 #Building
