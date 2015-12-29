@@ -13,7 +13,7 @@ Release 1.0 of the application allows you to:
 - Browse feeds from a range of Video Categories
 - Watch Vine video posts
 - Search for Vine Users and Hashtags
-- View video feeds for Users and Hashtags
+- View video grids for Users and Hashtags
 - Toggle the Auto-Loop option via Settings
 
 This functionality is split across the following screens:
