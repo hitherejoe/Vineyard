@@ -44,7 +44,12 @@ This functionality is split across the following screens:
 
 [Search Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/SearchFragment.java)
 <p align="center">
-    <img src="images/search_results.png" alt="Web Launcher"/>
+    <img src="images/search.png" alt="Web Launcher"/>
+</p>
+
+[Post Grid Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/PostGridFragment.java)
+<p align="center">
+    <img src="images/post_grid.png" alt="Web Launcher"/>
 </p>
 
 [AutoLoop Step Fragment](/app/src/main/java/com/hitherejoe/vineyard/ui/fragment/AutoLoopStepFragment.java)
