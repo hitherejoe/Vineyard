@@ -47,7 +47,7 @@ a loading indicator to the user. This is used when Pagination is in use (using t
 to notify the user that Posts are being loaded.
 
 <p align="center">
-    <img src="images/loading.png" alt="Check Again Card"/>
+    <img src="images/loading.gif" alt="Loading Card"/>
 </p>
 
 ##[Tag Card View](/app/src/main/java/com/hitherejoe/vineyard/ui/widget/TagCardView.java)
