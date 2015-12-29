@@ -203,7 +203,7 @@ public class PostGridFragment extends VerticalGridFragment {
 
         Map<String, String> options = mPostAdapter.getAdapterOptions();
         String tag = options.get(PaginationAdapter.KEY_TAG);
-        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        final String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
         String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         Observable<VineyardService.PostResponse> observable = null;
@@ -243,7 +243,9 @@ public class PostGridFragment extends VerticalGridFragment {
                             if (mPostAdapter.size() == 0 && postResponse.data.records.isEmpty()) {
                                 mPostAdapter.showReloadCard();
                             } else {
-                                mPostAdapter.setAnchor(postResponse.data.anchorStr);
+                                if (anchor == null) {
+                                    mPostAdapter.setAnchor(postResponse.data.anchorStr);
+                                }
                                 mPostAdapter.setNextPage(postResponse.data.nextPage);
                                 mPostAdapter.addAllItems(postResponse.data.records);
                             }

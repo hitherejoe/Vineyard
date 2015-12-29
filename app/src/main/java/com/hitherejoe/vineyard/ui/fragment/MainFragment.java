@@ -244,7 +244,7 @@ public class MainFragment extends BrowseFragment {
 
         Map<String, String> options = adapter.getAdapterOptions();
         String tag = options.get(PaginationAdapter.KEY_TAG);
-        String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
+        final String anchor = options.get(PaginationAdapter.KEY_ANCHOR);
         String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
         Observable<PostResponse> observable;
@@ -285,7 +285,7 @@ public class MainFragment extends BrowseFragment {
                         if (adapter.size() == 0 && postResponse.data.records.isEmpty()) {
                             adapter.showReloadCard();
                         } else {
-                            adapter.setAnchor(postResponse.data.anchorStr);
+                            if (anchor == null) adapter.setAnchor(postResponse.data.anchorStr);
                             adapter.setNextPage(postResponse.data.nextPage);
                             adapter.addAllItems(postResponse.data.records);
                         }

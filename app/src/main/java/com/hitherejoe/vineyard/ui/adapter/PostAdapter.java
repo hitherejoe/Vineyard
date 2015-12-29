@@ -18,10 +18,13 @@ public class PostAdapter extends PaginationAdapter {
 
     @Override
     public void addAllItems(List<?> items) {
+        List<Post> currentPosts = getAllItems();
         ArrayList<Post> posts = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             Object object = items.get(i);
-            if (object instanceof Post) posts.add((Post) object);
+            if (object instanceof Post && !currentPosts.contains(object)) {
+                posts.add((Post) object);
+            }
         }
         Collections.sort(posts);
         addPosts(posts);
