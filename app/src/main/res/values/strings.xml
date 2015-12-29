@@ -8,6 +8,8 @@
     <!-- Headers -->
     <string name="header_text_settings">Settings</string>
     <string name="header_text_options">Options</string>
+    <string name="header_text_popular">Popular</string>
+    <string name="header_text_editors_picks">Editor\'s Picks</string>
 
     <!-- Connect Activity -->
     <string name="text_hint_username">Username</string>
@@ -64,8 +66,8 @@
     <string name="text_close">Close</string>
 
     <string-array name="categories">
-        <item>Popular</item>
-        <item>Editor\'s Picks</item>
+        <item>@string/header_text_popular</item>
+        <item>@string/header_text_editors_picks</item>
         <item>Scary</item>
         <item>Comedy</item>
         <item>Animals</item>

@@ -9,7 +9,6 @@ import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 import com.hitherejoe.vineyard.test.common.TestDataFactory;
-import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
 import com.hitherejoe.vineyard.util.MockModelsUtil;
 
 import org.junit.Before;
@@ -26,8 +25,8 @@ import java.util.List;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,12 +45,15 @@ public class DataManagerTest {
 
     @Test
     public void shouldGetAccessToken() throws Exception {
+        String username = "hitherejoe";
+        String password = "password";
+
         Authentication mockAuthentication = MockModelsUtil.createMockSuccessAuthentication();
-        when(mMockVineyardService.getAccessToken(anyString(), anyString()))
+        when(mMockVineyardService.getAccessToken(eq(username), eq(password)))
                 .thenReturn(Observable.just(mockAuthentication));
 
         TestSubscriber<Authentication> result = new TestSubscriber<>();
-        mDataManager.getAccessToken("", "").subscribe(result);
+        mDataManager.getAccessToken(username, password).subscribe(result);
         result.assertNoErrors();
         result.assertValue(mockAuthentication);
         verify(mMockPreferencesHelper).putAccessToken(mockAuthentication.data.key);
@@ -59,12 +61,15 @@ public class DataManagerTest {
 
     @Test
     public void shouldFailGetAccessToken() throws Exception {
+        String username = "hitherejoe";
+        String password = "password";
+
         Authentication mockAuthentication = MockModelsUtil.createMockErrorAuthentication();
-        when(mMockVineyardService.getAccessToken(anyString(), anyString()))
+        when(mMockVineyardService.getAccessToken(eq(username), eq(password)))
                 .thenReturn(Observable.just(mockAuthentication));
 
         TestSubscriber<Authentication> result = new TestSubscriber<>();
-        mDataManager.getAccessToken("", "").subscribe(result);
+        mDataManager.getAccessToken(username, password).subscribe(result);
         result.assertNoErrors();
         result.assertValue(mockAuthentication);
         verify(mMockPreferencesHelper, never()).getAccessToken();
@@ -96,60 +101,74 @@ public class DataManagerTest {
 
     @Test
     public void shouldGetPopularPosts() throws Exception {
+        String page = "1";
+        String anchor = "anchor";
+
         List<Post> mockPostLists = MockModelsUtil.createMockListOfPosts(20);
         VineyardService.PostResponse popularResponse = new VineyardService.PostResponse();
         popularResponse.data = new VineyardService.PostResponse.Data();
         popularResponse.data.records = mockPostLists;
-        when(mMockVineyardService.getPopularPosts(anyString(), anyString()))
+        when(mMockVineyardService.getPopularPosts(eq(page), eq(anchor)))
                 .thenReturn(Observable.just(popularResponse));
 
         TestSubscriber<VineyardService.PostResponse> result = new TestSubscriber<>();
-        mDataManager.getPopularPosts("0", "anchor").subscribe(result);
+        mDataManager.getPopularPosts(page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(popularResponse);
     }
 
     @Test
     public void shouldGetEditorsPicksPosts() throws Exception {
+        String page = "1";
+        String anchor = "anchor";
+
         List<Post> mockPostLists = MockModelsUtil.createMockListOfPosts(20);
         VineyardService.PostResponse editorsPicksResponse = new VineyardService.PostResponse();
         editorsPicksResponse.data = new VineyardService.PostResponse.Data();
         editorsPicksResponse.data.records = mockPostLists;
-        when(mMockVineyardService.getEditorsPicksPosts(anyString(), anyString()))
+        when(mMockVineyardService.getEditorsPicksPosts(eq(page), eq(anchor)))
                 .thenReturn(Observable.just(editorsPicksResponse));
 
         TestSubscriber<VineyardService.PostResponse> result = new TestSubscriber<>();
-        mDataManager.getEditorsPicksPosts("0", "anchor").subscribe(result);
+        mDataManager.getEditorsPicksPosts(page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(editorsPicksResponse);
     }
 
     @Test
     public void shouldGetPostsByTag() throws Exception {
+        String tag = "tag";
+        String page = "1";
+        String anchor = "anchor";
+
         List<Post> mockPostLists = MockModelsUtil.createMockListOfPosts(20);
         VineyardService.PostResponse editorsPicksResponse = new VineyardService.PostResponse();
         editorsPicksResponse.data = new VineyardService.PostResponse.Data();
         editorsPicksResponse.data.records = mockPostLists;
-        when(mMockVineyardService.getPostsByTag(anyString(), anyString(), anyString()))
+        when(mMockVineyardService.getPostsByTag(eq(tag), eq(page), eq(anchor)))
                 .thenReturn(Observable.just(editorsPicksResponse));
 
         TestSubscriber<VineyardService.PostResponse> result = new TestSubscriber<>();
-        mDataManager.getPostsByTag("tag", "0", "anchor").subscribe(result);
+        mDataManager.getPostsByTag(tag, page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(editorsPicksResponse);
     }
 
     @Test
     public void shouldGetPostsByUser() throws Exception {
+        String userId = "userId";
+        String page = "1";
+        String anchor = "anchor";
+
         List<Post> mockPostLists = MockModelsUtil.createMockListOfPosts(20);
         VineyardService.PostResponse editorsPicksResponse = new VineyardService.PostResponse();
         editorsPicksResponse.data = new VineyardService.PostResponse.Data();
         editorsPicksResponse.data.records = mockPostLists;
-        when(mMockVineyardService.getUserTimeline(anyString(), anyString(), anyString()))
+        when(mMockVineyardService.getUserTimeline(eq(userId), eq(page), eq(anchor)))
                 .thenReturn(Observable.just(editorsPicksResponse));
 
         TestSubscriber<VineyardService.PostResponse> result = new TestSubscriber<>();
-        mDataManager.getPostsByUser("userId", "0", "anchor").subscribe(result);
+        mDataManager.getPostsByUser(userId, page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(editorsPicksResponse);
     }
@@ -157,31 +176,37 @@ public class DataManagerTest {
     @Test
     public void shouldGetTagsByKeyword() throws Exception {
         String tag = "tag";
+        String page = "1";
+        String anchor = "anchor";
 
         List<Tag> mockPostLists = TestDataFactory.createMockListOfTags(20, tag);
         VineyardService.TagResponse editorsPicksResponse = new VineyardService.TagResponse();
         editorsPicksResponse.data = new VineyardService.TagResponse.Data();
         editorsPicksResponse.data.records = mockPostLists;
-        when(mMockVineyardService.searchByTag(anyString(), anyString(), anyString()))
+        when(mMockVineyardService.searchByTag(eq(tag), eq(page), eq(anchor)))
                 .thenReturn(Observable.just(editorsPicksResponse));
 
         TestSubscriber<VineyardService.TagResponse> result = new TestSubscriber<>();
-        mDataManager.searchByTag(tag, "0", "anchor").subscribe(result);
+        mDataManager.searchByTag(tag, page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(editorsPicksResponse);
     }
 
     @Test
     public void shouldGetUsersByKeyword() throws Exception {
+        String userId = "userId";
+        String page = "1";
+        String anchor = "anchor";
+
         List<User> mockPostLists = TestDataFactory.createMockListOfUsers(20);
         VineyardService.UserResponse editorsPicksResponse = new VineyardService.UserResponse();
         editorsPicksResponse.data = new VineyardService.UserResponse.Data();
         editorsPicksResponse.data.records = mockPostLists;
-        when(mMockVineyardService.searchByUser(anyString(), anyString(), anyString()))
+        when(mMockVineyardService.searchByUser(eq(userId), eq(page), eq(anchor)))
                 .thenReturn(Observable.just(editorsPicksResponse));
 
         TestSubscriber<VineyardService.UserResponse> result = new TestSubscriber<>();
-        mDataManager.searchByUser("userId", "0", "anchor").subscribe(result);
+        mDataManager.searchByUser(userId, page, anchor).subscribe(result);
         result.assertNoErrors();
         result.assertValue(editorsPicksResponse);
     }
@@ -191,19 +216,19 @@ public class DataManagerTest {
         String tag = "tag";
         String userId = "userId";
 
-        SearchFragment.CombinedSearchResponse combinedSearchResponse =
-                new SearchFragment.CombinedSearchResponse();
-        combinedSearchResponse.tagSearchAnchor = tag;
-        combinedSearchResponse.userSearchAnchor = userId;
-        combinedSearchResponse.list = new ArrayList<>();
+        VineyardService.KeywordSearchResponse keywordSearchResponse =
+                new VineyardService.KeywordSearchResponse();
+        keywordSearchResponse.tagSearchAnchor = tag;
+        keywordSearchResponse.userSearchAnchor = userId;
+        keywordSearchResponse.list = new ArrayList<>();
 
         List<User> mockPostUsers = TestDataFactory.createMockListOfUsers(10);
         List<Tag> mockPostTags = TestDataFactory.createMockListOfTags(10, tag);
 
-        combinedSearchResponse.list.addAll(mockPostTags);
-        combinedSearchResponse.list.addAll(mockPostUsers);
+        keywordSearchResponse.list.addAll(mockPostTags);
+        keywordSearchResponse.list.addAll(mockPostUsers);
 
-        Collections.sort(combinedSearchResponse.list, new Comparator<Object>() {
+        Collections.sort(keywordSearchResponse.list, new Comparator<Object>() {
             @Override
             public int compare(Object lhs, Object rhs) {
                 if (lhs instanceof Tag) {
@@ -243,10 +268,10 @@ public class DataManagerTest {
         when(mMockVineyardService.searchByTag(anyString(), anyString(), anyString()))
                 .thenReturn(Observable.just(tagsResponse));
 
-        TestSubscriber<SearchFragment.CombinedSearchResponse> result = new TestSubscriber<>();
+        TestSubscriber<VineyardService.KeywordSearchResponse> result = new TestSubscriber<>();
         mDataManager.search(userId, "0", tag, "0", userId).subscribe(result);
         result.assertNoErrors();
-        result.assertValue(combinedSearchResponse);
+        result.assertValue(keywordSearchResponse);
     }
 
 }
