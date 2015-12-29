@@ -335,10 +335,7 @@ public class MainFragment extends BrowseFragment {
                 int index = mRowsAdapter.indexOf(row);
                 PostAdapter adapter =
                         ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
-
-                Timber.e(index + " : " + adapter.size() + " : " + adapter.shouldLoadNextPage());
                 if (adapter.get(adapter.size() - 1).equals(item) && adapter.shouldLoadNextPage()) {
-                    Timber.e("IN!!!");
                     addPostLoadSubscription(adapter);
                 }
             }
