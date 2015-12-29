@@ -13,10 +13,8 @@ import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
-import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.ui.widget.VideoCardView;
 
-import timber.log.Timber;
 
 public class CardPresenter extends Presenter {
 
@@ -52,7 +50,6 @@ public class CardPresenter extends Presenter {
                 if (hasFocus) {
                     cardView.startVideo();
                 } else {
-                    Timber.e("ON STOP CALLED");
                     if (mContext instanceof PostGridActivity) {
                         if (((PostGridActivity) mContext).isFragmentActive()) {
                             cardView.stopVideo();

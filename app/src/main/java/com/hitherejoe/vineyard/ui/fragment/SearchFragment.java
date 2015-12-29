@@ -73,11 +73,11 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     private BackgroundManager mBackgroundManager;
     private Drawable mDefaultBackground;
     private DisplayMetrics mMetrics;
-    private Runnable mBackgroundRunnable;
     private Handler mHandler;
     private HeaderItem mResultsHeader;
     private Object mSelectedTag;
     private PostAdapter mPostResultsAdapter;
+    private Runnable mBackgroundRunnable;
     private Subscription mSearchResultsSubscription;
     private Subscription mTagSubscription;
     private Subscription mUserSubscription;
@@ -126,10 +126,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         mIsStopping = true;
     }
 
-    public boolean isStopping() {
-        return mIsStopping;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -165,25 +161,12 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         return true;
     }
 
-    private void setupBackgroundManager() {
-        mBackgroundManager = BackgroundManager.getInstance(getActivity());
-        mBackgroundManager.attach(getActivity().getWindow());
-        mBackgroundManager.setColor(ContextCompat.getColor(getActivity(), R.color.bg_grey));
-        mDefaultBackground =
-                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.bg_grey));
-        mMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+    public boolean isStopping() {
+        return mIsStopping;
     }
 
-    private void startBackgroundTimer(final URI backgroundURI) {
-        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
-        mBackgroundRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (backgroundURI != null) updateBackground(backgroundURI.toString());
-            }
-        };
-        mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
+    public boolean hasResults() {
+        return mResultsAdapter.size() > 0;
     }
 
     protected void updateBackground(String uri) {
@@ -205,8 +188,25 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
     }
 
-    public boolean hasResults() {
-        return mResultsAdapter.size() > 0;
+    private void setupBackgroundManager() {
+        mBackgroundManager = BackgroundManager.getInstance(getActivity());
+        mBackgroundManager.attach(getActivity().getWindow());
+        mBackgroundManager.setColor(ContextCompat.getColor(getActivity(), R.color.bg_grey));
+        mDefaultBackground =
+                new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.bg_grey));
+        mMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+    }
+
+    private void startBackgroundTimer(final URI backgroundURI) {
+        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
+        mBackgroundRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (backgroundURI != null) updateBackground(backgroundURI.toString());
+            }
+        };
+        mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
     }
 
     private void setListeners() {
@@ -267,7 +267,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         String tag = options.get(PaginationAdapter.KEY_TAG);
         String nextPage = options.get(PaginationAdapter.KEY_NEXT_PAGE);
 
-        Observable<CombinedSearchResponse> observable =
+        Observable<VineyardService.KeywordSearchResponse> observable =
                 mDataManager.search(
                         tag, nextPage, mTagSearchAnchor, nextPage, mUserSearchAnchor);
 
@@ -275,7 +275,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<CombinedSearchResponse>() {
+                .subscribe(new Subscriber<VineyardService.KeywordSearchResponse>() {
                     @Override
                     public void onCompleted() {
                         adapter.removeLoadingIndicator();
@@ -294,7 +294,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     }
 
                     @Override
-                    public void onNext(CombinedSearchResponse dualResponse) {
+                    public void onNext(VineyardService.KeywordSearchResponse dualResponse) {
                         if (dualResponse.list.isEmpty()) {
                             mResultsAdapter.clear();
                             mResultsHeader = new HeaderItem(0, getString(R.string.text_no_results));
@@ -413,6 +413,36 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         }
     }
 
+    private void showNetworkUnavailableToast() {
+        ToastFactory.createWifiErrorToast(getActivity()).show();
+    }
+
+    private void setListAdapterData(String title, String tag) {
+        if (mPostResultsAdapter != null) {
+            mResultsAdapter.remove(mPostResultsAdapter);
+        }
+        if (mPostResultsAdapter == null) {
+            mPostResultsAdapter = new PostAdapter(getActivity(), tag);
+        }
+        mResultsAdapter.removeItems(1, 1);
+        final HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, title));
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
+            }
+        });
+
+        mPostResultsAdapter.setTag(tag);
+        mPostResultsAdapter.setAnchor("");
+        mPostResultsAdapter.setNextPage(1);
+        if (!mPostResultsAdapter.shouldShowLoadingIndicator()) {
+            mPostResultsAdapter.removeItems(1, mPostResultsAdapter.size() - 2);
+        } else {
+            mPostResultsAdapter.clear();
+        }
+    }
+
     private OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
@@ -460,10 +490,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         }
     };
 
-    private void showNetworkUnavailableToast() {
-        ToastFactory.createWifiErrorToast(getActivity()).show();
-    }
-
     private OnItemViewSelectedListener mOnItemViewSelectedListener = new OnItemViewSelectedListener() {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
@@ -499,64 +525,5 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             }
         }
     };
-
-    private void setListAdapterData(String title, String tag) {
-        if (mPostResultsAdapter != null) {
-            mResultsAdapter.remove(mPostResultsAdapter);
-        }
-        if (mPostResultsAdapter == null) {
-            mPostResultsAdapter = new PostAdapter(getActivity(), tag);
-        }
-        mResultsAdapter.removeItems(1, 1);
-        final HeaderItem postResultsHeader = new HeaderItem(1, getString(R.string.text_post_results_title, title));
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                mResultsAdapter.add(new ListRow(postResultsHeader, mPostResultsAdapter));
-            }
-        });
-
-        mPostResultsAdapter.setTag(tag);
-        mPostResultsAdapter.setAnchor("");
-        mPostResultsAdapter.setNextPage(1);
-        if (!mPostResultsAdapter.shouldShowLoadingIndicator()) {
-            mPostResultsAdapter.removeItems(1, mPostResultsAdapter.size() - 2);
-        } else {
-            mPostResultsAdapter.clear();
-        }
-    }
-
-    public static class CombinedSearchResponse {
-        public String tagSearchAnchor;
-        public String userSearchAnchor;
-        public ArrayList<Object> list;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            CombinedSearchResponse that = (CombinedSearchResponse) o;
-
-            if (tagSearchAnchor != null
-                    ? !tagSearchAnchor.equals(that.tagSearchAnchor)
-                    : that.tagSearchAnchor != null)
-                return false;
-            if (userSearchAnchor != null
-                    ? !userSearchAnchor.equals(that.userSearchAnchor)
-                    : that.userSearchAnchor != null)
-                return false;
-            return !(list != null ? !list.equals(that.list) : that.list != null);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = tagSearchAnchor != null ? tagSearchAnchor.hashCode() : 0;
-            result = 31 * result + (userSearchAnchor != null ? userSearchAnchor.hashCode() : 0);
-            result = 31 * result + (list != null ? list.hashCode() : 0);
-            return result;
-        }
-    }
 
 }

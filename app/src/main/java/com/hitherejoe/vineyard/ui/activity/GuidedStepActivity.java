@@ -7,9 +7,6 @@ import android.support.v17.leanback.app.GuidedStepFragment;
 
 import com.hitherejoe.vineyard.ui.fragment.AutoLoopStepFragment;
 
-/**
- * Activity that showcases different aspects of GuidedStepFragments.
- */
 public class GuidedStepActivity extends BaseActivity {
 
     public static Intent getStartIntent(Context context) {

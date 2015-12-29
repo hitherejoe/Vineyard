@@ -71,7 +71,7 @@ public class MainFragment extends BrowseFragment {
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
     private Handler mHandler;
-    private Option mOption;
+    private Option mAutoLoopOption;
     private OptionsAdapter mOptionsAdapter;
     private Runnable mBackgroundRunnable;
 
@@ -91,7 +91,7 @@ public class MainFragment extends BrowseFragment {
         mPopularText = getString(R.string.header_text_popular);
         mEditorsPicksText = getString(R.string.header_text_editors_picks);
 
-        loadVideos();
+        loadPosts();
         setAdapter(mRowsAdapter);
         prepareBackgroundManager();
         setupUIElements();
@@ -103,10 +103,10 @@ public class MainFragment extends BrowseFragment {
         if (requestCode == REQUEST_CODE_AUTO_LOOP) {
             if (data != null) {
                 boolean isEnabled = data.getBooleanExtra(RESULT_OPTION, false);
-                mOption.value = isEnabled
+                mAutoLoopOption.value = isEnabled
                         ? getString(R.string.text_auto_loop_enabled)
                         : getString(R.string.text_auto_loop_disabled);
-                mOptionsAdapter.updateOption(mOption);
+                mOptionsAdapter.updateOption(mAutoLoopOption);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -129,6 +129,25 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager.release();
     }
 
+    protected void updateBackground(String uri) {
+        int width = mMetrics.widthPixels;
+        int height = mMetrics.heightPixels;
+        Glide.with(getActivity())
+                .load(uri)
+                .asBitmap()
+                .centerCrop()
+                .error(mDefaultBackground)
+                .into(new SimpleTarget<Bitmap>(width, height) {
+                    @Override
+                    public void onResourceReady(Bitmap resource,
+                                                GlideAnimation<? super Bitmap>
+                                                        glideAnimation) {
+                        mBackgroundManager.setBitmap(resource);
+                    }
+                });
+        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
+    }
+
     private void setupUIElements() {
         setBadgeDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.banner));
         setHeadersState(HEADERS_ENABLED);
@@ -148,7 +167,7 @@ public class MainFragment extends BrowseFragment {
                 ? getString(R.string.text_auto_loop_enabled)
                 : getString(R.string.text_auto_loop_disabled);
 
-        mOption = new Option(
+        mAutoLoopOption = new Option(
                 getString(R.string.text_auto_loop_title),
                 optionValue,
                 R.drawable.lopp);
@@ -157,7 +176,7 @@ public class MainFragment extends BrowseFragment {
         HeaderItem gridHeader =
                 new HeaderItem(mRowsAdapter.size(), getString(R.string.header_text_options));
         mOptionsAdapter = new OptionsAdapter(getActivity());
-        mOptionsAdapter.addOption(mOption);
+        mOptionsAdapter.addOption(mAutoLoopOption);
         mRowsAdapter.add(new ListRow(gridHeader, mOptionsAdapter));
     }
 
@@ -175,14 +194,12 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
-    private void loadVideos() {
-        loadVideosFromFeed(mPopularText, 0);
-        loadVideosFromFeed(mEditorsPicksText, 1);
+    private void loadPosts() {
         String[] categories = getResources().getStringArray(R.array.categories);
-        for (int i = 0; i < categories.length; i++) loadVideosFromFeed(categories[i], i + 2);
+        for (int i = 0; i < categories.length; i++) loadPostsFromCategory(categories[i], i);
     }
 
-    private void loadVideosFromFeed(String tag, int headerPosition) {
+    private void loadPostsFromCategory(String tag, int headerPosition) {
         PostAdapter listRowAdapter = new PostAdapter(getActivity(), tag);
         addPageLoadSubscription(listRowAdapter);
         HeaderItem header = new HeaderItem(headerPosition, tag);
@@ -197,25 +214,6 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager.setColor(ContextCompat.getColor(getActivity(), R.color.bg_grey));
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
-    }
-
-    protected void updateBackground(String uri) {
-        int width = mMetrics.widthPixels;
-        int height = mMetrics.heightPixels;
-        Glide.with(getActivity())
-                .load(uri)
-                .asBitmap()
-                .centerCrop()
-                .error(mDefaultBackground)
-                .into(new SimpleTarget<Bitmap>(width, height) {
-                    @Override
-                    public void onResourceReady(Bitmap resource,
-                                                GlideAnimation<? super Bitmap>
-                                                        glideAnimation) {
-                        mBackgroundManager.setBitmap(resource);
-                    }
-                });
-        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
     }
 
     private void startBackgroundTimer(final URI backgroundURI) {
@@ -252,8 +250,7 @@ public class MainFragment extends BrowseFragment {
                 .unsubscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<PostResponse>() {
                     @Override
-                    public void onCompleted() {
-                    }
+                    public void onCompleted() { }
 
                     @Override
                     public void onError(Throwable e) {
@@ -300,7 +297,6 @@ public class MainFragment extends BrowseFragment {
                     ToastFactory.createWifiErrorToast(getActivity()).show();
                 }
             } else if (item instanceof Option) {
-
                 Option option = (Option) item;
                 if (option.title.equals(getString(R.string.title_no_videos)) ||
                         item.equals(getString(R.string.title_oops))) {

@@ -3,6 +3,7 @@ package com.hitherejoe.vineyard.ui.fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
@@ -49,7 +50,7 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     }
 
     @Override
-    public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+    public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         if (getActivity() instanceof GuidedStepActivity) {
             addCheckedAction(actions, ENABLED,
                     getResources().getString(R.string.guided_step_auto_loop_enabled),
@@ -80,7 +81,7 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
         List<GuidedAction> actions = getActions();
         for (int i = 0; i < actions.size(); i++) {
             GuidedAction action = actions.get(i);
-            action.setChecked(action.getId() == ENABLED ? shouldAutoLoop : !shouldAutoLoop);
+            action.setChecked((action.getId() == ENABLED) == shouldAutoLoop);
         }
     }
 

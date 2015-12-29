@@ -9,6 +9,7 @@ import com.hitherejoe.vineyard.data.model.Option;
 import com.hitherejoe.vineyard.ui.widget.IconCardView;
 
 public class IconItemPresenter extends Presenter {
+    
     private static int GRID_ITEM_WIDTH = 350;
     private static int GRID_ITEM_HEIGHT = 400;
 

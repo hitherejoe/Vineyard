@@ -10,6 +10,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Call;
@@ -117,6 +118,39 @@ public interface VineyardService {
         public static class Data {
             public String anchorStr;
             public List<User> records;
+        }
+    }
+
+    class KeywordSearchResponse {
+        public String tagSearchAnchor;
+        public String userSearchAnchor;
+        public ArrayList<Object> list;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            KeywordSearchResponse that = (KeywordSearchResponse) o;
+
+            if (tagSearchAnchor != null
+                    ? !tagSearchAnchor.equals(that.tagSearchAnchor)
+                    : that.tagSearchAnchor != null)
+                return false;
+            if (userSearchAnchor != null
+                    ? !userSearchAnchor.equals(that.userSearchAnchor)
+                    : that.userSearchAnchor != null)
+                return false;
+            return !(list != null ? !list.equals(that.list) : that.list != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = tagSearchAnchor != null ? tagSearchAnchor.hashCode() : 0;
+            result = 31 * result + (userSearchAnchor != null ? userSearchAnchor.hashCode() : 0);
+            result = 31 * result + (list != null ? list.hashCode() : 0);
+            return result;
         }
     }
 

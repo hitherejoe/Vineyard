@@ -5,8 +5,6 @@ import com.hitherejoe.vineyard.data.model.Authentication;
 import com.hitherejoe.vineyard.data.model.Tag;
 import com.hitherejoe.vineyard.data.model.User;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
-import com.hitherejoe.vineyard.ui.fragment.SearchFragment;
-import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,12 +85,12 @@ public class DataManager {
         return mVineyardService.searchByUser(query, page, anchor);
     }
 
-    public Observable<SearchFragment.CombinedSearchResponse> search(
+    public Observable<VineyardService.KeywordSearchResponse> search(
             String tag, String pageOne, String anchorOne, String pageTwo, String anchorTwo) {
         return Observable.zip(searchByTag(tag, pageOne, anchorOne), searchByUser(tag, pageTwo, anchorTwo),
-                new Func2<VineyardService.TagResponse, VineyardService.UserResponse, SearchFragment.CombinedSearchResponse>() {
+                new Func2<VineyardService.TagResponse, VineyardService.UserResponse, VineyardService.KeywordSearchResponse>() {
                     @Override
-                    public SearchFragment.CombinedSearchResponse call(VineyardService.TagResponse tagResponse, VineyardService.UserResponse userResponse) {
+                    public VineyardService.KeywordSearchResponse call(VineyardService.TagResponse tagResponse, VineyardService.UserResponse userResponse) {
                         List<Tag> tags = tagResponse.data.records;
                         List<User> users = userResponse.data.records;
 
@@ -126,7 +124,7 @@ public class DataManager {
                             }
                         });
 
-                        SearchFragment.CombinedSearchResponse dualResponse = new SearchFragment.CombinedSearchResponse();
+                        VineyardService.KeywordSearchResponse dualResponse = new VineyardService.KeywordSearchResponse();
                         dualResponse.tagSearchAnchor = tagResponse.data.anchorStr;
                         dualResponse.userSearchAnchor = userResponse.data.anchorStr;
                         dualResponse.list = results;

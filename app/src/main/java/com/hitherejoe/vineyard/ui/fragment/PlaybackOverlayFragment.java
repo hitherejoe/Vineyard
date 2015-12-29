@@ -40,9 +40,9 @@ import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Post;
-import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
+import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -52,7 +52,8 @@ import javax.inject.Inject;
 
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
 
-    @Inject DataManager mDataManager;
+    @Inject
+    DataManager mDataManager;
 
     private static final boolean SHOW_DETAIL = true;
     private static final boolean HIDE_MORE_ACTIONS = false;
@@ -68,22 +69,23 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     public static final String CUSTOM_ACTION_LOOP = "custom_action_loop";
     public static final String CUSTOM_ACTION_SKIP_VIDEO = "custom_action_skip_video";
 
-    private Handler mClickTrackingHandler;
+    private ArrayList<Post> mItems;
+
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mPrimaryActionsAdapter;
     private ArrayObjectAdapter mSecondaryActionsAdapter;
     private FastForwardAction mFastForwardAction;
+    private Handler mClickTrackingHandler;
+    private PlaybackControlsRow mPlaybackControlsRow;
     private PlayPauseAction mPlayPauseAction;
+    private Post mSelectedPost;
     private PreferencesHelper mPreferencesHelper;
     private RepeatAction mRepeatAction;
     private RewindAction mRewindAction;
     private SkipNextAction mSkipNextAction;
     private SkipPreviousAction mSkipPreviousAction;
-    private PlaybackControlsRow mPlaybackControlsRow;
-    private ArrayList<Post> mItems;
     private Handler mHandler;
     private Runnable mRunnable;
-    private Post mSelectedPost;
     private int mFfwRwdSpeed;
     private Timer mClickTrackingTimer;
     private int mClickCount;
@@ -116,18 +118,10 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
         setBackgroundType(BACKGROUND_TYPE);
         setFadingEnabled(false);
-
         setupRows();
-
-        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
-            @Override
-            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                       RowPresenter.ViewHolder rowViewHolder, Row row) {
-            }
-        });
     }
 
-    // TODO: There's a bug
+    // TODO: There's currently a bug here, so we need to Override both onAttach methods
 
     @Override
     public void onAttach(Activity activity) {
@@ -139,13 +133,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     public void onAttach(Context context) {
         super.onAttach(context);
         setupMediaController();
-    }
-
-    private void setupMediaController() {
-        if (mMediaController == null) {
-            mMediaController = getActivity().getMediaController();
-            mMediaController.registerCallback(mMediaControllerCallback);
-        }
     }
 
     @Override
@@ -161,11 +148,39 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         super.onDetach();
     }
 
+    public void togglePlayback(boolean playPause) {
+        if (playPause) {
+            mMediaController.getTransportControls().play();
+        } else {
+            mMediaController.getTransportControls().pause();
+        }
+    }
+
+    protected void updateVideoImage(String uri) {
+        Glide.with(getActivity())
+                .load(uri)
+                .centerCrop()
+                .into(new SimpleTarget<GlideDrawable>(CARD_WIDTH, CARD_HEIGHT) {
+                    @Override
+                    public void onResourceReady(GlideDrawable resource,
+                                                GlideAnimation<? super GlideDrawable> glideAnimation) {
+                        mPlaybackControlsRow.setImageDrawable(resource);
+                        mRowsAdapter.notifyArrayItemRangeChanged(0, mRowsAdapter.size());
+                    }
+                });
+    }
+
+    private void setupMediaController() {
+        if (mMediaController == null) {
+            mMediaController = getActivity().getMediaController();
+            mMediaController.registerCallback(mMediaControllerCallback);
+        }
+    }
+
     private void setupRows() {
-
         ClassPresenterSelector ps = new ClassPresenterSelector();
-
         PlaybackControlsRowPresenter playbackControlsRowPresenter;
+
         if (SHOW_DETAIL) {
             playbackControlsRowPresenter =
                     new PlaybackControlsRowPresenter(new DescriptionPresenter());
@@ -205,14 +220,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         setAdapter(mRowsAdapter);
     }
 
-    public void togglePlayback(boolean playPause) {
-        if (playPause) {
-            mMediaController.getTransportControls().play();
-        } else {
-            mMediaController.getTransportControls().pause();
-        }
-    }
-
     private void addPlaybackControlsRow() {
         if (SHOW_DETAIL) {
             mPlaybackControlsRow = new PlaybackControlsRow(mSelectedPost);
@@ -246,7 +253,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mPrimaryActionsAdapter.add(mFastForwardAction);
         mPrimaryActionsAdapter.add(mSkipNextAction);
 
-        // Add rest of controls to secondary adapter.
+        // Add repeat control to secondary adapter.
         mSecondaryActionsAdapter.add(mRepeatAction);
     }
 
@@ -354,20 +361,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             mHandler.removeCallbacks(mRunnable);
             mRunnable = null;
         }
-    }
-
-    protected void updateVideoImage(String uri) {
-        Glide.with(getActivity())
-                .load(uri)
-                .centerCrop()
-                .into(new SimpleTarget<GlideDrawable>(CARD_WIDTH, CARD_HEIGHT) {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        mPlaybackControlsRow.setImageDrawable(resource);
-                        mRowsAdapter.notifyArrayItemRangeChanged(0, mRowsAdapter.size());
-                    }
-                });
     }
 
     private void startClickTrackingTimer() {

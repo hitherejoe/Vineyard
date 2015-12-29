@@ -86,10 +86,14 @@ public class PostGridFragment extends VerticalGridFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
+        Bundle args = getArguments();
+        Object item = args.getParcelable(ARG_ITEM);
+        if (item == null) {
+            throw new IllegalArgumentException("PostGridFragment requires an item arguement!");
+        }
         setupFragment();
         prepareBackgroundManager();
-        Bundle args = getArguments();
-        setTag(args.getParcelable(ARG_ITEM));
+        setTag(item);
         setSearchAffordanceColor(ContextCompat.getColor(getActivity(), R.color.accent));
     }
 
@@ -245,8 +249,6 @@ public class PostGridFragment extends VerticalGridFragment {
                             }
                         }
                     }));
-        } else {
-            //TODO: Handle error
         }
     }
 
@@ -282,6 +284,7 @@ public class PostGridFragment extends VerticalGridFragment {
                 if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
                 ArrayList<Post> posts = (ArrayList<Post>) mPostAdapter.getAllItems();
 
+                // If any item on the bottom row is selected...
                 int itemIndex = mPostAdapter.indexOf(item);
                 int minimumIndex = posts.size() - NUM_COLUMNS;
                 if (itemIndex >= minimumIndex && mPostAdapter.shouldLoadNextPage()) {
