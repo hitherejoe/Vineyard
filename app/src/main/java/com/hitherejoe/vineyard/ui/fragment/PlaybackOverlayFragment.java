@@ -37,12 +37,14 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.data.BusEvent;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.PlaybackActivity;
 import com.hitherejoe.vineyard.ui.presenter.CardPresenter;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -52,8 +54,8 @@ import javax.inject.Inject;
 
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
 
-    @Inject
-    DataManager mDataManager;
+    @Inject Bus mEventBus;
+    @Inject DataManager mDataManager;
 
     private static final boolean SHOW_DETAIL = true;
     private static final boolean HIDE_MORE_ACTIONS = false;
@@ -336,6 +338,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mIsAutoLoopEnabled = !mIsAutoLoopEnabled;
         mPreferencesHelper.putAutoLoop(mIsAutoLoopEnabled);
         mRepeatAction.setIcon(getRepeatDrawable());
+        mEventBus.post(new BusEvent.AutoLoopUpdated());
         Bundle bundle = new Bundle();
         bundle.putBoolean(PlaybackActivity.EXTRA_IS_LOOP_ENABLED, mIsAutoLoopEnabled);
         mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_LOOP, bundle);

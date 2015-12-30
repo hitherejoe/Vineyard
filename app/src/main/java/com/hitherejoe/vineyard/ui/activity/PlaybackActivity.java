@@ -393,7 +393,9 @@ public class PlaybackActivity extends BaseActivity {
         @Override
         public void onCustomAction(@NonNull String action, Bundle extras) {
             if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_LOOP)) {
-                mMediaPlayer.setLooping(extras.getBoolean(EXTRA_IS_LOOP_ENABLED));
+                if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.setLooping(extras.getBoolean(EXTRA_IS_LOOP_ENABLED));
+                }
             } else if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_SKIP_VIDEO)) {
                 mWasSkipPressed = true;
             }

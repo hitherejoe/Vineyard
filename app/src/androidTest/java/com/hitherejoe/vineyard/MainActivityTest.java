@@ -75,7 +75,7 @@ public class MainActivityTest {
         main.launchActivity(null);
         onView(withId(R.id.title_badge))
                 .check(matches(isDisplayed()));
-        onView(withDrawable(R.drawable.banner))
+        onView(withDrawable(R.drawable.banner_shadow))
                 .check(matches(isDisplayed()));
     }
 

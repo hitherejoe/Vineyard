@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.data.BusEvent;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.data.model.Option;
@@ -42,6 +43,8 @@ import com.hitherejoe.vineyard.ui.adapter.PostAdapter;
 import com.hitherejoe.vineyard.ui.presenter.IconHeaderItemPresenter;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.ToastFactory;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -59,9 +62,9 @@ import timber.log.Timber;
 public class MainFragment extends BrowseFragment {
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
-    public static final int REQUEST_CODE_AUTO_LOOP = 1352;
     public static final String RESULT_OPTION = "RESULT_OPTION";
 
+    @Inject Bus mEventBus;
     @Inject CompositeSubscription mCompositeSubscription;
     @Inject DataManager mDataManager;
     @Inject PreferencesHelper mPreferencesHelper;
@@ -91,26 +94,13 @@ public class MainFragment extends BrowseFragment {
         mHandler = new Handler();
         mPopularText = getString(R.string.header_text_popular);
         mEditorsPicksText = getString(R.string.header_text_editors_picks);
+        mEventBus.register(this);
 
         loadPosts();
         setAdapter(mRowsAdapter);
         prepareBackgroundManager();
         setupUIElements();
         setupListeners();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_AUTO_LOOP) {
-            if (data != null) {
-                boolean isEnabled = data.getBooleanExtra(RESULT_OPTION, false);
-                mAutoLoopOption.value = isEnabled
-                        ? getString(R.string.text_auto_loop_enabled)
-                        : getString(R.string.text_auto_loop_disabled);
-                mOptionsAdapter.updateOption(mAutoLoopOption);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -122,6 +112,7 @@ public class MainFragment extends BrowseFragment {
         }
         mBackgroundManager = null;
         mCompositeSubscription.unsubscribe();
+        mEventBus.unregister(this);
     }
 
     @Override
@@ -135,6 +126,15 @@ public class MainFragment extends BrowseFragment {
         super.onStop();
         mBackgroundManager.release();
         mIsStopping = true;
+    }
+
+    @Subscribe
+    public void onAutoLoopUpdated(BusEvent.AutoLoopUpdated event) {
+        boolean isEnabled = mPreferencesHelper.getShouldAutoLoop();
+        mAutoLoopOption.value = isEnabled
+                ? getString(R.string.text_auto_loop_enabled)
+                : getString(R.string.text_auto_loop_disabled);
+        mOptionsAdapter.updateOption(mAutoLoopOption);
     }
 
     public boolean isStopping() {
@@ -318,8 +318,7 @@ public class MainFragment extends BrowseFragment {
                     adapter.removeReloadCard();
                     addPostLoadSubscription(adapter);
                 } else {
-                    startActivityForResult(
-                            GuidedStepActivity.getStartIntent(getActivity()), REQUEST_CODE_AUTO_LOOP);
+                    startActivity(GuidedStepActivity.getStartIntent(getActivity()));
                 }
             }
         }

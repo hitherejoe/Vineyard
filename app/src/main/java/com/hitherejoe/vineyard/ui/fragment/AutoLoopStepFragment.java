@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.data.BusEvent;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
+import com.squareup.otto.Bus;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ import javax.inject.Inject;
 
 public class AutoLoopStepFragment extends GuidedStepFragment {
 
+    @Inject Bus mEventBus;
     @Inject PreferencesHelper mPreferencesHelper;
 
     private static final int ENABLED = 0;
@@ -67,9 +70,7 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     public void onGuidedActionClicked(GuidedAction action) {
         if (action != null) {
             mPreferencesHelper.putAutoLoop(action.getId() == ENABLED);
-            Intent output = new Intent();
-            output.putExtra(MainFragment.RESULT_OPTION, action.getId() == ENABLED);
-            getActivity().setResult(MainFragment.REQUEST_CODE_AUTO_LOOP, output);
+            mEventBus.post(new BusEvent.AutoLoopUpdated());
             getActivity().finish();
         } else {
             getFragmentManager().popBackStack();
