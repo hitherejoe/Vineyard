@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.BusEvent;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
@@ -62,12 +63,11 @@ import timber.log.Timber;
 public class MainFragment extends BrowseFragment {
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
-    public static final String RESULT_OPTION = "RESULT_OPTION";
 
     @Inject Bus mEventBus;
     @Inject CompositeSubscription mCompositeSubscription;
     @Inject DataManager mDataManager;
-    @Inject PreferencesHelper mPreferencesHelper;
+    private PreferencesHelper mPreferencesHelper;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundManager mBackgroundManager;
@@ -90,6 +90,8 @@ public class MainFragment extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
+        mPreferencesHelper =
+                VineyardApplication.get(getActivity()).getComponent().preferencesHelper();
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mHandler = new Handler();
         mPopularText = getString(R.string.header_text_popular);

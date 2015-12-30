@@ -1,6 +1,5 @@
 package com.hitherejoe.vineyard.ui.fragment;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hitherejoe.vineyard.R;
+import com.hitherejoe.vineyard.VineyardApplication;
 import com.hitherejoe.vineyard.data.BusEvent;
+import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.local.PreferencesHelper;
 import com.hitherejoe.vineyard.ui.activity.BaseActivity;
 import com.hitherejoe.vineyard.ui.activity.GuidedStepActivity;
@@ -25,7 +26,8 @@ import javax.inject.Inject;
 public class AutoLoopStepFragment extends GuidedStepFragment {
 
     @Inject Bus mEventBus;
-    @Inject PreferencesHelper mPreferencesHelper;
+    @Inject DataManager mDataManager;
+    private PreferencesHelper mPreferencesHelper;
 
     private static final int ENABLED = 0;
     private static final int DISABLED = 1;
@@ -35,6 +37,8 @@ public class AutoLoopStepFragment extends GuidedStepFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((BaseActivity) getActivity()).getActivityComponent().inject(this);
+        mPreferencesHelper =
+                VineyardApplication.get(getActivity()).getComponent().preferencesHelper();
         updateActions();
         return super.onCreateView(inflater, container, savedInstanceState);
     }

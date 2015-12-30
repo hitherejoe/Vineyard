@@ -1,6 +1,7 @@
 package com.hitherejoe.vineyard;
 
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import rx.Observable;
 
+import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -257,6 +259,10 @@ public class MainActivityTest {
     @Test
     public void autoLoopShowsSetState() {
         stubVideoFeedData();
+        Context context = InstrumentationRegistry.getTargetContext();
+
+        when(VineyardApplication.get(context).getComponent().preferencesHelper().getShouldAutoLoop())
+                .thenReturn(false);
 
         main.launchActivity(null);
 
@@ -287,7 +293,18 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        onView(withText(R.string.guided_step_auto_loop_enabled_description))
+        String enabledDescriptionText =
+                InstrumentationRegistry.getTargetContext()
+                        .getString(R.string.guided_step_auto_loop_enabled_description);
+
+        onView(withItemText("Enabled", R.id.guidedactions_list))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        when(VineyardApplication.get(context).getComponent().preferencesHelper().getShouldAutoLoop())
+                .thenReturn(true);
+
+        onView(withItemText(enabledDescriptionText, R.id.guidedactions_list))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
@@ -296,11 +313,38 @@ public class MainActivityTest {
         onView(withItemText("Auto-loop", R.id.browse_container_dock))
                 .check(matches(isDisplayed()));
         onView(withItemText("Enabled", R.id.browse_container_dock))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        String disabledDescriptionText =
+                InstrumentationRegistry.getTargetContext()
+                        .getString(R.string.guided_step_auto_loop_disabled_description);
+
+        closeSoftKeyboard();
+
+        onView(withItemText("Disabled", R.id.guidedactions_list))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        when(VineyardApplication.get(context).getComponent().preferencesHelper().getShouldAutoLoop())
+                .thenReturn(false);
+
+        onView(withItemText(disabledDescriptionText, R.id.guidedactions_list))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withItemText("Options", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Auto-loop", R.id.browse_container_dock))
+                .check(matches(isDisplayed()));
+        onView(withItemText("Disabled", R.id.browse_container_dock))
                 .check(matches(isDisplayed()));
     }
 
     private List<String> getCategoriesArray() {
-        String[] categories = InstrumentationRegistry.getTargetContext().getResources().getStringArray(R.array.categories);
+        String[] categories =
+                InstrumentationRegistry.getTargetContext()
+                        .getResources().getStringArray(R.array.categories);
         List<String> categoryList = new ArrayList<>();
         categoryList.addAll(Arrays.asList(categories));
         categoryList.add("Options");
