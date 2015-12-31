@@ -121,7 +121,6 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
                 mContext.getString(R.string.message_check_again),
                 R.drawable.ic_refresh_white);
         add(option);
-        //add(CardPresenter.ITEM_RELOAD);
     }
 
     public void showTryAgainCard() {
@@ -130,7 +129,6 @@ public abstract class PaginationAdapter extends ArrayObjectAdapter {
                 mContext.getString(R.string.message_try_again),
                 R.drawable.ic_refresh_white);
         add(option);
-        //add(CardPresenter.ITEM_TRY_AGAIN);
     }
 
     public void removeReloadCard() {
