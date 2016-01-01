@@ -11,7 +11,7 @@ android {
         targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
 
         renderscriptTargetApi 23
         renderscriptSupportModeEnabled true

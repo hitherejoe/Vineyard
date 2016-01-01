@@ -236,7 +236,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         if ((mSearchQuery != null && !mSearchQuery.equals(query))
                 && query.trim().length() > 0
                 || (!TextUtils.isEmpty(query) && !query.equals("nil"))) {
-            if (NetworkUtil.isWifiConnected(getActivity())) {
+            if (NetworkUtil.isNetworkConnected(getActivity())) {
                 mSearchQuery = query;
                 searchTaggedPosts(query);
             } else {
@@ -448,7 +448,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
-                if (NetworkUtil.isWifiConnected(getActivity())) {
+                if (NetworkUtil.isNetworkConnected(getActivity())) {
                     Post post = (Post) item;
                     int index = mResultsAdapter.indexOf(row);
                     PostAdapter arrayObjectAdapter =
@@ -459,14 +459,14 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     showNetworkUnavailableToast();
                 }
             } else if (item instanceof Tag) {
-                if (NetworkUtil.isWifiConnected(getActivity())) {
+                if (NetworkUtil.isNetworkConnected(getActivity())) {
                     Tag tag = (Tag) item;
                     startActivity(PostGridActivity.getStartIntent(getActivity(), tag));
                 } else {
                     showNetworkUnavailableToast();
                 }
             } else if (item instanceof User) {
-                if (NetworkUtil.isWifiConnected(getActivity())) {
+                if (NetworkUtil.isNetworkConnected(getActivity())) {
                     User user = (User) item;
                     startActivity(PostGridActivity.getStartIntent(getActivity(), user));
                 } else {

@@ -171,7 +171,7 @@ public class VideoCardView extends BaseCardView {
     }
 
     public void startVideo() {
-        if (NetworkUtil.isWifiConnected(getContext())) {
+        if (NetworkUtil.isNetworkConnected(getContext())) {
             mPreviewCard.setLoading();
         }
     }

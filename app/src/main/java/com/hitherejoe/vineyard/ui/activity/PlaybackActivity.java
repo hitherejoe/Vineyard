@@ -313,7 +313,7 @@ public class PlaybackActivity extends BaseActivity {
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
-                if (NetworkUtil.isWifiConnected(PlaybackActivity.this)) {
+                if (NetworkUtil.isNetworkConnected(PlaybackActivity.this)) {
                     for (Post post : mPostsList) {
                         if (post.postId.equals(mediaId)) {
                             setVideoPath(post.videoUrl);

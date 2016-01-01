@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 
 import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.ui.fragment.MainFragment;
-import com.hitherejoe.vineyard.ui.fragment.PostGridFragment;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 
 import butterknife.Bind;
@@ -33,7 +32,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        if (NetworkUtil.isWifiConnected(this)) {
+        if (NetworkUtil.isNetworkConnected(this)) {
             mBrowseFragment = MainFragment.newInstance();
         } else {
             mBrowseFragment = buildErrorFragment();

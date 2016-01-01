@@ -259,7 +259,7 @@ public class PostGridFragment extends VerticalGridFragment {
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Post) {
-                if (NetworkUtil.isWifiConnected(getActivity())) {
+                if (NetworkUtil.isNetworkConnected(getActivity())) {
                     Post post = (Post) item;
                     ArrayList<Post> postList = (ArrayList<Post>) mPostAdapter.getAllItems();
                     startActivity(PlaybackActivity.newStartIntent(getActivity(), post, postList));
