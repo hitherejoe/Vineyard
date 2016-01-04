@@ -35,7 +35,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.hitherejoe.vineyard.util.CustomMatchers.withItemText;
-import static com.hitherejoe.vineyard.util.EspressoTestMatchers.withDrawable;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -68,17 +67,6 @@ public class MainActivityTest {
             onView(withItemText(categoryList.get(i), R.id.browse_headers))
                     .check(matches(isDisplayed()));
         }
-    }
-
-    @Test
-    public void badgeDrawableIsDisplayed() {
-        stubVideoFeedData();
-
-        main.launchActivity(null);
-        onView(withId(R.id.title_badge))
-                .check(matches(isDisplayed()));
-        onView(withDrawable(R.drawable.banner_shadow))
-                .check(matches(isDisplayed()));
     }
 
     @Test
