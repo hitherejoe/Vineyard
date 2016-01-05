@@ -64,7 +64,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
-    private static final boolean FINISH_ON_RECOGNIZER_CANCELED = true;
     private static final int REQUEST_SPEECH = 0x00000010;
 
     @Inject DataManager mDataManager;
@@ -135,9 +134,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         setSearchQuery(data, false);
                         break;
                     case Activity.RESULT_CANCELED:
-                        if (FINISH_ON_RECOGNIZER_CANCELED) {
-                            if (!hasResults()) getActivity().onBackPressed();
-                        }
+                        Timber.i("Recognizer canceled");
                         break;
                 }
                 break;
