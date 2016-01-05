@@ -132,7 +132,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             case REQUEST_SPEECH:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        setSearchQuery(data, true);
+                        setSearchQuery(data, false);
                         break;
                     case Activity.RESULT_CANCELED:
                         if (FINISH_ON_RECOGNIZER_CANCELED) {
