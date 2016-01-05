@@ -1,4 +1,4 @@
-Vineyard [![Build Status](https://travis-ci.org/hitherejoe/Vineyard.svg?branch=master)](https://travis-ci.org/hitherejoe/Vineyard) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Vineyard-brightgreen.svg?style=flat)](http://android-arsenal.com/details/3/2963)
+Vineyard [![Build Status](https://travis-ci.org/hitherejoe/Vineyard.svg?branch=master)](https://travis-ci.org/hitherejoe/Vineyard) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Vineyard-brightgreen.svg?style=flat)](http://android-arsenal.com/details/3/2963) [![Android Weekly] (https://img.shields.io/badge/Android%20Weekly-%23186-blue.svg)](http://androidweekly.net/issues/issue-186)
 ========
 
 <p align="center">
