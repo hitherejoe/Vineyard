@@ -66,6 +66,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
     public static final String CUSTOM_ACTION_LOOP = "custom_action_loop";
     public static final String CUSTOM_ACTION_SKIP_VIDEO = "custom_action_skip_video";
+    public static final int STATE_LOOPING = 2323;
 
     private ArrayList<Post> mItems;
 
@@ -193,7 +194,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 } else if (action.getId() == mSkipNextAction.getId()) {
                     next(true);
                 } else if (action.getId() == mSkipPreviousAction.getId()) {
-                    prev();
+                    prev(true);
                 } else if (action.getId() == mFastForwardAction.getId()) {
                     fastForward();
                 } else if (action.getId() == mRewindAction.getId()) {
@@ -328,8 +329,8 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private void next(boolean wasSkipPressed) {
         if (wasSkipPressed) {
             mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
-            mMediaController.getTransportControls().skipToNext();
         }
+        mMediaController.getTransportControls().skipToNext();
     }
 
     private void loopVideos() {
@@ -342,8 +343,10 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_LOOP, bundle);
     }
 
-    private void prev() {
-        mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
+    private void prev(boolean wasSkipPressed) {
+        if (wasSkipPressed) {
+            mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
+        }
         mMediaController.getTransportControls().skipToPrevious();
     }
 
@@ -448,6 +451,9 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 startProgressAutomation();
                 setFadingEnabled(true);
                 notifyChanged(mRewindAction);
+            } else if (state.getState() == STATE_LOOPING) {
+                mCurrentPlaybackState = STATE_LOOPING;
+                startProgressAutomation();
             }
 
             int currentTime = (int) state.getPosition();
