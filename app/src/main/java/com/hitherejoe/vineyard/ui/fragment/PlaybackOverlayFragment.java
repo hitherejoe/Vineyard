@@ -191,7 +191,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 if (action.getId() == mPlayPauseAction.getId()) {
                     togglePlayback(mPlayPauseAction.getIndex() == PlayPauseAction.PLAY);
                 } else if (action.getId() == mSkipNextAction.getId()) {
-                    next();
+                    next(true);
                 } else if (action.getId() == mSkipPreviousAction.getId()) {
                     prev();
                 } else if (action.getId() == mFastForwardAction.getId()) {
@@ -315,7 +315,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
 
                     if (totalTime > 0 && totalTime <= currentTime) {
                         stopProgressAutomation();
-                        next();
+                        next(false);
                     } else {
                         mHandler.postDelayed(this, updatePeriod);
                     }
@@ -325,9 +325,11 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         }
     }
 
-    private void next() {
-        mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
-        mMediaController.getTransportControls().skipToNext();
+    private void next(boolean wasSkipPressed) {
+        if (wasSkipPressed) {
+            mMediaController.getTransportControls().sendCustomAction(CUSTOM_ACTION_SKIP_VIDEO, null);
+            mMediaController.getTransportControls().skipToNext();
+        }
     }
 
     private void loopVideos() {
