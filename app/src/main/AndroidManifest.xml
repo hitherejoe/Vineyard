@@ -80,6 +80,59 @@
         <service
             android:name=".data.recommendations.UpdateRecommendationsService"
             android:enabled="true" />
+
+        <!-- Live Channels Integration -->
+        <service android:name=".livechannels.VineInputProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_TV_INPUT">
+            <intent-filter>
+                <action android:name="android.media.tv.TvInputService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.media.tv.input"
+                android:resource="@xml/channel_surfer_tv_input" />
+        </service>
+        <meta-data android:name="TvInputService" android:value="hitherejoe.vineyard.livechannels.VineInputProvider"/>
+
+        <!-- Channel Surfer -->
+        <activity android:name="com.felkertech.channelsurfer.service.SimpleTvSetup"
+            android:exported="true"
+            android:enabled="true" />
+        <service
+            android:name="com.felkertech.channelsurfer.sync.SyncService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/channel_surfer_syncadapter" />
+        </service>
+        <service
+            android:name="com.felkertech.channelsurfer.sync.DummyAccountService"
+            android:exported="true"
+            android:icon="">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/channel_surfer_authenticator" />
+        </service>
+
     </application>
 
+    <!-- ChannelSurfer -->
+    <uses-feature
+        android:name="android.software.live_tv"
+        android:required="false" />
+    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
 </manifest>
