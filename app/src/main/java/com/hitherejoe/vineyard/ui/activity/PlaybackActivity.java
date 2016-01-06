@@ -42,6 +42,7 @@ public class PlaybackActivity extends BaseActivity {
     public static final String POST_LIST = "postList";
     public static final String EXTRA_IS_LOOP_ENABLED = "EXTRA_IS_LOOP_ENABLED";
     private boolean mWasSkipPressed;
+    private boolean mIsAutoLoopEnabled;
 
     @Inject DataManager mDataManager;
 
@@ -82,6 +83,7 @@ public class PlaybackActivity extends BaseActivity {
         setContentView(R.layout.playback_controls);
         ButterKnife.bind(this);
         getActivityComponent().inject(this);
+        mIsAutoLoopEnabled = mDataManager.getPreferencesHelper().getShouldAutoLoop();
 
         mCurrentPost = getIntent().getParcelableExtra(PlaybackActivity.POST);
         if (mCurrentPost == null) {
@@ -151,10 +153,6 @@ public class PlaybackActivity extends BaseActivity {
         return true;
     }
 
-    public void setWasSkipPressed(boolean wasSkipPressed) {
-        mWasSkipPressed = wasSkipPressed;
-    }
-
     private void loadViews() {
         mVideoView.setFocusable(false);
         mVideoView.setFocusableInTouchMode(false);
@@ -171,6 +169,7 @@ public class PlaybackActivity extends BaseActivity {
             mPosition = position;
         }
         mStartTimeMillis = System.currentTimeMillis();
+
     }
 
     private void createMediaSession() {
@@ -272,7 +271,6 @@ public class PlaybackActivity extends BaseActivity {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mMediaPlayer = mp;
-                mMediaPlayer.setLooping(mDataManager.getPreferencesHelper().getShouldAutoLoop());
                 if (mPlaybackState == LeanbackPlaybackState.PLAYING) {
                     mVideoView.start();
                 }
@@ -282,12 +280,15 @@ public class PlaybackActivity extends BaseActivity {
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if (!mMediaPlayer.isLooping()) {
+                if (!mIsAutoLoopEnabled) {
                     mPlaybackState = LeanbackPlaybackState.IDLE;
                 } else {
+                    //TODO: It'd be better to use the MediaPlayer looping functionality, but
+                    // this broke the seek bar progress due to the gap between loops...
+                    mMediaPlayer.start();
                     PlaybackState.Builder stateBuilder =
                             new PlaybackState.Builder().setActions(getAvailableActions());
-                    stateBuilder.setState(PlaybackState.STATE_PLAYING, 0, 1.0f);
+                    stateBuilder.setState(PlaybackOverlayFragment.STATE_LOOPING, 0, 1.0f);
                     mSession.setPlaybackState(stateBuilder.build());
                 }
             }
@@ -312,7 +313,7 @@ public class PlaybackActivity extends BaseActivity {
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
+            if (mWasSkipPressed || !mIsAutoLoopEnabled) {
                 if (NetworkUtil.isNetworkConnected(PlaybackActivity.this)) {
                     for (Post post : mPostsList) {
                         if (post.postId.equals(mediaId)) {
@@ -332,7 +333,7 @@ public class PlaybackActivity extends BaseActivity {
 
         @Override
         public void onSkipToNext() {
-            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
+            if (mWasSkipPressed || !mIsAutoLoopEnabled) {
                 PlaybackState.Builder stateBuilder =
                         new PlaybackState.Builder().setActions(getAvailableActions());
                 stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_NEXT, 0, 1.0f);
@@ -350,7 +351,7 @@ public class PlaybackActivity extends BaseActivity {
 
         @Override
         public void onSkipToPrevious() {
-            if (mWasSkipPressed || !mMediaPlayer.isLooping()) {
+            if (mWasSkipPressed || !mIsAutoLoopEnabled) {
                 PlaybackState.Builder stateBuilder =
                         new PlaybackState.Builder().setActions(getAvailableActions());
                 stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_PREVIOUS, 0, 1.0f);
@@ -394,7 +395,7 @@ public class PlaybackActivity extends BaseActivity {
         public void onCustomAction(@NonNull String action, Bundle extras) {
             if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_LOOP)) {
                 if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.setLooping(extras.getBoolean(EXTRA_IS_LOOP_ENABLED));
+                    mIsAutoLoopEnabled = extras.getBoolean(EXTRA_IS_LOOP_ENABLED);
                 }
             } else if (action.equals(PlaybackOverlayFragment.CUSTOM_ACTION_SKIP_VIDEO)) {
                 mWasSkipPressed = true;
