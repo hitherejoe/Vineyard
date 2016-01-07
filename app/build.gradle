@@ -67,6 +67,7 @@ dependencies {
     def mockito = "org.mockito:mockito-core:1.10.19"
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':channelsurfer')
 
     compile "com.android.support:leanback-v17:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"

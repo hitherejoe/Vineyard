@@ -10,11 +10,9 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
-
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-
     <uses-feature
         android:name="android.software.leanback"
         android:required="true" />
@@ -35,35 +33,28 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.ConnectActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.LauncherActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.PlaybackActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.PostGridActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.SearchActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.GuidedStepActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep" />
@@ -82,57 +73,29 @@
             android:enabled="true" />
 
         <!-- Live Channels Integration -->
-        <service android:name=".livechannels.VineInputProvider"
+        <service
+            android:name=".livechannels.VineInputProvider"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_TV_INPUT">
             <intent-filter>
                 <action android:name="android.media.tv.TvInputService" />
             </intent-filter>
+
             <meta-data
                 android:name="android.media.tv.input"
                 android:resource="@xml/channel_surfer_tv_input" />
         </service>
-        <meta-data android:name="TvInputService" android:value="hitherejoe.vineyard.livechannels.VineInputProvider"/>
 
-        <!-- Channel Surfer -->
-        <activity android:name="com.felkertech.channelsurfer.service.SimpleTvSetup"
-            android:exported="true"
-            android:enabled="true" />
-        <service
-            android:name="com.felkertech.channelsurfer.sync.SyncService"
+        <activity android:name=".livechannels.VideoPlayer"
             android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
+            android:exported="true"></activity>
 
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/channel_surfer_syncadapter" />
-        </service>
-        <service
-            android:name="com.felkertech.channelsurfer.sync.DummyAccountService"
-            android:exported="true"
-            android:icon="">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
+        <meta-data
+            android:name="TvInputService"
+            android:value="com.hitherejoe.vineyard.livechannels.VineInputProvider" />
 
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/channel_surfer_authenticator" />
-        </service>
 
     </application>
 
-    <!-- ChannelSurfer -->
-    <uses-feature
-        android:name="android.software.live_tv"
-        android:required="false" />
-    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
-    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
 </manifest>
