@@ -88,8 +88,15 @@
         <meta-data
             android:name="TvInputService"
             android:value="com.hitherejoe.vineyard.livechannels.VineInputProvider" />
-        <activity android:name=".livechannels.VineTvSetup"
-            android:exported="true"/>
+        <activity
+            android:name=".livechannels.VineTvSetup"
+            android:exported="true"
+            android:enabled="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
