@@ -100,7 +100,6 @@ public class ConnectActivity extends BaseActivity {
     private void login(String username, String password) {
         mSubscription = mDataManager.getAccessToken(username, password)
                 .observeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<Authentication>() {
                     @Override
