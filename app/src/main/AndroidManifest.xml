@@ -81,21 +81,15 @@
             <intent-filter>
                 <action android:name="android.media.tv.TvInputService" />
             </intent-filter>
-
             <meta-data
                 android:name="android.media.tv.input"
                 android:resource="@xml/channel_surfer_tv_input" />
         </service>
-
-        <activity android:name=".livechannels.VideoPlayer"
-            android:enabled="true"
-            android:exported="true"></activity>
-
         <meta-data
             android:name="TvInputService"
             android:value="com.hitherejoe.vineyard.livechannels.VineInputProvider" />
-
-
+        <activity android:name=".livechannels.VineTvSetup"
+            android:exported="true"/>
     </application>
 
 </manifest>
