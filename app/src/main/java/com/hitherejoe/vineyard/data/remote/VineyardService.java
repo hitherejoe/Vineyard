@@ -57,6 +57,9 @@ public interface VineyardService {
     @GET("timelines/tags/{tag}")
     Observable<PostResponse> getPostsByTag(@Path("tag") String tag, @Query("page") String page, @Query("anchorStr") String anchor);
 
+    @GET("timelines/tags/{tag}")
+    Call<PostResponse> getPostsByTag(@Path("tag") String tag);
+
     @GET("search/tags/{tag}")
     Observable<TagResponse> searchByTag(@Path("tag") String tag, @Query("page") String page, @Query("anchorStr") String anchor);
 
