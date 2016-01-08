@@ -1,34 +1,19 @@
 package com.hitherejoe.vineyard.livechannels;
 
-import android.content.ComponentName;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.media.tv.TvContract;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Surface;
 import android.view.View;
 
-import com.felkertech.channelsurfer.LibraryUtils;
 import com.felkertech.channelsurfer.model.Channel;
 import com.felkertech.channelsurfer.model.Program;
 import com.felkertech.channelsurfer.service.MediaPlayerInputProvider;
-import com.felkertech.channelsurfer.service.TvInputProvider;
-import com.felkertech.channelsurfer.sync.SyncAdapter;
-import com.hitherejoe.vineyard.R;
-import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.data.remote.VineyardService;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
@@ -107,19 +92,6 @@ public class VineInputProvider extends MediaPlayerInputProvider {
                 .setNumber(number + "");
     }
 
-    /*public String getThumbnail(Channel channel) {
-        String icon = "ic_popular";
-        if(channel.getNumber().equals("102"))
-            icon = "ic_editors_picks";
-        else if(channel.getNumber().equals("103"))
-            icon = "ic_scary";
-        else if(channel.getNumber().equals("104"))
-            icon = "ic_tongue";
-        else if(channel.getNumber().equals("105"))
-            icon = "ic_cat";
-        return "android.resource://your.package.here/drawable/"+icon;
-    }*/
-
     @Override
     public List<Program> getProgramsForChannel(Uri channelUri, Channel channelInfo, long startTimeMs, long endTimeMs) {
         int programs = (int) ((endTimeMs-startTimeMs)/1000/60/60); //Hour long segments
@@ -127,9 +99,6 @@ public class VineInputProvider extends MediaPlayerInputProvider {
         List<Program> programList = new ArrayList<>();
         for(int i=0;i<programs;i++) {
             programList.add(new Program.Builder(getGenericProgram(channelInfo))
-//                            .setVideoHeight(720)
-//                            .setVideoWidth(720)
-//                            .setThumbnailUri(getThumbnail(channelInfo))
                             .setStartTimeUtcMillis((getNearestHour() + SEGMENT * i))
                             .setEndTimeUtcMillis((getNearestHour() + SEGMENT * (i + 1)))
                             .build()
@@ -147,8 +116,6 @@ public class VineInputProvider extends MediaPlayerInputProvider {
     private Channel mChannel;
     @Override
     public boolean onTune(Channel channel) {
-        //Check the channels
-        //Popular
         notifyVideoUnavailable(REASON_BUFFERING);
         Log.d(TAG, "Tuning to "+channel.getName());
         Log.d(TAG, "We are playing "+getProgramRightNow(channel));
