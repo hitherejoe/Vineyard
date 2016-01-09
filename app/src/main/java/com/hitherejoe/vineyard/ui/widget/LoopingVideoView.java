@@ -38,7 +38,6 @@ public class LoopingVideoView extends VideoView {
                 onVideoReadyListener.onVideoReady();
             }
         });
-        Log.d("LoopingVideoView", url);
         setVideoURI(Uri.parse(url));
     }
 

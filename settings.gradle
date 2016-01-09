@@ -1,1 +1,1 @@
-include ':app', ':com.felkertech.channelsurfer'
+include ':app'
