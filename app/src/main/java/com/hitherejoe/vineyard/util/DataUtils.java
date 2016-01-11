@@ -5,9 +5,6 @@ import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
 import android.os.Build;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.HashMap;
 
 public class DataUtils {

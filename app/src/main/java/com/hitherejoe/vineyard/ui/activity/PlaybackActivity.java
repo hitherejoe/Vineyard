@@ -11,6 +11,7 @@ import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
@@ -20,7 +21,6 @@ import com.hitherejoe.vineyard.R;
 import com.hitherejoe.vineyard.data.DataManager;
 import com.hitherejoe.vineyard.data.model.Post;
 import com.hitherejoe.vineyard.ui.fragment.PlaybackOverlayFragment;
-import com.hitherejoe.vineyard.util.DataUtils;
 import com.hitherejoe.vineyard.util.NetworkUtil;
 import com.hitherejoe.vineyard.util.ToastFactory;
 
@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * PlaybackActivity for video playback that loads PlaybackOverlayFragment and handles
@@ -48,6 +49,9 @@ public class PlaybackActivity extends BaseActivity {
 
     @Bind(R.id.videoView)
     VideoView mVideoView;
+
+    @Bind(R.id.layout_loading_overlay)
+    View mLoadingOverlay;
 
     public enum LeanbackPlaybackState {
         PLAYING, PAUSED, IDLE
@@ -80,7 +84,7 @@ public class PlaybackActivity extends BaseActivity {
         mWasSkipPressed = false;
 
         createMediaSession();
-        setContentView(R.layout.playback_controls);
+        setContentView(R.layout.activity_playback);
         ButterKnife.bind(this);
         getActivityComponent().inject(this);
         mIsAutoLoopEnabled = mDataManager.getPreferencesHelper().getShouldAutoLoop();
@@ -157,7 +161,6 @@ public class PlaybackActivity extends BaseActivity {
         mVideoView.setFocusable(false);
         mVideoView.setFocusableInTouchMode(false);
         setVideoPath(mCurrentPost.videoUrl);
-        updateMetadata(mCurrentPost);
     }
 
     private void setPosition(int position) {
@@ -194,6 +197,7 @@ public class PlaybackActivity extends BaseActivity {
             mVideoView.start();
             mStartTimeMillis = System.currentTimeMillis();
         } else {
+            mPosition = mVideoView.getCurrentPosition();
             mPlaybackState = LeanbackPlaybackState.PAUSED;
             int timeElapsedSinceStart = (int) (System.currentTimeMillis() - mStartTimeMillis);
             setPosition(mPosition + timeElapsedSinceStart);
@@ -239,7 +243,7 @@ public class PlaybackActivity extends BaseActivity {
                 post.description);
         metadataBuilder.putString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI,
                 post.avatarUrl);
-        metadataBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, mDuration);
+        metadataBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, mVideoView.getDuration());
 
         // And at minimum the title and artist for legacy support
         metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, title);
@@ -271,9 +275,17 @@ public class PlaybackActivity extends BaseActivity {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mMediaPlayer = mp;
-                if (mPlaybackState == LeanbackPlaybackState.PLAYING) {
-                    mVideoView.start();
-                }
+
+                mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                    @Override
+                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                        if (percent > 40) {
+                            updatePlaybackState();
+                            mLoadingOverlay.setVisibility(View.GONE);
+                        }
+                    }
+                });
+                updateMetadata(mCurrentPost);
             }
         });
 
@@ -317,9 +329,9 @@ public class PlaybackActivity extends BaseActivity {
                 if (NetworkUtil.isNetworkConnected(PlaybackActivity.this)) {
                     for (Post post : mPostsList) {
                         if (post.postId.equals(mediaId)) {
-                            setVideoPath(post.videoUrl);
+                            mCurrentPost = post;
+                            setVideoPath(mCurrentPost.videoUrl);
                             mPlaybackState = LeanbackPlaybackState.PAUSED;
-                            updateMetadata(post);
                             playPause(extras.getBoolean(AUTO_PLAY));
                         }
                     }
@@ -338,9 +350,11 @@ public class PlaybackActivity extends BaseActivity {
                         new PlaybackState.Builder().setActions(getAvailableActions());
                 stateBuilder.setState(PlaybackState.STATE_SKIPPING_TO_NEXT, 0, 1.0f);
                 mSession.setPlaybackState(stateBuilder.build());
-                if (mCurrentItem++ >= mPostsList.size()) {
+                mCurrentItem++;
+                if (mCurrentItem == mPostsList.size()) {
                     mCurrentItem = 0;
                 }
+
                 Bundle bundle = new Bundle(1);
                 bundle.putBoolean(PlaybackActivity.AUTO_PLAY, true);
 
@@ -406,9 +420,9 @@ public class PlaybackActivity extends BaseActivity {
     }
 
     private void setVideoPath(String videoUrl) {
+        mLoadingOverlay.setVisibility(View.VISIBLE);
         setPosition(0);
         mVideoView.setVideoPath(videoUrl);
         mStartTimeMillis = 0;
-        mDuration = DataUtils.getDuration(videoUrl);
     }
 }

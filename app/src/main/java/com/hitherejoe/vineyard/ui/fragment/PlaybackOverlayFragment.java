@@ -48,6 +48,8 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
+import timber.log.Timber;
+
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
 
     @Inject Bus mEventBus;
@@ -285,7 +287,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         }
         mPlaybackControlsRow.setTotalTime((int) duration);
 
-        updateVideoImage(cardImageUrl);
+        if (mRowsAdapter != null) updateVideoImage(cardImageUrl);
     }
 
     private void addOtherRows() {
@@ -433,7 +435,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 notifyChanged(mPlayPauseAction);
             } else if (state.getState() == PlaybackState.STATE_SKIPPING_TO_NEXT) {
                 mCurrentPlaybackState = PlaybackState.STATE_SKIPPING_TO_NEXT;
-                startProgressAutomation();
                 setFadingEnabled(true);
                 notifyChanged(mSkipNextAction);
             } else if (state.getState() == PlaybackState.STATE_SKIPPING_TO_PREVIOUS) {
@@ -456,7 +457,14 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 startProgressAutomation();
             }
 
-            int currentTime = (int) state.getPosition();
+            int currentTime;
+
+            if (state.getState() == PlaybackState.STATE_PAUSED
+                    || state.getState() == PlaybackState.STATE_PLAYING) {
+                currentTime = mPlaybackControlsRow.getCurrentTime();
+            } else {
+                currentTime = (int) state.getPosition();
+            }
             mPlaybackControlsRow.setCurrentTime(currentTime);
             mPlaybackControlsRow.setBufferedProgress(currentTime + SIMULATED_BUFFERED_TIME);
         }

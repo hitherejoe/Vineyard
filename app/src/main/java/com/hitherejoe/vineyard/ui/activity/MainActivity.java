@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity {
     private ErrorFragment buildErrorFragment() {
         ErrorFragment errorFragment = new ErrorFragment();
         errorFragment.setTitle(getString(R.string.text_error_oops_title));
-        errorFragment.setMessage(getString(R.string.error_message_wifi_needed_app));
+        errorFragment.setMessage(getString(R.string.error_message_network_needed_app));
         errorFragment.setButtonText(getString(R.string.text_close));
         errorFragment.setButtonClickListener(new View.OnClickListener() {
             @Override

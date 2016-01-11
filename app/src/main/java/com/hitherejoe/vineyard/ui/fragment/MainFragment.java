@@ -313,7 +313,7 @@ public class MainFragment extends BrowseFragment {
             } else if (item instanceof Option) {
                 Option option = (Option) item;
                 if (option.title.equals(getString(R.string.title_no_videos)) ||
-                        item.equals(getString(R.string.title_oops))) {
+                        option.title.equals(getString(R.string.title_oops))) {
                     int index = mRowsAdapter.indexOf(row);
                     PostAdapter adapter =
                             ((PostAdapter) ((ListRow) mRowsAdapter.get(index)).getAdapter());
