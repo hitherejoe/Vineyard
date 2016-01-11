@@ -19,10 +19,8 @@ import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.PlaybackControlsRow.FastForwardAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.PlayPauseAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction;
-import android.support.v17.leanback.widget.PlaybackControlsRow.RewindAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.SkipNextAction;
 import android.support.v17.leanback.widget.PlaybackControlsRow.SkipPreviousAction;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
@@ -48,7 +46,6 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
-import timber.log.Timber;
 
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
 
@@ -75,14 +72,12 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mPrimaryActionsAdapter;
     private ArrayObjectAdapter mSecondaryActionsAdapter;
-    private FastForwardAction mFastForwardAction;
     private Handler mClickTrackingHandler;
     private PlaybackControlsRow mPlaybackControlsRow;
     private PlayPauseAction mPlayPauseAction;
     private Post mSelectedPost;
     private PreferencesHelper mPreferencesHelper;
     private RepeatAction mRepeatAction;
-    private RewindAction mRewindAction;
     private SkipNextAction mSkipNextAction;
     private SkipPreviousAction mSkipPreviousAction;
     private Handler mHandler;
@@ -197,10 +192,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                     next(true);
                 } else if (action.getId() == mSkipPreviousAction.getId()) {
                     prev(true);
-                } else if (action.getId() == mFastForwardAction.getId()) {
-                    fastForward();
-                } else if (action.getId() == mRewindAction.getId()) {
-                    fastRewind();
                 } else if (action.getId() == mRepeatAction.getId()) {
                     loopVideos();
                 }
@@ -242,16 +233,12 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
         mRepeatAction = new RepeatAction(activity);
         mSkipNextAction = new SkipNextAction(activity);
         mSkipPreviousAction = new SkipPreviousAction(activity);
-        mFastForwardAction = new FastForwardAction(activity);
-        mRewindAction = new RewindAction(activity);
 
         mRepeatAction.setIcon(getRepeatDrawable());
 
         // Add main controls to primary adapter.
         mPrimaryActionsAdapter.add(mSkipPreviousAction);
-        mPrimaryActionsAdapter.add(mRewindAction);
         mPrimaryActionsAdapter.add(mPlayPauseAction);
-        mPrimaryActionsAdapter.add(mFastForwardAction);
         mPrimaryActionsAdapter.add(mSkipNextAction);
 
         // Add repeat control to secondary adapter.
@@ -442,16 +429,6 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
                 startProgressAutomation();
                 setFadingEnabled(true);
                 notifyChanged(mSkipPreviousAction);
-            } else if (state.getState() == PlaybackState.STATE_FAST_FORWARDING) {
-                mCurrentPlaybackState = PlaybackState.STATE_FAST_FORWARDING;
-                startProgressAutomation();
-                setFadingEnabled(true);
-                notifyChanged(mFastForwardAction);
-            } else if (state.getState() == PlaybackState.STATE_REWINDING) {
-                mCurrentPlaybackState = PlaybackState.STATE_REWINDING;
-                startProgressAutomation();
-                setFadingEnabled(true);
-                notifyChanged(mRewindAction);
             } else if (state.getState() == STATE_LOOPING) {
                 mCurrentPlaybackState = STATE_LOOPING;
                 startProgressAutomation();
