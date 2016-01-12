@@ -30,7 +30,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 /**
  * PlaybackActivity for video playback that loads PlaybackOverlayFragment and handles
@@ -127,6 +126,7 @@ public class PlaybackActivity extends BaseActivity {
     public void onDestroy() {
         super.onDestroy();
         stopPlayback();
+        mMediaPlayer.release();
         mVideoView.suspend();
         mVideoView.setVideoURI(null);
         mSession.release();

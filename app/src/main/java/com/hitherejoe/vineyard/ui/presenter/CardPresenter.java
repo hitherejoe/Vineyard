@@ -16,7 +16,6 @@ import com.hitherejoe.vineyard.ui.activity.PostGridActivity;
 import com.hitherejoe.vineyard.ui.activity.SearchActivity;
 import com.hitherejoe.vineyard.ui.widget.VideoCardView;
 
-
 public class CardPresenter extends Presenter {
 
     private static final int CARD_WIDTH = 300;
@@ -44,6 +43,13 @@ public class CardPresenter extends Presenter {
                 super.setSelected(selected);
             }
         };
+
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cardView.stopVideo();
+            }
+        });
 
         cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

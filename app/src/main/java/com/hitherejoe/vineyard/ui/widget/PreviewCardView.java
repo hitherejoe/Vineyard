@@ -79,9 +79,9 @@ public class PreviewCardView extends FrameLayout {
     }
 
     public void setFinished() {
+        mVideoView.setVisibility(View.INVISIBLE);
         mVideoView.stopMediaPlayer();
         mImageView.setVisibility(View.VISIBLE);
-        mVideoView.setVisibility(View.INVISIBLE);
         mOverlayView.setVisibility(View.INVISIBLE);
         mProgressCard.setVisibility(View.INVISIBLE);
     }

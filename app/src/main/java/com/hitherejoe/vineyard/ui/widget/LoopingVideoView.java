@@ -31,10 +31,15 @@ public class LoopingVideoView extends VideoView {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mMediaPlayer = mp;
+                mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                    @Override
+                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                        if (percent > 20) onVideoReadyListener.onVideoReady();
+                    }
+                });
                 mMediaPlayer.setLooping(true);
                 mMediaPlayer.setVolume(0, 0);
                 mMediaPlayer.start();
-                onVideoReadyListener.onVideoReady();
             }
         });
         setVideoURI(Uri.parse(url));
@@ -42,8 +47,7 @@ public class LoopingVideoView extends VideoView {
 
     public void stopMediaPlayer() {
         if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-            mMediaPlayer = null;
+            mMediaPlayer.release();
         }
     }
 
