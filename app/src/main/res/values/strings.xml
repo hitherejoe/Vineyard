@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Vineyard</string>
+    <string name="tv_input_activity">com.hitherejoe.vineyard.livechannels.VineTvSetup</string>
 
     <!-- Activity labels -->
     <string name="label_main">Vineyard</string>

@@ -10,11 +10,9 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
-
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-
     <uses-feature
         android:name="android.software.leanback"
         android:required="true" />
@@ -35,35 +33,28 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.ConnectActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.LauncherActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.PlaybackActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.PostGridActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.SearchActivity"
             android:label="@string/label_main"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.activity.GuidedStepActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep" />
@@ -80,6 +71,32 @@
         <service
             android:name=".data.recommendations.UpdateRecommendationsService"
             android:enabled="true" />
+
+        <!-- Live Channels Integration -->
+        <service
+            android:name=".livechannels.VineInputProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_TV_INPUT">
+            <intent-filter>
+                <action android:name="android.media.tv.TvInputService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.media.tv.input"
+                android:resource="@xml/channel_surfer_tv_input" />
+        </service>
+        <meta-data
+            android:name="TvInputService"
+            android:value="com.hitherejoe.vineyard.livechannels.VineInputProvider" />
+        <activity
+            android:name=".livechannels.VineTvSetup"
+            android:exported="true"
+            android:enabled="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
